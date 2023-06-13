@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -5,113 +6,357 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import 'react-native-gesture-handler';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
+  Dimensions,
+  Image,
+  ImageSourcePropType,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import MapView from 'react-native-maps';
+import colors from './styles/colors';
+import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import assets from '../assets';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 
 function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const sheetRef = useRef<BottomSheet>(null);
+  const [buttonHeight, setButtonHeight] = useState(0);
+  const [buttonOpacity, setButtonOpacity] = useState(1);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  type Item = {
+    imageSrc: ImageSourcePropType;
+    name: string;
+    stars: number;
+    numReview: number;
+    address: string;
+    distance: number;
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+  const data = [
+    {
+      name: '스시올로지',
+      imageSrc: assets.images.스시올로지,
+      distance: 50,
+      address: '서울특별시 마포구 동교로 266-11',
+      stars: 4.8,
+      numReview: 22,
+    },
+    {
+      name: '진만두',
+      imageSrc: assets.images.진만두,
+      distance: 102,
+      address: '서울 마포구 와우산로29길 4-42 지하1층',
+      stars: 4.7,
+      numReview: 35,
+    },
+    {
+      name: '월량관',
+      imageSrc: assets.images.월량관,
+      distance: 149,
+      address: '서울 마포구 동교로46길 10',
+      stars: 4.8,
+      numReview: 32,
+    },
+    {
+      name: '이안정',
+      imageSrc: assets.images.이안정,
+      distance: 155,
+      address: '서울 마포구 독막로15길 3-3 1층 101호',
+      stars: 4.9,
+      numReview: 42,
+    },
+    {
+      name: '카와카츠',
+      imageSrc: assets.images.카와카츠,
+      distance: 203,
+      address: '서울 마포구 동교로 126 1층 102호',
+      stars: 4.5,
+      numReview: 30,
+    },
+    {
+      name: '야키토리 나루토',
+      imageSrc: assets.images.야키토리나루토,
+      distance: 293,
+      address: '서울 마포구 독막로9길 26 야키토리 나루토',
+      stars: 4.6,
+      numReview: 15,
+    },
+  ];
+  const snapPoints = useMemo(() => ['26%', '40%', '80%'], []);
+
+  const handleSheetChange = useCallback(
+    (index: any) => {
+      const screenPercent = parseFloat(snapPoints[index]);
+      setButtonHeight(screenHeight * screenPercent * 0.01);
+      console.log(index);
+      index === 2 ? setButtonOpacity(0) : setButtonOpacity(1);
+    },
+    [snapPoints],
+  );
+
+  const renderItem = useCallback(({item}: {item: Item}) => {
+    return (
+      <View style={styles.itemContainer}>
+        <View style={styles.itemImageContainer}>
+          <Image source={item.imageSrc} style={styles.itemImage} />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <View style={styles.itemInfoContainer}>
+          <View style={styles.itemTitleStarsContainer}>
+            <Text style={styles.itemTitleText}>{item.name}</Text>
+            <View style={styles.itemStarReviewContainer}>
+              <Ionicons name="star" size={14} color={'white'} />
+              <Text style={styles.itemStarsText}>{item.stars}</Text>
+              <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
+            </View>
+          </View>
+          <Text style={styles.itemSubtext}>{item.address}</Text>
+          <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
+        </View>
+      </View>
+    );
+  }, []);
+
+  return (
+    <GestureHandlerRootView style={{flex: 1}}>
+      <View style={styles.searchTextInputContainer}>
+        <Ionicons
+          name="ios-search"
+          size={15}
+          color={'white'}
+          style={{paddingRight: 5}}
+        />
+        <TextInput
+          clearButtonMode="always"
+          returnKeyType="search"
+          placeholderTextColor={'white'}
+          placeholder={'검색'}
+        />
+      </View>
+      <View style={styles.container}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.52358729045865,
+            longitude: 126.89696839660834,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+        />
+
+        <View style={styles.navBtnContainer}>
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons
+              name="map-outline"
+              size={screenWidth * 0.08}
+              color={colors.coral1}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons
+              name="star-outline"
+              size={screenWidth * 0.08}
+              color={colors.coral1}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons
+              name="people-outline"
+              size={screenWidth * 0.08}
+              color={colors.coral1}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navBtn}>
+            <Ionicons
+              name="person-circle-outline"
+              size={screenWidth * 0.08}
+              color={colors.coral1}
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={{
+            ...styles.mapBtn,
+            bottom: buttonHeight,
+            opacity: buttonOpacity,
+          }}>
+          <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+            <Ionicons
+              name="navigate-outline"
+              color={'white'}
+              size={25}
+              style={{paddingRight: 2}}
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            ...styles.mapBtn,
+            bottom: buttonHeight + 50,
+            opacity: buttonOpacity,
+          }}>
+          <View style={styles.mapBtnContainer}>
+            <Ionicons
+              name="add-outline"
+              color={'white'}
+              size={35}
+              style={{paddingLeft: 2}}
+            />
+          </View>
+        </TouchableOpacity>
+        <BottomSheet
+          ref={sheetRef}
+          snapPoints={snapPoints}
+          onChange={handleSheetChange}>
+          <BottomSheetFlatList
+            data={data}
+            keyExtractor={i => i.name}
+            renderItem={renderItem}
+            contentContainerStyle={styles.contentContainer}
+            ListHeaderComponent={
+              <Text style={styles.flatListHeaderText}>근처 나의 맛집들</Text>
+            }
+            ListFooterComponent={<View style={{height: 200}} />}
+          />
+        </BottomSheet>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    marginBottom: screenHeight * 0.02,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  mapBottomSheetContainer: {
+    flex: 1,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  map: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 60,
   },
-  highlight: {
-    fontWeight: '700',
+  navBtnContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    bottom: 0,
+    zIndex: 1,
+    height: 60,
+    width: '100%',
+    backgroundColor: 'white',
+  },
+  navBtn: {
+    width: screenWidth / 4,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchTextInputContainer: {
+    opacity: 0.85,
+    position: 'absolute',
+    top: getStatusBarHeight(),
+    zIndex: 1,
+    width: '95%',
+    height: 40,
+    backgroundColor: colors.coral1,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginHorizontal: '0.5%',
+  },
+  iconContainer: {
+    paddingLeft: 10,
+  },
+  mapBtn: {
+    zIndex: 2,
+    position: 'absolute',
+    right: '3%',
+  },
+  mapBtnContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.coral1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    backgroundColor: 'white',
+  },
+  flatListHeaderText: {
+    color: colors.coral1,
+    fontSize: 20,
+    paddingLeft: 16,
+    paddingBottom: 5,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    marginHorizontal: 12,
+    marginVertical: 5,
+    backgroundColor: colors.coral1,
+    borderRadius: 10,
+  },
+  itemTitleStarsContainer: {
+    flexDirection: 'row',
+    paddingVertical: 5,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  itemStarReviewContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  itemInfoContainer: {
+    flex: 1,
+  },
+  itemTitleText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: 'white',
+    paddingBottom: 5,
+  },
+  itemStarsText: {
+    fontSize: 14,
+    color: 'white',
+    paddingRight: 10,
+    paddingLeft: 3,
+  },
+  itemReviewText: {
+    fontSize: 14,
+    color: 'white',
+  },
+  itemSubtext: {
+    color: 'white',
+    paddingVertical: 2,
+  },
+  itemImageContainer: {
+    width: 76,
+    height: 76,
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginRight: 10,
+  },
+  itemImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 
