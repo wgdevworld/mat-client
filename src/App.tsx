@@ -14,18 +14,18 @@ import {
   ImageSourcePropType,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import MapView from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import colors from './styles/colors';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import assets from '../assets';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -42,6 +42,7 @@ function App(): JSX.Element {
     numReview: number;
     address: string;
     distance: number;
+    isVisited: boolean;
   };
 
   const data = [
@@ -52,6 +53,7 @@ function App(): JSX.Element {
       address: '서울특별시 마포구 동교로 266-11',
       stars: 4.8,
       numReview: 22,
+      isVisited: false,
     },
     {
       name: '진만두',
@@ -60,6 +62,7 @@ function App(): JSX.Element {
       address: '서울 마포구 와우산로29길 4-42 지하1층',
       stars: 4.7,
       numReview: 35,
+      isVisited: false,
     },
     {
       name: '월량관',
@@ -68,6 +71,7 @@ function App(): JSX.Element {
       address: '서울 마포구 동교로46길 10',
       stars: 4.8,
       numReview: 32,
+      isVisited: false,
     },
     {
       name: '이안정',
@@ -76,6 +80,7 @@ function App(): JSX.Element {
       address: '서울 마포구 독막로15길 3-3 1층 101호',
       stars: 4.9,
       numReview: 42,
+      isVisited: true,
     },
     {
       name: '카와카츠',
@@ -84,6 +89,7 @@ function App(): JSX.Element {
       address: '서울 마포구 동교로 126 1층 102호',
       stars: 4.5,
       numReview: 30,
+      isVisited: false,
     },
     {
       name: '야키토리 나루토',
@@ -92,6 +98,7 @@ function App(): JSX.Element {
       address: '서울 마포구 독막로9길 26 야키토리 나루토',
       stars: 4.6,
       numReview: 15,
+      isVisited: false,
     },
   ];
   const snapPoints = useMemo(() => ['26%', '40%', '80%'], []);
@@ -100,7 +107,6 @@ function App(): JSX.Element {
     (index: any) => {
       const screenPercent = parseFloat(snapPoints[index]);
       setButtonHeight(screenHeight * screenPercent * 0.01);
-      console.log(index);
       index === 2 ? setButtonOpacity(0) : setButtonOpacity(1);
     },
     [snapPoints],
@@ -115,6 +121,13 @@ function App(): JSX.Element {
         <View style={styles.itemInfoContainer}>
           <View style={styles.itemTitleStarsContainer}>
             <Text style={styles.itemTitleText}>{item.name}</Text>
+            {item.isVisited && (
+              <Ionicons
+                name="checkmark-done-circle-outline"
+                size={20}
+                color={'white'}
+              />
+            )}
             <View style={styles.itemStarReviewContainer}>
               <Ionicons name="star" size={14} color={'white'} />
               <Text style={styles.itemStarsText}>{item.stars}</Text>
@@ -131,21 +144,32 @@ function App(): JSX.Element {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.searchTextInputContainer}>
-        <Ionicons
-          name="ios-search"
-          size={15}
-          color={'white'}
-          style={{paddingRight: 5}}
-        />
-        <TextInput
-          clearButtonMode="always"
-          returnKeyType="search"
-          placeholderTextColor={'white'}
-          placeholder={'검색'}
+        <GooglePlacesAutocomplete
+          minLength={2}
+          placeholder="장소를 검색해보세요!"
+          textInputProps={{
+            placeholderTextColor: 'white',
+          }}
+          query={{
+            key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
+            language: 'ko',
+            components: 'country:kr',
+          }}
+          keyboardShouldPersistTaps={'handled'}
+          fetchDetails={true}
+          onPress={(data, details) => {
+            console.log(data, details);
+          }}
+          onFail={error => console.error(error)}
+          onNotFound={() => console.error('검색 결과 없음')}
+          keepResultsAfterBlur={true}
+          enablePoweredByContainer={false}
+          styles={styles.searchTextInput}
         />
       </View>
       <View style={styles.container}>
         <MapView
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
             latitude: 37.52358729045865,
@@ -266,19 +290,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchTextInputContainer: {
-    opacity: 0.85,
     position: 'absolute',
     top: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
-    height: 40,
-    backgroundColor: colors.coral1,
-    borderRadius: 10,
+    height: 300,
     flexDirection: 'row',
     alignSelf: 'center',
-    alignItems: 'center',
     paddingHorizontal: 10,
-    marginHorizontal: '0.5%',
+  },
+  searchTextInput: {
+    position: 'absolute',
+    textInputContainer: {
+      opacity: 0.85,
+      borderRadius: 10,
+    },
+    textInput: {
+      backgroundColor: colors.coral1,
+      borderRadius: 10,
+      color: 'white',
+    },
   },
   iconContainer: {
     paddingLeft: 10,
