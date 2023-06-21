@@ -1,11 +1,4 @@
 /* eslint-disable react-native/no-inline-styles */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
@@ -19,88 +12,152 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import colors from './styles/colors';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import assets from '../assets';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import PlaceInfoMapCard from './components/PlaceInfoMapCard';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
+type Coordinate = {
+  latitude: number;
+  longitude: number;
+};
+
+type Place = {
+  name: string;
+  address: string;
+  rating: number;
+  numReview: number;
+  coordinate: Coordinate;
+};
+
+type Item = {
+  imageSrc: ImageSourcePropType;
+  name: string;
+  stars: number;
+  numReview: number;
+  address: string;
+  distance: number;
+  isVisited: boolean;
+};
+
+//FIXME: Don't let this be a global variable and figure out how to read in from marker component
+let newCard: Item = {
+  imageSrc: assets.images.스시올로지,
+  name: 'Default name',
+  stars: 0,
+  numReview: 0,
+  address: 'Default address',
+  distance: 0,
+  isVisited: false,
+};
+
+//TODO: read in from database + save in redux store
+const data = [
+  {
+    name: '스시올로지',
+    imageSrc: assets.images.스시올로지,
+    distance: 50,
+    address: '서울특별시 마포구 동교로 266-11',
+    stars: 4.8,
+    numReview: 22,
+    isVisited: false,
+  },
+  {
+    name: '진만두',
+    imageSrc: assets.images.진만두,
+    distance: 102,
+    address: '서울 마포구 와우산로29길 4-42 지하1층',
+    stars: 4.7,
+    numReview: 35,
+    isVisited: false,
+  },
+  {
+    name: '월량관',
+    imageSrc: assets.images.월량관,
+    distance: 149,
+    address: '서울 마포구 동교로46길 10',
+    stars: 4.8,
+    numReview: 32,
+    isVisited: false,
+  },
+  {
+    name: '이안정',
+    imageSrc: assets.images.이안정,
+    distance: 155,
+    address: '서울 마포구 독막로15길 3-3 1층 101호',
+    stars: 4.9,
+    numReview: 42,
+    isVisited: true,
+  },
+  {
+    name: '카와카츠',
+    imageSrc: assets.images.카와카츠,
+    distance: 203,
+    address: '서울 마포구 동교로 126 1층 102호',
+    stars: 4.5,
+    numReview: 30,
+    isVisited: false,
+  },
+  {
+    name: '야키토리 나루토',
+    imageSrc: assets.images.야키토리나루토,
+    distance: 293,
+    address: '서울 마포구 독막로9길 26 야키토리 나루토',
+    stars: 4.6,
+    numReview: 15,
+    isVisited: false,
+  },
+];
+
 function App(): JSX.Element {
   const sheetRef = useRef<BottomSheet>(null);
+  const mapRef = useRef<MapView>(null);
+
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonOpacity, setButtonOpacity] = useState(1);
+  const [markers, setMarkers] = useState<Place[]>([]);
+  const [cards, setCards] = useState<Item[]>(data);
 
-  type Item = {
-    imageSrc: ImageSourcePropType;
-    name: string;
-    stars: number;
-    numReview: number;
-    address: string;
-    distance: number;
-    isVisited: boolean;
-  };
-
-  const data = [
-    {
-      name: '스시올로지',
+  const onPressSearchResult = (data: any, details: any) => {
+    const location = details.geometry.location;
+    const newMarker = {
+      name: details.name,
+      address: details.formatted_address,
+      rating: 5,
+      numReview: 5,
+      coordinate: {
+        latitude: location.lat,
+        longitude: location.lng,
+      },
+    };
+    setMarkers(prevMarkers => [...prevMarkers, newMarker]);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: location.lat,
+        longitude: location.lng,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      1000,
+    );
+    newCard = {
       imageSrc: assets.images.스시올로지,
-      distance: 50,
-      address: '서울특별시 마포구 동교로 266-11',
+      name: details.name,
       stars: 4.8,
       numReview: 22,
+      address: details.formatted_address,
+      distance: 50,
       isVisited: false,
-    },
-    {
-      name: '진만두',
-      imageSrc: assets.images.진만두,
-      distance: 102,
-      address: '서울 마포구 와우산로29길 4-42 지하1층',
-      stars: 4.7,
-      numReview: 35,
-      isVisited: false,
-    },
-    {
-      name: '월량관',
-      imageSrc: assets.images.월량관,
-      distance: 149,
-      address: '서울 마포구 동교로46길 10',
-      stars: 4.8,
-      numReview: 32,
-      isVisited: false,
-    },
-    {
-      name: '이안정',
-      imageSrc: assets.images.이안정,
-      distance: 155,
-      address: '서울 마포구 독막로15길 3-3 1층 101호',
-      stars: 4.9,
-      numReview: 42,
-      isVisited: true,
-    },
-    {
-      name: '카와카츠',
-      imageSrc: assets.images.카와카츠,
-      distance: 203,
-      address: '서울 마포구 동교로 126 1층 102호',
-      stars: 4.5,
-      numReview: 30,
-      isVisited: false,
-    },
-    {
-      name: '야키토리 나루토',
-      imageSrc: assets.images.야키토리나루토,
-      distance: 293,
-      address: '서울 마포구 독막로9길 26 야키토리 나루토',
-      stars: 4.6,
-      numReview: 15,
-      isVisited: false,
-    },
-  ];
+    };
+  };
+
   const snapPoints = useMemo(() => ['26%', '40%', '80%'], []);
 
   const handleSheetChange = useCallback(
@@ -111,6 +168,10 @@ function App(): JSX.Element {
     },
     [snapPoints],
   );
+
+  const onPressAddBtn = () => {
+    setCards(prevCards => [...prevCards, newCard]);
+  };
 
   const renderItem = useCallback(({item}: {item: Item}) => {
     return (
@@ -158,7 +219,7 @@ function App(): JSX.Element {
           keyboardShouldPersistTaps={'handled'}
           fetchDetails={true}
           onPress={(data, details) => {
-            console.log(data, details);
+            onPressSearchResult(data, details);
           }}
           onFail={error => console.error(error)}
           onNotFound={() => console.error('검색 결과 없음')}
@@ -169,15 +230,29 @@ function App(): JSX.Element {
       </View>
       <View style={styles.container}>
         <MapView
+          ref={mapRef}
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
             latitude: 37.52358729045865,
             longitude: 126.89696839660834,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-        />
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}>
+          {markers.map((place, index) => (
+            <Marker key={index} coordinate={place.coordinate}>
+              <View style={styles.markerContentContainer}>
+                <PlaceInfoMapCard
+                  name={place.name}
+                  address={place.address}
+                  numReview={place.numReview}
+                  rating={place.rating}
+                />
+                <Ionicons name="location" size={35} color={colors.coral1} />
+              </View>
+            </Marker>
+          ))}
+        </MapView>
 
         <View style={styles.navBtnContainer}>
           <TouchableOpacity style={styles.navBtn}>
@@ -229,7 +304,8 @@ function App(): JSX.Element {
             ...styles.mapBtn,
             bottom: buttonHeight + 50,
             opacity: buttonOpacity,
-          }}>
+          }}
+          onPress={onPressAddBtn}>
           <View style={styles.mapBtnContainer}>
             <Ionicons
               name="add-outline"
@@ -244,7 +320,7 @@ function App(): JSX.Element {
           snapPoints={snapPoints}
           onChange={handleSheetChange}>
           <BottomSheetFlatList
-            data={data}
+            data={cards}
             keyExtractor={i => i.name}
             renderItem={renderItem}
             contentContainerStyle={styles.contentContainer}
@@ -283,6 +359,11 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
   },
+  markerContentContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   navBtn: {
     width: screenWidth / 4,
     backgroundColor: 'white',
@@ -294,7 +375,6 @@ const styles = StyleSheet.create({
     top: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
-    height: 300,
     flexDirection: 'row',
     alignSelf: 'center',
     paddingHorizontal: 10,
