@@ -136,6 +136,16 @@ function App(): JSX.Element {
     console.log(currentLocation);
   }, [currentLocation]);
 
+  useEffect(() => {
+    const newRegion = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    mapRef.current?.animateToRegion(newRegion, 1000);
+  }, [currentLocation]);
+
   const onPressSearchResult = (data: any, details: any) => {
     const location = details.geometry.location;
     const newMarker = {
@@ -245,8 +255,12 @@ function App(): JSX.Element {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
-            latitude: 37.52358729045865,
-            longitude: 126.89696839660834,
+            latitude: currentLocation
+              ? currentLocation.latitude
+              : 37.52358729045865,
+            longitude: currentLocation
+              ? currentLocation.longitude
+              : 126.89696839660834,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}>
@@ -263,6 +277,20 @@ function App(): JSX.Element {
               </View>
             </Marker>
           ))}
+          {currentLocation && (
+            <Marker
+              coordinate={{
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+              }}
+              title="현재 위치">
+              <Ionicons
+                name="radio-button-on-outline"
+                size={21}
+                color={colors.coral1}
+              />
+            </Marker>
+          )}
         </MapView>
 
         <View style={styles.navBtnContainer}>
