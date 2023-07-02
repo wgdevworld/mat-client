@@ -20,6 +20,7 @@ import assets from '../assets';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import PlaceInfoMapCard from './components/PlaceInfoMapCard';
+import {requestPermissionAndGetLocation} from './config/RequestRetrieveLocation';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -289,7 +290,8 @@ function App(): JSX.Element {
             ...styles.mapBtn,
             bottom: buttonHeight,
             opacity: buttonOpacity,
-          }}>
+          }}
+          onPress={requestPermissionAndGetLocation}>
           <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
             <Ionicons
               name="navigate-outline"
