@@ -1,5 +1,6 @@
 import Geolocation from 'react-native-geolocation-service';
 import {Platform} from 'react-native';
+import {Dispatch, SetStateAction} from 'react';
 
 export async function requestPermission() {
   try {
@@ -11,12 +12,21 @@ export async function requestPermission() {
   }
 }
 
-export function requestPermissionAndGetLocation() {
+export function requestPermissionAndGetLocation(
+  setCurrentLocation: Dispatch<
+    SetStateAction<{latitude: number; longitude: number}>
+  >,
+) {
   requestPermission().then(result => {
     if (result === 'granted') {
       Geolocation.getCurrentPosition(
-        pos => {
-          console.log(pos);
+        position => {
+          const {latitude, longitude} = position.coords;
+          setCurrentLocation(prevState => ({
+            ...prevState,
+            latitude: latitude,
+            longitude: longitude,
+          }));
         },
         error => {
           console.log(error);

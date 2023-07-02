@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Dimensions,
@@ -125,6 +125,16 @@ function App(): JSX.Element {
   const [buttonOpacity, setButtonOpacity] = useState(1);
   const [markers, setMarkers] = useState<Place[]>([]);
   const [cards, setCards] = useState<Item[]>(data);
+
+  //TODO: 리덕스에다 저장
+  const [currentLocation, setCurrentLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+
+  useEffect(() => {
+    console.log(currentLocation);
+  }, [currentLocation]);
 
   const onPressSearchResult = (data: any, details: any) => {
     const location = details.geometry.location;
@@ -291,7 +301,9 @@ function App(): JSX.Element {
             bottom: buttonHeight,
             opacity: buttonOpacity,
           }}
-          onPress={requestPermissionAndGetLocation}>
+          onPress={() => {
+            requestPermissionAndGetLocation(setCurrentLocation);
+          }}>
           <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
             <Ionicons
               name="navigate-outline"
