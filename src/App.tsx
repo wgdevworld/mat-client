@@ -352,11 +352,13 @@ function App(): JSX.Element {
                 longitude: currentLocation.longitude,
               }}
               title="현재 위치">
-              <Ionicons
-                name="radio-button-on-outline"
-                size={21}
-                color={colors.coral1}
-              />
+              <View style={styles.selfMarkerContainer}>
+                <Ionicons
+                  name="radio-button-on-outline"
+                  size={15}
+                  color={colors.coral1}
+                />
+              </View>
             </Marker>
           )}
         </MapView>
@@ -471,6 +473,10 @@ const styles = StyleSheet.create({
   },
   markerContentContainer: {
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selfMarkerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
