@@ -59,65 +59,88 @@ let newCard: Item = {
   isVisited: false,
 };
 
-//TODO: read in from database + save in redux store
-const data = [
-  {
-    name: '스시올로지',
-    imageSrc: assets.images.스시올로지,
-    distance: 50,
-    address: '서울특별시 마포구 동교로 266-11',
-    stars: 4.8,
-    numReview: 22,
-    isVisited: false,
-  },
-  {
-    name: '진만두',
-    imageSrc: assets.images.진만두,
-    distance: 102,
-    address: '서울 마포구 와우산로29길 4-42 지하1층',
-    stars: 4.7,
-    numReview: 35,
-    isVisited: false,
-  },
-  {
-    name: '월량관',
-    imageSrc: assets.images.월량관,
-    distance: 149,
-    address: '서울 마포구 동교로46길 10',
-    stars: 4.8,
-    numReview: 32,
-    isVisited: false,
-  },
-  {
-    name: '이안정',
-    imageSrc: assets.images.이안정,
-    distance: 155,
-    address: '서울 마포구 독막로15길 3-3 1층 101호',
-    stars: 4.9,
-    numReview: 42,
-    isVisited: true,
-  },
-  {
-    name: '카와카츠',
-    imageSrc: assets.images.카와카츠,
-    distance: 203,
-    address: '서울 마포구 동교로 126 1층 102호',
-    stars: 4.5,
-    numReview: 30,
-    isVisited: false,
-  },
-  {
-    name: '야키토리 나루토',
-    imageSrc: assets.images.야키토리나루토,
-    distance: 293,
-    address: '서울 마포구 독막로9길 26 야키토리 나루토',
-    stars: 4.6,
-    numReview: 15,
-    isVisited: false,
-  },
-];
-
 function App(): JSX.Element {
+  //TODO: read in from database + save in redux store
+  const [data, setData] = useState([
+    {
+      name: '스시올로지',
+      imageSrc: assets.images.스시올로지,
+      distance: 50,
+      address: '서울특별시 마포구 동교로 266-11',
+      stars: 4.8,
+      numReview: 22,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5629026,
+        longitude: 126.925946,
+      },
+    },
+    {
+      name: '진만두',
+      imageSrc: assets.images.진만두,
+      distance: 102,
+      address: '서울 마포구 와우산로29길 4-42 지하1층',
+      stars: 4.7,
+      numReview: 35,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5551921,
+        longitude: 126.929247,
+      },
+    },
+    {
+      name: '월량관',
+      imageSrc: assets.images.월량관,
+      distance: 149,
+      address: '서울 마포구 동교로46길 10',
+      stars: 4.8,
+      numReview: 32,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5625237,
+        longitude: 126.925267,
+      },
+    },
+    {
+      name: '이안정',
+      imageSrc: assets.images.이안정,
+      distance: 155,
+      address: '서울 마포구 독막로15길 3-3 1층 101호',
+      stars: 4.9,
+      numReview: 42,
+      isVisited: true,
+      coordinates: {
+        latitude: 37.5480964,
+        longitude: 126.921626,
+      },
+    },
+    {
+      name: '카와카츠',
+      imageSrc: assets.images.카와카츠,
+      distance: 203,
+      address: '서울 마포구 동교로 126 1층 102호',
+      stars: 4.5,
+      numReview: 30,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5547239,
+        longitude: 126.916187,
+      },
+    },
+    {
+      name: '야키토리 나루토',
+      imageSrc: assets.images.야키토리나루토,
+      distance: 293,
+      address: '서울 마포구 독막로9길 26',
+      stars: 4.6,
+      numReview: 15,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5493388,
+        longitude: 126.920199,
+      },
+    },
+  ]);
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
 
@@ -137,6 +160,10 @@ function App(): JSX.Element {
   }, [currentLocation]);
 
   useEffect(() => {
+    setCards(data);
+  }, [data]);
+
+  useEffect(() => {
     const newRegion = {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -146,7 +173,52 @@ function App(): JSX.Element {
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
 
-  const onPressSearchResult = (data: any, details: any) => {
+  function calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    const earthRadius = 6371; // Radius of the Earth in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = earthRadius * c * 1000; // Distance in meters
+    return Math.round(distance);
+  }
+
+  function toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
+  useEffect(() => {
+    setData(prevData => {
+      const updatedData = prevData.map(item => {
+        const distance = calculateDistance(
+          currentLocation.latitude,
+          currentLocation.longitude,
+          item.coordinates.latitude,
+          item.coordinates.longitude,
+        );
+        return {...item, distance};
+      });
+      updatedData.sort((a, b) => a.distance - b.distance);
+      return updatedData;
+    });
+    console.log(data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation]);
+
+  const onPressSearchResult = (details: any) => {
     const location = details.geometry.location;
     const newMarker = {
       name: details.name,
@@ -169,8 +241,8 @@ function App(): JSX.Element {
       1000,
     );
     newCard = {
-      imageSrc: assets.images.스시올로지,
       name: details.name,
+      imageSrc: assets.images.스시올로지,
       stars: 4.8,
       numReview: 22,
       address: details.formatted_address,
@@ -239,8 +311,8 @@ function App(): JSX.Element {
           }}
           keyboardShouldPersistTaps={'handled'}
           fetchDetails={true}
-          onPress={(data, details) => {
-            onPressSearchResult(data, details);
+          onPress={details => {
+            onPressSearchResult(details);
           }}
           onFail={error => console.error(error)}
           onNotFound={() => console.error('검색 결과 없음')}
@@ -255,12 +327,8 @@ function App(): JSX.Element {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
-            latitude: currentLocation
-              ? currentLocation.latitude
-              : 37.52358729045865,
-            longitude: currentLocation
-              ? currentLocation.longitude
-              : 126.89696839660834,
+            latitude: currentLocation ? currentLocation.latitude : 37.5571888,
+            longitude: currentLocation ? currentLocation.longitude : 126.923643,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}>
