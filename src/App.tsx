@@ -1,12 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Dimensions,
@@ -14,37 +7,61 @@ import {
   ImageSourcePropType,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import MapView from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import colors from './styles/colors';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import assets from '../assets';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import PlaceInfoMapCard from './components/PlaceInfoMapCard';
+import {requestPermissionAndGetLocation} from './config/RequestRetrieveLocation';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
+type Coordinate = {
+  latitude: number;
+  longitude: number;
+};
+
+type Place = {
+  name: string;
+  address: string;
+  rating: number;
+  numReview: number;
+  coordinate: Coordinate;
+};
+
+type Item = {
+  imageSrc: ImageSourcePropType;
+  name: string;
+  stars: number;
+  numReview: number;
+  address: string;
+  distance: number;
+  isVisited: boolean;
+};
+
+//FIXME: Don't let this be a global variable and figure out how to read in from marker component
+let newCard: Item = {
+  imageSrc: assets.images.스시올로지,
+  name: 'Default name',
+  stars: 0,
+  numReview: 0,
+  address: 'Default address',
+  distance: 0,
+  isVisited: false,
+};
+
 function App(): JSX.Element {
-  const sheetRef = useRef<BottomSheet>(null);
-  const [buttonHeight, setButtonHeight] = useState(0);
-  const [buttonOpacity, setButtonOpacity] = useState(1);
-
-  type Item = {
-    imageSrc: ImageSourcePropType;
-    name: string;
-    stars: number;
-    numReview: number;
-    address: string;
-    distance: number;
-  };
-
-  const data = [
+  //TODO: read in from database + save in redux store
+  const [data, setData] = useState([
     {
       name: '스시올로지',
       imageSrc: assets.images.스시올로지,
@@ -52,6 +69,11 @@ function App(): JSX.Element {
       address: '서울특별시 마포구 동교로 266-11',
       stars: 4.8,
       numReview: 22,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5629026,
+        longitude: 126.925946,
+      },
     },
     {
       name: '진만두',
@@ -60,6 +82,11 @@ function App(): JSX.Element {
       address: '서울 마포구 와우산로29길 4-42 지하1층',
       stars: 4.7,
       numReview: 35,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5551921,
+        longitude: 126.929247,
+      },
     },
     {
       name: '월량관',
@@ -68,6 +95,11 @@ function App(): JSX.Element {
       address: '서울 마포구 동교로46길 10',
       stars: 4.8,
       numReview: 32,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5625237,
+        longitude: 126.925267,
+      },
     },
     {
       name: '이안정',
@@ -76,6 +108,11 @@ function App(): JSX.Element {
       address: '서울 마포구 독막로15길 3-3 1층 101호',
       stars: 4.9,
       numReview: 42,
+      isVisited: true,
+      coordinates: {
+        latitude: 37.5480964,
+        longitude: 126.921626,
+      },
     },
     {
       name: '카와카츠',
@@ -84,27 +121,150 @@ function App(): JSX.Element {
       address: '서울 마포구 동교로 126 1층 102호',
       stars: 4.5,
       numReview: 30,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5547239,
+        longitude: 126.916187,
+      },
     },
     {
       name: '야키토리 나루토',
       imageSrc: assets.images.야키토리나루토,
       distance: 293,
-      address: '서울 마포구 독막로9길 26 야키토리 나루토',
+      address: '서울 마포구 독막로9길 26',
       stars: 4.6,
       numReview: 15,
+      isVisited: false,
+      coordinates: {
+        latitude: 37.5493388,
+        longitude: 126.920199,
+      },
     },
-  ];
+  ]);
+  const sheetRef = useRef<BottomSheet>(null);
+  const mapRef = useRef<MapView>(null);
+
+  const [buttonHeight, setButtonHeight] = useState(0);
+  const [buttonOpacity, setButtonOpacity] = useState(1);
+  const [markers, setMarkers] = useState<Place[]>([]);
+  const [cards, setCards] = useState<Item[]>(data);
+
+  //TODO: 리덕스에다 저장
+  const [currentLocation, setCurrentLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+
+  useEffect(() => {
+    console.log(currentLocation);
+  }, [currentLocation]);
+
+  useEffect(() => {
+    setCards(data);
+  }, [data]);
+
+  useEffect(() => {
+    const newRegion = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    mapRef.current?.animateToRegion(newRegion, 1000);
+  }, [currentLocation]);
+
+  function calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    const earthRadius = 6371; // Radius of the Earth in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = earthRadius * c * 1000; // Distance in meters
+    return Math.round(distance);
+  }
+
+  function toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
+  useEffect(() => {
+    setData(prevData => {
+      const updatedData = prevData.map(item => {
+        const distance = calculateDistance(
+          currentLocation.latitude,
+          currentLocation.longitude,
+          item.coordinates.latitude,
+          item.coordinates.longitude,
+        );
+        return {...item, distance};
+      });
+      updatedData.sort((a, b) => a.distance - b.distance);
+      return updatedData;
+    });
+    console.log(data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation]);
+
+  const onPressSearchResult = (details: any) => {
+    const location = details.geometry.location;
+    const newMarker = {
+      name: details.name,
+      address: details.formatted_address,
+      rating: 5,
+      numReview: 5,
+      coordinate: {
+        latitude: location.lat,
+        longitude: location.lng,
+      },
+    };
+    setMarkers(prevMarkers => [...prevMarkers, newMarker]);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: location.lat,
+        longitude: location.lng,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      1000,
+    );
+    newCard = {
+      name: details.name,
+      imageSrc: assets.images.스시올로지,
+      stars: 4.8,
+      numReview: 22,
+      address: details.formatted_address,
+      distance: 50,
+      isVisited: false,
+    };
+  };
+
   const snapPoints = useMemo(() => ['26%', '40%', '80%'], []);
 
   const handleSheetChange = useCallback(
     (index: any) => {
       const screenPercent = parseFloat(snapPoints[index]);
       setButtonHeight(screenHeight * screenPercent * 0.01);
-      console.log(index);
       index === 2 ? setButtonOpacity(0) : setButtonOpacity(1);
     },
     [snapPoints],
   );
+
+  const onPressAddBtn = () => {
+    setCards(prevCards => [...prevCards, newCard]);
+  };
 
   const renderItem = useCallback(({item}: {item: Item}) => {
     return (
@@ -115,6 +275,13 @@ function App(): JSX.Element {
         <View style={styles.itemInfoContainer}>
           <View style={styles.itemTitleStarsContainer}>
             <Text style={styles.itemTitleText}>{item.name}</Text>
+            {item.isVisited && (
+              <Ionicons
+                name="checkmark-done-circle-outline"
+                size={20}
+                color={'white'}
+              />
+            )}
             <View style={styles.itemStarReviewContainer}>
               <Ionicons name="star" size={14} color={'white'} />
               <Text style={styles.itemStarsText}>{item.stars}</Text>
@@ -131,29 +298,70 @@ function App(): JSX.Element {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <View style={styles.searchTextInputContainer}>
-        <Ionicons
-          name="ios-search"
-          size={15}
-          color={'white'}
-          style={{paddingRight: 5}}
-        />
-        <TextInput
-          clearButtonMode="always"
-          returnKeyType="search"
-          placeholderTextColor={'white'}
-          placeholder={'검색'}
+        <GooglePlacesAutocomplete
+          minLength={2}
+          placeholder="장소를 검색해보세요!"
+          textInputProps={{
+            placeholderTextColor: 'white',
+          }}
+          query={{
+            key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
+            language: 'ko',
+            components: 'country:kr',
+          }}
+          keyboardShouldPersistTaps={'handled'}
+          fetchDetails={true}
+          onPress={details => {
+            onPressSearchResult(details);
+          }}
+          onFail={error => console.error(error)}
+          onNotFound={() => console.error('검색 결과 없음')}
+          keepResultsAfterBlur={true}
+          enablePoweredByContainer={false}
+          styles={styles.searchTextInput}
         />
       </View>
       <View style={styles.container}>
         <MapView
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
-            latitude: 37.52358729045865,
-            longitude: 126.89696839660834,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-        />
+            latitude: currentLocation ? currentLocation.latitude : 37.5571888,
+            longitude: currentLocation ? currentLocation.longitude : 126.923643,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}>
+          {markers.map((place, index) => (
+            <Marker key={index} coordinate={place.coordinate}>
+              <View style={styles.markerContentContainer}>
+                <PlaceInfoMapCard
+                  name={place.name}
+                  address={place.address}
+                  numReview={place.numReview}
+                  rating={place.rating}
+                />
+                <Ionicons name="location" size={35} color={colors.coral1} />
+              </View>
+            </Marker>
+          ))}
+          {currentLocation && (
+            <Marker
+              coordinate={{
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+              }}
+              title="현재 위치">
+              <View style={styles.selfMarkerContainer}>
+                <Ionicons
+                  name="radio-button-on-outline"
+                  size={15}
+                  color={colors.coral1}
+                />
+              </View>
+            </Marker>
+          )}
+        </MapView>
 
         <View style={styles.navBtnContainer}>
           <TouchableOpacity style={styles.navBtn}>
@@ -190,6 +398,9 @@ function App(): JSX.Element {
             ...styles.mapBtn,
             bottom: buttonHeight,
             opacity: buttonOpacity,
+          }}
+          onPress={() => {
+            requestPermissionAndGetLocation(setCurrentLocation);
           }}>
           <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
             <Ionicons
@@ -205,7 +416,8 @@ function App(): JSX.Element {
             ...styles.mapBtn,
             bottom: buttonHeight + 50,
             opacity: buttonOpacity,
-          }}>
+          }}
+          onPress={onPressAddBtn}>
           <View style={styles.mapBtnContainer}>
             <Ionicons
               name="add-outline"
@@ -220,7 +432,7 @@ function App(): JSX.Element {
           snapPoints={snapPoints}
           onChange={handleSheetChange}>
           <BottomSheetFlatList
-            data={data}
+            data={cards}
             keyExtractor={i => i.name}
             renderItem={renderItem}
             contentContainerStyle={styles.contentContainer}
@@ -259,6 +471,15 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
   },
+  markerContentContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selfMarkerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   navBtn: {
     width: screenWidth / 4,
     backgroundColor: 'white',
@@ -266,19 +487,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchTextInputContainer: {
-    opacity: 0.85,
     position: 'absolute',
     top: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
-    height: 40,
-    backgroundColor: colors.coral1,
-    borderRadius: 10,
     flexDirection: 'row',
     alignSelf: 'center',
-    alignItems: 'center',
     paddingHorizontal: 10,
-    marginHorizontal: '0.5%',
+  },
+  searchTextInput: {
+    position: 'absolute',
+    textInputContainer: {
+      opacity: 0.85,
+      borderRadius: 10,
+    },
+    textInput: {
+      backgroundColor: colors.coral1,
+      borderRadius: 10,
+      color: 'white',
+    },
   },
   iconContainer: {
     paddingLeft: 10,
