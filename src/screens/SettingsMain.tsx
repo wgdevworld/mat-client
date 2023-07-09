@@ -11,9 +11,7 @@ import {
   Switch,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-// implement profile picture later
-const PROFILE_PICTURE = '../assets/image/default_profile.png';
+import assets from '../../assets';
 
 export default function Settings() {
   const [isPush, setIsPush] = React.useState(true);
@@ -37,7 +35,7 @@ export default function Settings() {
               <View>
                 <Image
                   alt="Profile picture"
-                  source={require(PROFILE_PICTURE)}
+                  source={assets.images.default_profile}
                   style={styles.profileImage}
                 />
               </View>

@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import assets from '../../assets';
 
 export default function Login() {
   return (
@@ -68,9 +69,7 @@ export default function Login() {
             <Text style={styles.setAccountButtonText}>회원가입</Text>
           </TouchableOpacity>
           <TouchableOpacity>
-            <Image
-              source={require('../assets/image/kakao_login_medium_narrow.png')}
-            />
+            <Image source={assets.images.kakao_login_medium_narrow} />
           </TouchableOpacity>
         </View>
       </ScrollView>
