@@ -296,74 +296,77 @@ function App(): JSX.Element {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.searchTextInputContainer}>
-        <GooglePlacesAutocomplete
-          minLength={2}
-          placeholder="장소를 검색해보세요!"
-          textInputProps={{
-            placeholderTextColor: 'white',
-          }}
-          query={{
-            key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
-            language: 'ko',
-            components: 'country:kr',
-          }}
-          keyboardShouldPersistTaps={'handled'}
-          fetchDetails={true}
-          onPress={details => {
-            onPressSearchResult(details);
-          }}
-          onFail={error => console.error(error)}
-          onNotFound={() => console.error('검색 결과 없음')}
-          keepResultsAfterBlur={true}
-          enablePoweredByContainer={false}
-          styles={styles.searchTextInput}
-        />
-      </View>
-      <View style={styles.container}>
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          initialRegion={{
-            latitude: currentLocation ? currentLocation.latitude : 37.5571888,
-            longitude: currentLocation ? currentLocation.longitude : 126.923643,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}>
-          {markers.map((place, index) => (
-            <Marker key={index} coordinate={place.coordinate}>
-              <View style={styles.markerContentContainer}>
-                <PlaceInfoMapCard
-                  name={place.name}
-                  address={place.address}
-                  numReview={place.numReview}
-                  rating={place.rating}
-                />
-                <Ionicons name="location" size={35} color={colors.coral1} />
-              </View>
-            </Marker>
-          ))}
-          {currentLocation && (
-            <Marker
-              coordinate={{
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude,
-              }}
-              title="현재 위치">
-              <View style={styles.selfMarkerContainer}>
-                <Ionicons
-                  name="radio-button-on-outline"
-                  size={15}
-                  color={colors.coral1}
-                />
-              </View>
-            </Marker>
-          )}
-        </MapView>
+    <View style={{flex: 1}}>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <View style={styles.searchTextInputContainer}>
+          <GooglePlacesAutocomplete
+            minLength={2}
+            placeholder="장소를 검색해보세요!"
+            textInputProps={{
+              placeholderTextColor: 'white',
+            }}
+            query={{
+              key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
+              language: 'ko',
+              components: 'country:kr',
+            }}
+            keyboardShouldPersistTaps={'handled'}
+            fetchDetails={true}
+            onPress={details => {
+              onPressSearchResult(details);
+            }}
+            onFail={error => console.error(error)}
+            onNotFound={() => console.error('검색 결과 없음')}
+            keepResultsAfterBlur={true}
+            enablePoweredByContainer={false}
+            styles={styles.searchTextInput}
+          />
+        </View>
+        <View style={styles.container}>
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={{
+              latitude: currentLocation ? currentLocation.latitude : 37.5571888,
+              longitude: currentLocation
+                ? currentLocation.longitude
+                : 126.923643,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}>
+            {markers.map((place, index) => (
+              <Marker key={index} coordinate={place.coordinate}>
+                <View style={styles.markerContentContainer}>
+                  <PlaceInfoMapCard
+                    name={place.name}
+                    address={place.address}
+                    numReview={place.numReview}
+                    rating={place.rating}
+                  />
+                  <Ionicons name="location" size={35} color={colors.coral1} />
+                </View>
+              </Marker>
+            ))}
+            {currentLocation && (
+              <Marker
+                coordinate={{
+                  latitude: currentLocation.latitude,
+                  longitude: currentLocation.longitude,
+                }}
+                title="현재 위치">
+                <View style={styles.selfMarkerContainer}>
+                  <Ionicons
+                    name="radio-button-on-outline"
+                    size={15}
+                    color={colors.coral1}
+                  />
+                </View>
+              </Marker>
+            )}
+          </MapView>
 
-        <View style={styles.navBtnContainer}>
+          {/* <View style={styles.navBtnContainer}>
           <TouchableOpacity style={styles.navBtn}>
             <Ionicons
               name="map-outline"
@@ -392,65 +395,65 @@ function App(): JSX.Element {
               color={colors.coral1}
             />
           </TouchableOpacity>
+        </View> */}
+          <TouchableOpacity
+            style={{
+              ...styles.mapBtn,
+              bottom: buttonHeight,
+              opacity: buttonOpacity,
+            }}
+            onPress={() => {
+              requestPermissionAndGetLocation(setCurrentLocation);
+            }}>
+            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+              <Ionicons
+                name="navigate-outline"
+                color={'white'}
+                size={25}
+                style={{paddingRight: 2}}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...styles.mapBtn,
+              bottom: buttonHeight + 50,
+              opacity: buttonOpacity,
+            }}
+            onPress={onPressAddBtn}>
+            <View style={styles.mapBtnContainer}>
+              <Ionicons
+                name="add-outline"
+                color={'white'}
+                size={35}
+                style={{paddingLeft: 2}}
+              />
+            </View>
+          </TouchableOpacity>
+          <BottomSheet
+            ref={sheetRef}
+            snapPoints={snapPoints}
+            onChange={handleSheetChange}>
+            <BottomSheetFlatList
+              data={cards}
+              keyExtractor={i => i.name}
+              renderItem={renderItem}
+              contentContainerStyle={styles.contentContainer}
+              ListHeaderComponent={
+                <Text style={styles.flatListHeaderText}>근처 나의 맛집들</Text>
+              }
+              ListFooterComponent={<View style={{height: 200}} />}
+            />
+          </BottomSheet>
         </View>
-        <TouchableOpacity
-          style={{
-            ...styles.mapBtn,
-            bottom: buttonHeight,
-            opacity: buttonOpacity,
-          }}
-          onPress={() => {
-            requestPermissionAndGetLocation(setCurrentLocation);
-          }}>
-          <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-            <Ionicons
-              name="navigate-outline"
-              color={'white'}
-              size={25}
-              style={{paddingRight: 2}}
-            />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            ...styles.mapBtn,
-            bottom: buttonHeight + 50,
-            opacity: buttonOpacity,
-          }}
-          onPress={onPressAddBtn}>
-          <View style={styles.mapBtnContainer}>
-            <Ionicons
-              name="add-outline"
-              color={'white'}
-              size={35}
-              style={{paddingLeft: 2}}
-            />
-          </View>
-        </TouchableOpacity>
-        <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          onChange={handleSheetChange}>
-          <BottomSheetFlatList
-            data={cards}
-            keyExtractor={i => i.name}
-            renderItem={renderItem}
-            contentContainerStyle={styles.contentContainer}
-            ListHeaderComponent={
-              <Text style={styles.flatListHeaderText}>근처 나의 맛집들</Text>
-            }
-            ListFooterComponent={<View style={{height: 200}} />}
-          />
-        </BottomSheet>
-      </View>
-    </GestureHandlerRootView>
+      </GestureHandlerRootView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom: screenHeight * 0.02,
   },
   mapBottomSheetContainer: {
     flex: 1,
