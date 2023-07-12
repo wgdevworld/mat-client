@@ -12,8 +12,12 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 export default function Settings() {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isEdit, setIsEdit] = React.useState(false);
   const toggleEdit = () => setIsEdit(true);
   const [nickname, setNickname] = React.useState('홍길동');
@@ -99,15 +103,20 @@ export default function Settings() {
             }}>
             <Text style={styles.deleteText}>탈퇴하기</Text>
           </TouchableOpacity>
-          <View style={styles.row}>
-            <Text style={styles.rowText}>계정 관리</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('SettingsMain');
+            }}>
+            <View style={styles.row}>
+              <Text style={styles.rowText}>계정 관리</Text>
+              <View style={{flex: 1}} />
+              <Ionicons
+                name="chevron-forward-outline"
+                color="#0c0c0c"
+                size={22}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
