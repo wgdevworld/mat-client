@@ -6,11 +6,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {persistStore} from 'redux-persist';
 import store from './store/store';
-import MapMain from './screens/MapMain';
-import ProfileMain from './screens/ProfileMain';
 import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
+import TabNavContainer from './screens/TabNavContainer';
 
 const Stack = createStackNavigator<ScreenParamList>();
 
@@ -21,19 +20,14 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'MapMain'}>
+            <Stack.Navigator initialRouteName={'TabNavContainer'}>
               <Stack.Screen
-                name="MapMain"
-                component={MapMain}
+                name="TabNavContainer"
+                component={TabNavContainer}
                 options={{
                   headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="ProfileMain"
-                component={ProfileMain}
-                options={{
-                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
                 }}
               />
               <Stack.Screen
