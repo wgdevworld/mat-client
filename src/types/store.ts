@@ -11,3 +11,13 @@ export interface Zip {
   distance: number;
   isVisited: boolean;
 }
+
+export interface Coordinate {
+  latitude: number;
+  longitude: number;
+}
+
+export interface ZipList {
+  name: string;
+  zipList: Zip[];
+}

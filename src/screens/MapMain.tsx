@@ -21,6 +21,7 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
+import {calculateDistance} from '../tools/CommonFunc';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -172,33 +173,6 @@ function App(): JSX.Element {
     };
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
-
-  function calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ): number {
-    const earthRadius = 6371; // Radius of the Earth in kilometers
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = earthRadius * c * 1000; // Distance in meters
-    return Math.round(distance);
-  }
-
-  function toRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
-  }
 
   useEffect(() => {
     setData(prevData => {
