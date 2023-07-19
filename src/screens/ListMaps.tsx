@@ -11,38 +11,36 @@ import {
   FlatList,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
-import ImageCarousel from '../components/ImageCarousel';
 import MapCard from '../components/MapCard';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   //   const images = [assets.images.스시올로지, assets.images.야키토리나루토];
-  const handlePressPlus = () => {
+  const handlePressMap = () => {
     // Implement the functionality to add a follower here
-    console.log('Plus icon pressed');
+    console.log('Map pressed');
   };
   const mapData = [
     {
       mapName: '라멘여지도',
       followers: 342,
       author: '홍길동',
-      onPressPlus: handlePressPlus,
+      onPressMap: handlePressMap,
     },
     {
       mapName: '또간집',
       followers: 10230,
       author: '윤지원',
-      onPressPlus: handlePressPlus,
+      onPressMap: handlePressMap,
     },
     {
       mapName: '비밀이야',
       followers: 210000,
       author: '운영진',
-      onPressPlus: handlePressPlus,
+      onPressMap: handlePressMap,
     },
     // Add more store data as needed
   ];
@@ -70,7 +68,7 @@ export default function ListMaps() {
                 mapName={item.mapName}
                 followers={item.followers}
                 author={item.author}
-                onPressPlus={item.onPressPlus}
+                onPressMap={item.onPressMap}
               />
             )}
           />

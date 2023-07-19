@@ -1,47 +1,74 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ImageCarousel from '../components/ImageCarousel';
+import assets from '../../assets';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+
+// TODO: refresh after scroll down from top
 
 interface MapCardProps {
   mapName: string;
   followers: number;
   author: string;
-  //   subscribe to map when pressed
-  onPressPlus: () => void;
+  // move to corresponding map
+  onPressMap: () => void;
 }
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 const MapCard: React.FC<MapCardProps> = ({
   mapName,
   followers,
   author,
-  onPressPlus,
+  onPressMap,
 }) => {
+  const [addIcon, setAddIcon] = useState(true);
+
+  const handleIconPress = () => {
+    setAddIcon(prev => !prev);
+    // subscribe/unsubscribe to the map
+  };
+  const images = [
+    assets.images.스시올로지,
+    assets.images.야키토리나루토,
+    assets.images.월량관,
+    // require('../../assets.image1.png'),
+    // require('../../assets.image.2'),
+    // require('../../assets.image.3'),
+  ];
   return (
-    <TouchableOpacity onPress={onPressPlus}>
+    // <View onPress={onPressMap}>
+    <View>
       <View style={styles.container}>
         <View style={styles.infoContainer}>
+          <ImageCarousel images={images} />
           <Text style={styles.mapName}>{mapName}</Text>
           <Text style={styles.mapAuthor}>by: {author}</Text>
           <Text style={styles.followersCount}>팔로워 {followers}</Text>
         </View>
-        <TouchableOpacity onPress={onPressPlus}>
-          <Ionicons name="add-circle-outline" size={30} color="white" />
+        <TouchableOpacity onPress={handleIconPress}>
+          <Ionicons
+            name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
+            size={30}
+            color="white"
+          />
         </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     backgroundColor: '#FF4000',
-    padding: 80,
     borderRadius: 20,
     marginBottom: 12,
     paddingHorizontal: 12,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   infoContainer: {
     flex: 1,
