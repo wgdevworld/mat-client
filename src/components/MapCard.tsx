@@ -38,18 +38,20 @@ const MapCard: React.FC<MapCardProps> = ({
     // <View onPress={onPressMap}>
     <View>
       <View style={styles.container}>
-        <View style={styles.infoContainer}>
-          <ImageCarousel images={images} />
-          <Text style={styles.mapName}>{mapName}</Text>
-          <Text style={styles.mapAuthor}>by: {author}</Text>
-          <Text style={styles.followersCount}>팔로워 {followers}</Text>
-        </View>
-        <TouchableOpacity onPress={handleIconPress}>
-          <Ionicons
-            name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
-            size={30}
-            color="white"
-          />
+        <ImageCarousel images={images} />
+        <TouchableOpacity onPress={onPressMap} style={styles.lowerHalf}>
+          <View style={styles.infoContainer}>
+            <Text style={styles.mapName}>{mapName}</Text>
+            <Text style={styles.mapAuthor}>by: {author}</Text>
+            <Text style={styles.followersCount}>팔로워 {followers}</Text>
+          </View>
+          <TouchableOpacity onPress={handleIconPress}>
+            <Ionicons
+              name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
+              size={30}
+              color="white"
+            />
+          </TouchableOpacity>
         </TouchableOpacity>
       </View>
     </View>
@@ -58,12 +60,12 @@ const MapCard: React.FC<MapCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: '#FF4000',
     borderRadius: 20,
     marginBottom: 12,
-    paddingHorizontal: 12,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
@@ -86,6 +88,16 @@ const styles = StyleSheet.create({
   },
   followersCount: {
     color: 'white',
+  },
+  lowerHalf: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    width: '100%',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
 });
 

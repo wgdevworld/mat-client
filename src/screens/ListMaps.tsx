@@ -7,7 +7,6 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
-  Image,
   FlatList,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';

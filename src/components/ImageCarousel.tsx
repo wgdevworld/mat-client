@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  Image,
-  StyleSheet,
-  ImageSourcePropType,
-  Dimensions,
-} from 'react-native';
+import {View, Image, StyleSheet, ImageSourcePropType} from 'react-native';
 import Swiper from 'react-native-swiper';
 
-const {width} = Dimensions.get('window');
+// const {width} = Dimensions.get('window');
 
 interface ImageCarouselProps {
   images: ImageSourcePropType[];
@@ -41,13 +35,16 @@ const styles = StyleSheet.create({
   wrapper: {},
   slide: {
     flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    width: '100%',
     flex: 1,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
 });
 
