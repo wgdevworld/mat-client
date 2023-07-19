@@ -30,7 +30,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
 const styles = StyleSheet.create({
   container: {
     height: 200,
-    marginBottom: 12,
+    // marginBottom: 12,
   },
   wrapper: {},
   slide: {

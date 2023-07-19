@@ -6,10 +6,8 @@ import {
   Text,
   ScrollView,
   View,
-  TouchableOpacity,
   FlatList,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
@@ -17,9 +15,9 @@ import MapCard from '../components/MapCard';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  //   const images = [assets.images.스시올로지, assets.images.야키토리나루토];
   const handlePressMap = () => {
     // Implement the functionality to add a follower here
+    navigation.navigate('MatZip');
     console.log('Map pressed');
   };
   const mapData = [
@@ -41,19 +39,7 @@ export default function ListMaps() {
       author: '운영진',
       onPressMap: handlePressMap,
     },
-    // Add more store data as needed
   ];
-
-  //   <SafeAreaView style={styles.container}>
-  //       <FlatList
-  //         data={storeData}
-  //         keyExtractor={(item) => item.id}
-  //         renderItem={({ item }) => (
-  //           <StoreCard storeName={item.name} onPress={() => handleStorePress(item.id)} />
-  //         )}
-  //       />
-  //     </SafeAreaView>
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -71,73 +57,6 @@ export default function ListMaps() {
               />
             )}
           />
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>프로필 설정</Text>
-          {/* <TouchableOpacity style={styles.row} onPress={toggleEdit}>
-            <Text style={styles.rowText}>닉네임</Text>
-            <View style={{flex: 1}} />
-            <TextInput
-              keyboardType="default"
-              style={styles.input}
-              placeholder="현재 닉네임"
-              placeholderTextColor="grey"
-              selectionColor="black"
-              editable={isEdit}
-              onEndEditing={() => {
-                setIsEdit(false);
-                // TODO: change nickname text onEndEditing
-              }}
-              onChangeText={text => setNickname(text)}
-            />
-          </TouchableOpacity> */}
-          {/* <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
-            <Text style={styles.rowText}>주소</Text>
-            <View style={{flex: 1}} />
-            <TextInput
-              keyboardType="default"
-              style={styles.input}
-              placeholder="서울시 중구 길동로 32"
-              placeholderTextColor="grey"
-              selectionColor="black"
-              editable={isEditAddr}
-              onEndEditing={() => {
-                setIsEditAddr(false);
-                // TODO: change nickname text onEndEditing
-              }}
-              onChangeText={text => setAddr(text)}
-            />
-          </TouchableOpacity> */}
-          <TouchableOpacity style={styles.row}>
-            <Text style={styles.rowText}>비밀번호 변경</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.delete}
-            onPress={() => {
-              // to backend, to login screen
-            }}>
-            <Text style={styles.deleteText}>탈퇴하기</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('SettingsMain');
-            }}>
-            <View style={styles.row}>
-              <Text style={styles.rowText}>계정 관리</Text>
-              <View style={{flex: 1}} />
-              <Ionicons
-                name="chevron-forward-outline"
-                color="#0c0c0c"
-                size={22}
-              />
-            </View>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -186,55 +105,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
     textAlign: 'center',
-  },
-  section: {
-    paddingHorizontal: 24,
-  },
-  sectionHeader: {
-    paddingVertical: 12,
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: 'white',
-    textTransform: 'uppercase',
-    letterSpacing: 1.1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    height: 50,
-    backgroundColor: '#f2f2f2f2',
-    borderRadius: 8,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-  },
-  rowText: {
-    fontSize: 17,
-    color: '#0c0c0c',
-  },
-  rowResultText: {
-    fontSize: 16,
-    color: '#989898',
-  },
-  input: {
-    color: '#989898',
-    // borderBottomColor: '#eee',
-    fontSize: 16,
-    textAlign: 'right',
-  },
-  delete: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 50,
-    backgroundColor: 'grey',
-    borderRadius: 8,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    textAlign: 'center',
-  },
-  deleteText: {
-    fontSize: 17,
-    color: 'red',
-    fontWeight: 'bold',
   },
 });

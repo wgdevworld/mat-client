@@ -30,16 +30,12 @@ const MapCard: React.FC<MapCardProps> = ({
     assets.images.스시올로지,
     assets.images.야키토리나루토,
     assets.images.월량관,
-    // require('../../assets.image1.png'),
-    // require('../../assets.image.2'),
-    // require('../../assets.image.3'),
   ];
   return (
-    // <View onPress={onPressMap}>
-    <View>
-      <View style={styles.container}>
-        <ImageCarousel images={images} />
-        <TouchableOpacity onPress={onPressMap} style={styles.lowerHalf}>
+    <View style={styles.container}>
+      <ImageCarousel images={images} />
+      <TouchableOpacity onPress={onPressMap} style={styles.lowerHalf}>
+        <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
             <Text style={styles.mapName}>{mapName}</Text>
             <Text style={styles.mapAuthor}>by: {author}</Text>
@@ -52,8 +48,8 @@ const MapCard: React.FC<MapCardProps> = ({
               color="white"
             />
           </TouchableOpacity>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -75,6 +71,10 @@ const styles = StyleSheet.create({
   infoContainer: {
     flex: 1,
   },
+  cardHorizontal: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   mapName: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
   },
   followersCount: {
     color: 'white',
+    marginBottom: 10,
   },
   lowerHalf: {
     flex: 1,
