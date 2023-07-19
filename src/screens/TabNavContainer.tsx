@@ -9,6 +9,7 @@ import colors from '../styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapMain from './MapMain';
 import ProfileMain from './ProfileMain';
+import ListMaps from './ListMaps';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -98,7 +99,7 @@ const TabNavContainer = () => {
         };
       }}>
       <Tab.Screen name="Map" component={MapMain} />
-      <Tab.Screen name="List" component={MapMain} />
+      <Tab.Screen name="List" component={ListMaps} />
       <Tab.Screen name="Community" component={MapMain} />
       <Tab.Screen name="Profile" component={ProfileMain} />
     </Tab.Navigator>
