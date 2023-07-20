@@ -12,6 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
+import ReviewCard from './ReviewCard';
 
 interface MatZipProps {
   name: string;
@@ -21,6 +22,7 @@ interface MatZipProps {
   isVisited: boolean;
   numLike: number;
   category: string;
+  reviewList: string[];
   // parent map list
 }
 
@@ -42,6 +44,27 @@ const matZip = [
   },
 ];
 
+const reviews = [
+  {
+    author: '홍길동',
+    rating: 4.5,
+    content: '맛있어요!',
+    date: new Date(),
+  },
+  {
+    author: '이덕행',
+    rating: 4.8,
+    content: '사특한 맛이네요..',
+    date: new Date(),
+  },
+  {
+    author: '윤지원',
+    rating: 2.2,
+    content: '쉽지 않다...',
+    date: new Date(),
+  },
+];
+
 const MatZip: React.FC<MatZipProps> = ({
   name,
   address,
@@ -50,6 +73,7 @@ const MatZip: React.FC<MatZipProps> = ({
   isVisited,
   numLike,
   category,
+  // reviewList,
 }) => {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -62,6 +86,19 @@ const MatZip: React.FC<MatZipProps> = ({
         <Text style={styles.heading}>방문여부: {isVisited}</Text>
         <Text style={styles.heading}>좋아요: {numLike}</Text>
         <Text style={styles.heading}>카테고리: {category}</Text>
+
+        <FlatList
+          data={reviews}
+          keyExtractor={item => item.author}
+          renderItem={({item}) => (
+            <ReviewCard
+              author={item.author}
+              rating={item.rating}
+              content={item.content}
+              date={item.date}
+            />
+          )}
+        />
       </ScrollView>
     </SafeAreaView>
   );

@@ -16,7 +16,6 @@ import MapCard from '../components/MapCard';
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const handlePressMap = () => {
-    // Implement the functionality to add a follower here
     navigation.navigate('MatZip');
     console.log('Map pressed');
   };

@@ -10,6 +10,8 @@ import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
 import TabNavContainer from './screens/TabNavContainer';
+import MatZip from './screens/MatZip';
+import ListMaps from './screens/ListMaps';
 
 const Stack = createStackNavigator<ScreenParamList>();
 
@@ -40,6 +42,21 @@ const App = () => {
               <Stack.Screen
                 name="LoginMain"
                 component={LoginMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              {/* temporarily here for building */}
+              <Stack.Screen
+                name="MatZip"
+                component={MatZip}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ListMaps"
+                component={ListMaps}
                 options={{
                   headerShown: false,
                 }}

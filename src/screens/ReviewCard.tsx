@@ -1,32 +1,26 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 
 // TODO: refresh after scroll down from top
 
-interface MapCardProps {
-  mapName: string;
-  followers: number;
+interface ReviewCardProps {
   author: string;
-  // move to corresponding map
-  onPressMap: () => void;
+  rating: number;
+  content: string;
+  date: Date;
+  //   images: Image[];
 }
 
-const MapCard: React.FC<MapCardProps> = ({
-  mapName,
-  followers,
+const ReviewCard: React.FC<ReviewCardProps> = ({
   author,
-  onPressMap,
+  rating,
+  content,
+  date,
+  //   images,
 }) => {
-  const [addIcon, setAddIcon] = useState(true);
-
-  const handleIconPress = () => {
-    setAddIcon(prev => !prev);
-    // subscribe/unsubscribe to the map
-    // communicate with backend
-  };
   const images = [
     assets.images.스시올로지,
     assets.images.야키토리나루토,
@@ -34,23 +28,11 @@ const MapCard: React.FC<MapCardProps> = ({
   ];
   return (
     <View style={styles.container}>
+      <Text>{author}</Text>
+      <Text>{rating}</Text>
+      <Text>{content}</Text>
+      <Text>{date.toLocaleDateString('ko-KR')}</Text>
       <ImageCarousel images={images} />
-      <TouchableOpacity onPress={onPressMap} style={styles.lowerHalf}>
-        <View style={styles.cardHorizontal}>
-          <View style={styles.infoContainer}>
-            <Text style={styles.mapName}>{mapName}</Text>
-            <Text style={styles.mapAuthor}>by: {author}</Text>
-            <Text style={styles.followersCount}>팔로워 {followers}</Text>
-          </View>
-          <TouchableOpacity onPress={handleIconPress}>
-            <Ionicons
-              name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
-              size={30}
-              color="white"
-            />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -103,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MapCard;
+export default ReviewCard;

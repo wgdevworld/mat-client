@@ -1,9 +1,6 @@
 import React from 'react';
 import {View, Image, StyleSheet, ImageSourcePropType} from 'react-native';
 import Swiper from 'react-native-swiper';
-
-// const {width} = Dimensions.get('window');
-
 interface ImageCarouselProps {
   images: ImageSourcePropType[];
 }
@@ -30,9 +27,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
 const styles = StyleSheet.create({
   container: {
     height: 200,
-    // marginBottom: 12,
   },
-  wrapper: {},
+  wrapper: {
+    // TODO: add style
+  },
   slide: {
     flex: 1,
     width: '100%',

@@ -10,9 +10,11 @@ export type RootStackParamList = {
   //BottomTab
   MapMain: undefined;
   ProfileMain: undefined;
+  ListMaps: undefined;
 };
 
 export type BottomTabParamList = {
   MapMain: undefined;
   ProfileMain: undefined;
+  ListMaps: undefined;
 };
