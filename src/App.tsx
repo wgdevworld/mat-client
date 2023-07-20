@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ScreenParamList} from './types/navigation';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -10,12 +10,27 @@ import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
 import TabNavContainer from './screens/TabNavContainer';
+<<<<<<< HEAD
 import MatZip from './screens/MatZip';
 import ListMaps from './screens/ListMaps';
+=======
+import messaging from '@react-native-firebase/messaging';
+import {onDisplayNotification} from './controls/NotificationControl';
+>>>>>>> main
 
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      onDisplayNotification(
+        remoteMessage.notification?.body,
+        remoteMessage.notification?.title,
+      );
+    });
+
+    return unsubscribe;
+  }, []);
   const persistor = persistStore(store);
   return (
     <Provider store={store}>
