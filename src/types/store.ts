@@ -10,6 +10,7 @@ export interface Zip {
   address: string;
   distance: number;
   isVisited: boolean;
+  category: string;
 }
 
 export interface Coordinate {

@@ -15,8 +15,8 @@ import MapCard from '../components/MapCard';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const handlePressMap = () => {
-    navigation.navigate('MatZip');
+  const handlePressMap = (mapId: string) => {
+    navigation.navigate('ZipList', {id: mapId});
     console.log('Map pressed');
   };
   const mapData = [

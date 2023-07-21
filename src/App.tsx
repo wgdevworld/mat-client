@@ -10,14 +10,11 @@ import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
 import TabNavContainer from './screens/TabNavContainer';
-<<<<<<< HEAD
 import MatZip from './screens/MatZip';
 import ListMaps from './screens/ListMaps';
-=======
 import messaging from '@react-native-firebase/messaging';
 import {onDisplayNotification} from './controls/NotificationControl';
->>>>>>> main
-
+import ZipList from './screens/ZipList';
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
@@ -72,6 +69,13 @@ const App = () => {
               <Stack.Screen
                 name="ListMaps"
                 component={ListMaps}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ZipList"
+                component={ZipList}
                 options={{
                   headerShown: false,
                 }}

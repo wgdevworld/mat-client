@@ -11,6 +11,7 @@ export type RootStackParamList = {
   MapMain: undefined;
   ProfileMain: undefined;
   ListMaps: undefined;
+  ZipList: undefined;
 };
 
 export type BottomTabParamList = {
