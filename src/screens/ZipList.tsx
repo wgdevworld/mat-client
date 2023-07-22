@@ -58,6 +58,7 @@ export default function ZipList() {
           <FlatList
             data={zipData}
             keyExtractor={item => item.id}
+            scrollEnabled={false}
             renderItem={({item}) => (
               <ZipCard
                 // id={item.id}

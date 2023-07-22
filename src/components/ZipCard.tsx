@@ -38,11 +38,11 @@ const ZipCard: React.FC<ZipCardProps> = ({
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
             <Text style={styles.mapName}>{name}</Text>
-            <Text style={styles.mapAuthor}>Rating: {stars}</Text>
+            <Text style={styles.mapAuthor}>평점: {stars}</Text>
             <Text style={styles.mapAuthor}>{address}</Text>
             <Text style={styles.mapAuthor}>{category}</Text>
-            <Text style={styles.followersCount}>Reviews {numReview}</Text>
-            <Text style={styles.followersCount}>Distance: {distance}</Text>
+            <Text style={styles.followersCount}>리뷰수 {numReview}</Text>
+            <Text style={styles.followersCount}>나와의 거리: {distance}</Text>
           </View>
           <Ionicons
             name={

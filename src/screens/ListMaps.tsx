@@ -43,6 +43,7 @@ export default function ListMaps() {
           <FlatList
             data={mapData}
             keyExtractor={item => item.name}
+            scrollEnabled={false}
             renderItem={({item}) => (
               <MapCard
                 mapName={item.name}

@@ -32,7 +32,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
       <Text>{rating}</Text>
       <Text>{content}</Text>
       <Text>{date.toLocaleDateString('ko-KR')}</Text>
-      <ImageCarousel images={images} />
+      {/* <ImageCarousel images={images} /> */}
     </View>
   );
 };
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#FF4000',
+    backgroundColor: '#f2f2f2f2',
     borderRadius: 20,
     marginBottom: 12,
     shadowColor: '#000',

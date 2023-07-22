@@ -81,13 +81,6 @@ export default function () {
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <ImageCarousel images={images} />
-        {/* <Text style={styles.zipNameText}>이름: {name}</Text>
-        <Text style={styles.heading}>주소: {address}</Text>
-        <Text style={styles.heading}>평점: {stars}</Text>
-        <Text style={styles.heading}>리뷰수: {numReview}</Text>
-        <Text style={styles.heading}>방문여부: {isVisited}</Text>
-        <Text style={styles.heading}>좋아요: {distance}</Text>
-        <Text style={styles.heading}>카테고리: {category}</Text> */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
             <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
@@ -119,7 +112,7 @@ export default function () {
             리뷰수: {zipData.zip.numReview}
           </Text>
           <Text style={styles.matZipInfoText}>
-            방문여부: {zipData.zip.isVisited}
+            방문여부: {zipData.zip.isVisited ? '방문 전' : '방문함'}
           </Text>
           {/* <Text style={styles.matZipInfoText}>좋아요: {zipData.zip.}</Text> */}
           <Text style={styles.matZipInfoText}>
@@ -147,6 +140,7 @@ export default function () {
         <FlatList
           data={reviews}
           keyExtractor={item => item.author}
+          scrollEnabled={false}
           renderItem={({item}) => (
             <ReviewCard
               author={item.author}
