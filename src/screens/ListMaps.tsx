@@ -15,28 +15,24 @@ import MapCard from '../components/MapCard';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const handlePressMap = (mapId: string) => {
-    navigation.navigate('ZipList', {id: mapId});
-    console.log('Map pressed');
-  };
   const mapData = [
     {
-      mapName: '라멘여지도',
-      followers: 342,
+      id: '1',
+      name: '라멘여지도',
+      numFollower: 342,
       author: '홍길동',
-      onPressMap: handlePressMap,
     },
     {
-      mapName: '또간집',
-      followers: 10230,
+      id: '2',
+      name: '또간집',
+      numFollower: 10230,
       author: '윤지원',
-      onPressMap: handlePressMap,
     },
     {
-      mapName: '비밀이야',
-      followers: 210000,
+      id: '3',
+      name: '비밀이야',
+      numFollower: 210000,
       author: '운영진',
-      onPressMap: handlePressMap,
     },
   ];
   return (
@@ -46,13 +42,13 @@ export default function ListMaps() {
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={mapData}
-            keyExtractor={item => item.mapName}
+            keyExtractor={item => item.name}
             renderItem={({item}) => (
               <MapCard
-                mapName={item.mapName}
-                followers={item.followers}
+                mapName={item.name}
+                followers={item.numFollower}
                 author={item.author}
-                onPressMap={item.onPressMap}
+                onPressMap={() => navigation.navigate('ZipList', {map: item})}
               />
             )}
           />

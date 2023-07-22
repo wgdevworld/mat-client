@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+import {RouteProp, useRoute} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {
   SafeAreaView,
@@ -13,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
-import {Zip} from '../types/store';
+import {ScreenParamList} from '../types/navigation';
 
 // interface MatZipProps {
 //   name: string;
@@ -66,17 +67,9 @@ const reviews = [
   },
 ];
 
-const MatZip: React.FC<Zip> = ({
-  name,
-  stars,
-  numReview,
-  // imageSrc,
-  address,
-  distance,
-  isVisited,
-  category,
-  // reviewList,
-}) => {
+export default function () {
+  const route = useRoute<RouteProp<ScreenParamList, 'MatZip'>>();
+  const zipData = route.params;
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
@@ -97,7 +90,7 @@ const MatZip: React.FC<Zip> = ({
         <Text style={styles.heading}>카테고리: {category}</Text> */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
-            <Text style={styles.zipNameText}>맛집네임히어</Text>
+            <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
             <View style={{flex: 1}} />
             <View
               style={{
@@ -107,7 +100,7 @@ const MatZip: React.FC<Zip> = ({
               }}>
               <View style={styles.horizontal}>
                 <Ionicons name="star" color="orange" size={30} />
-                <Text style={styles.matZipRatingText}>4.8</Text>
+                <Text style={styles.matZipRatingText}>{zipData.zip.stars}</Text>
               </View>
             </View>
           </View>
@@ -115,17 +108,23 @@ const MatZip: React.FC<Zip> = ({
           <Text style={styles.matZipListText}> @맛집리스트이름... 에 포함</Text>
           <View style={styles.horizontal}>
             <Ionicons name="location-outline" color="black" size={18} />
-            <Text style={styles.matZipInfoText}> 서울시 마포구 동교로 123</Text>
+            <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
             <Ionicons name="call-outline" color="black" size={18} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
 
-          <Text style={styles.heading}>리뷰수: {numReview}</Text>
-          <Text style={styles.heading}>방문여부: {isVisited}</Text>
-          <Text style={styles.heading}>좋아요: {distance}</Text>
-          <Text style={styles.heading}>카테고리: {category}</Text>
+          <Text style={styles.matZipInfoText}>
+            리뷰수: {zipData.zip.numReview}
+          </Text>
+          <Text style={styles.matZipInfoText}>
+            방문여부: {zipData.zip.isVisited}
+          </Text>
+          {/* <Text style={styles.matZipInfoText}>좋아요: {zipData.zip.}</Text> */}
+          <Text style={styles.matZipInfoText}>
+            카테고리: {zipData.zip.category}
+          </Text>
 
           {/* if touched, icon chevron changes */}
           <TouchableOpacity
@@ -160,7 +159,7 @@ const MatZip: React.FC<Zip> = ({
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   containter: {},
@@ -281,5 +280,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default MatZip;

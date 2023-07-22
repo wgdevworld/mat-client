@@ -1,10 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
-// 맛집 지도 내의 맛집 리스트
-
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ZipCard from '../components/ZipCard';
@@ -12,10 +10,8 @@ import {ScreenParamList} from '../types/navigation';
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const handlePressZip = (zipId: string) => {
-    // add MatZip id later
-    navigation.navigate('MatZip', {id: zipId});
-  };
+  const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
+  const mapData = route.params;
   const zipData = [
     {
       id: '1',
@@ -28,7 +24,6 @@ export default function ZipList() {
       distance: 5,
       isVisited: true,
       category: '일본라멘',
-      onPressZip: handlePressZip,
     },
     {
       id: '2',
@@ -41,7 +36,6 @@ export default function ZipList() {
       distance: 34,
       isVisited: true,
       category: '일본라멘',
-      onPressZip: handlePressZip,
     },
     {
       id: '3',
@@ -54,20 +48,19 @@ export default function ZipList() {
       distance: 1.2,
       isVisited: false,
       category: '일본라멘',
-      onPressZip: handlePressZip,
     },
   ];
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>지도 네임 히어</Text>
+        <Text style={styles.heading}>{mapData.map.name}</Text>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={zipData}
             keyExtractor={item => item.id}
             renderItem={({item}) => (
               <ZipCard
-                id={item.id}
+                // id={item.id}
                 name={item.name}
                 stars={item.stars}
                 numReview={item.numReview}
@@ -75,7 +68,7 @@ export default function ZipList() {
                 distance={item.distance}
                 isVisited={item.isVisited}
                 category={item.category}
-                onPressZip={item.onPressZip}
+                onPressZip={() => navigation.navigate('MatZip', {zip: item})}
               />
             )}
           />

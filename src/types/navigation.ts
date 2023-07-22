@@ -1,3 +1,5 @@
+import {MatMap, Zip} from './store';
+
 export type ScreenParamList = RootStackParamList;
 
 export type RootStackParamList = {
@@ -11,7 +13,16 @@ export type RootStackParamList = {
   MapMain: undefined;
   ProfileMain: undefined;
   ListMaps: undefined;
-  ZipList: undefined;
+
+  // MatMap, MatZip
+  ZipList: {
+    // mapID: string;
+    map: MatMap;
+  };
+  MatZip: {
+    // zipID: string;
+    zip: Zip;
+  };
 };
 
 export type BottomTabParamList = {

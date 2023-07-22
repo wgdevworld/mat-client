@@ -7,13 +7,19 @@ export interface Zip {
   numReview: number;
   //TODO: change to string after completing image upload functionality
   //TODO: imageSrc --> there could be multiple images
-  // imageSrc: ImageSourcePropType;
+  // imageSrc: ImageSourcePropType[];
   address: string;
   distance: number;
   isVisited: boolean;
   category: string;
   //TODO: to MatZip page using zipId
-  onPressZip: () => void;
+}
+
+export interface MatMap {
+  id: string;
+  name: string;
+  author: string;
+  numFollower: number;
 }
 
 export interface Coordinate {

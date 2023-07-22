@@ -2,11 +2,20 @@ import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
-import {Zip} from '../types/store';
 import ImageCarousel from './ImageCarousel';
 
-const ZipCard: React.FC<Zip> = ({
-  id,
+interface ZipCardProps {
+  name: string;
+  stars: number;
+  numReview: number;
+  address: string;
+  distance: number;
+  isVisited: boolean;
+  category: string;
+  onPressZip: () => void;
+}
+
+const ZipCard: React.FC<ZipCardProps> = ({
   name,
   stars,
   numReview,
@@ -31,6 +40,7 @@ const ZipCard: React.FC<Zip> = ({
             <Text style={styles.mapName}>{name}</Text>
             <Text style={styles.mapAuthor}>Rating: {stars}</Text>
             <Text style={styles.mapAuthor}>{address}</Text>
+            <Text style={styles.mapAuthor}>{category}</Text>
             <Text style={styles.followersCount}>Reviews {numReview}</Text>
             <Text style={styles.followersCount}>Distance: {distance}</Text>
           </View>
