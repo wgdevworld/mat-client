@@ -6,11 +6,14 @@ export interface Zip {
   stars: number;
   numReview: number;
   //TODO: change to string after completing image upload functionality
-  imageSrc: ImageSourcePropType;
+  //TODO: imageSrc --> there could be multiple images
+  // imageSrc: ImageSourcePropType;
   address: string;
   distance: number;
   isVisited: boolean;
   category: string;
+  //TODO: to MatZip page using zipId
+  onPressZip: () => void;
 }
 
 export interface Coordinate {
