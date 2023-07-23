@@ -6,7 +6,7 @@ export const initPushNotification = async () => {
   try {
     // Get the token
     const token = await messaging().getToken();
-    console.log('Token: ' + token);
+    console.log('ℹ️ Notification token: ' + token);
 
     // Register background handler
     messaging().setBackgroundMessageHandler(async remoteMessage => {

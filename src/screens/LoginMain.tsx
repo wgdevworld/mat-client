@@ -11,8 +11,17 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import {KakaoOAuthToken, login} from '@react-native-seoul/kakao-login';
 
 export default function Login() {
+  const signInWithKakao = async (): Promise<void> => {
+    try {
+      const token: KakaoOAuthToken = await login();
+      console.log(JSON.stringify(token));
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -68,7 +77,7 @@ export default function Login() {
           <TouchableOpacity style={styles.setAccountButton}>
             <Text style={styles.setAccountButtonText}>회원가입</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={signInWithKakao}>
             <Image source={assets.images.kakao_login_medium_narrow} />
           </TouchableOpacity>
         </View>
