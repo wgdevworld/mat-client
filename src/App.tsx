@@ -15,6 +15,7 @@ import ListMaps from './screens/ListMaps';
 import messaging from '@react-native-firebase/messaging';
 import {onDisplayNotification} from './controls/NotificationControl';
 import ZipList from './screens/ZipList';
+import ProfileMain from './screens/ProfileMain';
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
@@ -54,6 +55,13 @@ const App = () => {
               <Stack.Screen
                 name="LoginMain"
                 component={LoginMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ProfileMain"
+                component={ProfileMain}
                 options={{
                   headerShown: false,
                 }}

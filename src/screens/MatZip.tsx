@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  Animated,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -34,17 +35,37 @@ const images = [
   assets.images.월량관,
 ];
 
-// const matZip = [
-//   {
-//     name: '라멘1',
-//     address: '서울시 중구 길동 13',
-//     numReview: 432,
-//     rating: 4.5,
-//     isVisited: true,
-//     numLike: 234,
-//     category: '일본라멘',
-//   },
-// ];
+const ExpandableView = ({expanded = false}) => {
+  const [height] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(height, {
+      toValue: !expanded ? reviews.length * 70 : 0,
+      duration: 150,
+      useNativeDriver: false,
+    }).start();
+  }, [expanded, height]);
+
+  // console.log('rerendered');
+
+  return (
+    <Animated.View style={{height}}>
+      <FlatList
+        data={reviews}
+        keyExtractor={item => item.author}
+        scrollEnabled={false}
+        renderItem={({item}) => (
+          <ReviewCard
+            author={item.author}
+            rating={item.rating}
+            content={item.content}
+            date={item.date}
+          />
+        )}
+      />
+    </Animated.View>
+  );
+};
 
 const reviews = [
   {
@@ -135,21 +156,21 @@ export default function () {
               size={22}
             />
           </TouchableOpacity>
+          <ExpandableView expanded={toggleReview} />
+          {/* <FlatList
+            data={reviews}
+            keyExtractor={item => item.author}
+            scrollEnabled={false}
+            renderItem={({item}) => (
+              <ReviewCard
+                author={item.author}
+                rating={item.rating}
+                content={item.content}
+                date={item.date}
+              />
+            )}
+          /> */}
         </View>
-
-        <FlatList
-          data={reviews}
-          keyExtractor={item => item.author}
-          scrollEnabled={false}
-          renderItem={({item}) => (
-            <ReviewCard
-              author={item.author}
-              rating={item.rating}
-              content={item.content}
-              date={item.date}
-            />
-          )}
-        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -199,7 +220,6 @@ const styles = StyleSheet.create({
     height: 50,
     backgroundColor: '#FF4000',
     borderRadius: 8,
-    marginBottom: 8,
     paddingHorizontal: 12,
   },
   rowText: {

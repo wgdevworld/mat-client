@@ -27,6 +27,6 @@ export type RootStackParamList = {
 
 export type BottomTabParamList = {
   MapMain: undefined;
-  ProfileMain: undefined;
+  SettingsMain: undefined;
   ListMaps: undefined;
 };
