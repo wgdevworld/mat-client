@@ -9,6 +9,8 @@ import colors from '../styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapMain from './MapMain';
 import ProfileMain from './ProfileMain';
+import ListMaps from './ListMaps';
+import SettingsMain from './SettingsMain';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -61,7 +63,7 @@ const TabNavContainer = () => {
                 />
               );
               break;
-            case 'Profile':
+            case 'Settings':
               icon = (
                 <Ionicons
                   name="person-circle-outline"
@@ -98,9 +100,9 @@ const TabNavContainer = () => {
         };
       }}>
       <Tab.Screen name="Map" component={MapMain} />
-      <Tab.Screen name="List" component={MapMain} />
+      <Tab.Screen name="List" component={ListMaps} />
       <Tab.Screen name="Community" component={MapMain} />
-      <Tab.Screen name="Profile" component={ProfileMain} />
+      <Tab.Screen name="Settings" component={SettingsMain} />
     </Tab.Navigator>
   );
 };
