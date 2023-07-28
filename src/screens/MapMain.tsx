@@ -22,6 +22,9 @@ import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
 import {calculateDistance} from '../tools/CommonFunc';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -240,34 +243,41 @@ function App(): JSX.Element {
     setCards(prevCards => [...prevCards, newCard]);
   };
 
-  const renderItem = useCallback(({item}: {item: Item}) => {
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemImageContainer}>
-          <Image source={item.imageSrc} style={styles.itemImage} />
-        </View>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemTitleStarsContainer}>
-            <Text style={styles.itemTitleText}>{item.name}</Text>
-            {item.isVisited && (
-              <Ionicons
-                name="checkmark-done-circle-outline"
-                size={20}
-                color={'white'}
-              />
-            )}
-            <View style={styles.itemStarReviewContainer}>
-              <Ionicons name="star" size={14} color={'white'} />
-              <Text style={styles.itemStarsText}>{item.stars}</Text>
-              <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
-            </View>
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+
+  const renderItem = useCallback(
+    ({item}: {item: Item}) => {
+      return (
+        <TouchableOpacity
+          style={styles.itemContainer}
+          onPress={() => navigation.navigate('MatZip', {zip: item})}>
+          <View style={styles.itemImageContainer}>
+            <Image source={item.imageSrc} style={styles.itemImage} />
           </View>
-          <Text style={styles.itemSubtext}>{item.address}</Text>
-          <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
-        </View>
-      </View>
-    );
-  }, []);
+          <View style={styles.itemInfoContainer}>
+            <View style={styles.itemTitleStarsContainer}>
+              <Text style={styles.itemTitleText}>{item.name}</Text>
+              {item.isVisited && (
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={20}
+                  color={'white'}
+                />
+              )}
+              <View style={styles.itemStarReviewContainer}>
+                <Ionicons name="star" size={14} color={'white'} />
+                <Text style={styles.itemStarsText}>{item.stars}</Text>
+                <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
+              </View>
+            </View>
+            <Text style={styles.itemSubtext}>{item.address}</Text>
+            <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [navigation],
+  );
 
   return (
     <View style={{flex: 1}}>
