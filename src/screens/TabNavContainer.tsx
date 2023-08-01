@@ -41,7 +41,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="map-outline"
                   size={screenWidth * 0.08}
-                  color={colors.coral1}
+                  color='black'
                 />
               );
               break;
@@ -50,7 +50,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="star-outline"
                   size={screenWidth * 0.08}
-                  color={colors.coral1}
+                  color='grey'
                 />
               );
               break;
@@ -59,7 +59,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="people-outline"
                   size={screenWidth * 0.08}
-                  color={colors.coral1}
+                  color='grey'
                 />
               );
               break;
@@ -68,7 +68,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="person-circle-outline"
                   size={screenWidth * 0.08}
-                  color={colors.coral1}
+                  color='grey'
                 />
               );
               break;

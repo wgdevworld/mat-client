@@ -27,9 +27,9 @@ const MapCard: React.FC<MapCardProps> = ({
     // communicate with backend
   };
   const images = [
-    assets.images.스시올로지,
-    assets.images.야키토리나루토,
-    assets.images.월량관,
+    assets.images.산방산국수맛집1,
+    assets.images.산방산국수맛집2,
+    assets.images.애월제주다,
   ];
   return (
     <View style={styles.container}>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: '#FF4000',
-    borderRadius: 20,
+    borderRadius: 0,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},

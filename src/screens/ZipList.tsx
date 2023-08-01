@@ -16,7 +16,7 @@ export default function ZipList() {
     {
       id: '1',
       name: '멘야준',
-      stars: 5,
+      stars: 5.0,
       numReview: 123,
       //TODO: change to string after completing image upload functionality
       // imageSrc: ImageSourcePropType;,

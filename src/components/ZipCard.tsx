@@ -27,9 +27,7 @@ const ZipCard: React.FC<ZipCardProps> = ({
 }) => {
   // Dummy image data here
   const images = [
-    assets.images.스시올로지,
-    assets.images.야키토리나루토,
-    assets.images.월량관,
+    assets.images.교래퐁낭1,
   ];
   return (
     <View style={styles.container}>
@@ -38,10 +36,10 @@ const ZipCard: React.FC<ZipCardProps> = ({
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
             <Text style={styles.mapName}>{name}</Text>
-            <Text style={styles.mapAuthor}>평점: {stars}</Text>
+            {/* <Text style={styles.mapAuthor}>평점: {stars}</Text>
             <Text style={styles.mapAuthor}>{address}</Text>
             <Text style={styles.mapAuthor}>{category}</Text>
-            <Text style={styles.followersCount}>리뷰수 {numReview}</Text>
+            <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
             <Text style={styles.followersCount}>나와의 거리: {distance}</Text>
           </View>
           <Ionicons
@@ -64,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: '#FF4000',
-    borderRadius: 20,
+    borderRadius: 0,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
