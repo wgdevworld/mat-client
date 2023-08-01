@@ -11,6 +11,7 @@ import MapMain from './MapMain';
 import ProfileMain from './ProfileMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
+import MuckitNotes from './MuckitNotes';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -101,7 +102,7 @@ const TabNavContainer = () => {
       }}>
       <Tab.Screen name="Map" component={MapMain} />
       <Tab.Screen name="List" component={ListMaps} />
-      <Tab.Screen name="Community" component={MapMain} />
+      <Tab.Screen name="Community" component={MuckitNotes} />
       <Tab.Screen name="Settings" component={SettingsMain} />
     </Tab.Navigator>
   );

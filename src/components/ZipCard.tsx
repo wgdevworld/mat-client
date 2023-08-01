@@ -63,16 +63,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: colors.grey,
-    borderRadius: 0,
+    borderRadius: 20,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
+    padding: 0,
   },
   infoContainer: {
     flex: 1,
+    padding: 1
   },
   cardHorizontal: {
     alignItems: 'center',
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
   },
   mapAuthor: {
     fontSize: 12,
-    marginBottom: 5,
+    marginBottom: 4,
     color: 'black',
   },
   followersCount: {
