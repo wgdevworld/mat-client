@@ -1,12 +1,13 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
+import axios from 'axios';
 
 export const initPushNotification = async () => {
   // Register the device with FCM
   try {
     // Get the token
     const token = await messaging().getToken();
-    console.log('Token: ' + token);
+    console.log('ℹ️ Notification token: ' + token);
 
     // Register background handler
     messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -15,6 +16,51 @@ export const initPushNotification = async () => {
         remoteMessage.notification?.title,
       );
     });
+    // const query = `
+    //   {
+    //     fetchAllMaps {
+    //       id
+    //       name
+    //     }
+    //   }
+    // `;
+    // const res = await axios.post(
+    //   'https://muckit-server.site/graphql',
+    //   {
+    //     query,
+    //   },
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   },
+    // );
+
+    const notificationQuery = `
+    mutation sendNotification($deviceToken: String!, $message: String!) {
+      sendNotification(deviceToken: $deviceToken, message: $message)
+    }
+  `;
+    const variables = {
+      deviceToken: token,
+      message: 'Hello',
+    };
+
+    await axios.post(
+      'https://muckit-server.site/graphql',
+      {
+        query: notificationQuery,
+        variables,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          // other headers if needed
+        },
+      },
+    );
+
+    // console.log(res.data.data.fetchAllMaps);
   } catch (e) {
     console.log(e);
   }

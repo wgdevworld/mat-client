@@ -14,6 +14,7 @@ import MatZip from './screens/MatZip';
 import ListMaps from './screens/ListMaps';
 import messaging from '@react-native-firebase/messaging';
 import {onDisplayNotification} from './controls/NotificationControl';
+import EmailRegisterMain from './screens/EmailRegisterMain';
 import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
 const Stack = createStackNavigator<ScreenParamList>();
@@ -35,7 +36,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'TabNavContainer'}>
+            <Stack.Navigator initialRouteName={'LoginMain'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
@@ -55,6 +56,13 @@ const App = () => {
               <Stack.Screen
                 name="LoginMain"
                 component={LoginMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="EmailRegisterMain"
+                component={EmailRegisterMain}
                 options={{
                   headerShown: false,
                 }}

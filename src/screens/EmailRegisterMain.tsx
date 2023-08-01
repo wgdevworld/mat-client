@@ -1,60 +1,74 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
-  Text,
   ScrollView,
   View,
+  Text,
   TextInput,
   TouchableOpacity,
-  Image,
+  StyleSheet,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
-import {KakaoOAuthToken, login} from '@react-native-seoul/kakao-login';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {ScreenParamList} from '../types/navigation';
+import colors from '../styles/colors';
+import axios from 'axios';
 
-export default function Login() {
-  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const signInWithKakao = async (): Promise<void> => {
+const EmailRegisterMain = () => {
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [pwd, setPwd] = useState('');
+
+  const onPressRegister = async () => {
     try {
-      const token: KakaoOAuthToken = await login();
-      console.log(JSON.stringify(token));
+      const userInput = {
+        name: name,
+        username: username,
+        email: email,
+        pwd: pwd,
+        institution: 'lalala',
+        address: 'lololo',
+      };
+      console.log(userInput);
+      const query = `
+            mutation {
+                createUser(userInput: {
+                name: $name,
+                username: $username,
+                email: $email,
+                pwd: $pwd,
+                institution: $institution,
+                address: $address
+                }) {
+                username
+                id
+                email
+                }
+            }
+        `;
+
+      axios
+        .post(
+          'https://muckit-server.site/graphql',
+          {
+            query,
+            userInput,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          },
+        )
+        .then((result: {data: any}) => {
+          console.log(result.data);
+        })
+        .catch(e => console.log(e));
     } catch (e) {
       console.log(e);
     }
   };
-  const handleLoginWithGoogle = async () => {
-    try {
-      // Initialize Google Sign-In
-      await GoogleSignin.configure({
-        webClientId:
-          '81406653474-to8tib4bi1cscpm0mg73er2gd8lkfi1u.apps.googleusercontent.com',
-      });
 
-      // Prompt the user to sign in
-      await GoogleSignin.signIn();
-
-      // Handle successful sign-in here
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // User canceled the sign-in flow
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        // Sign-in is in progress
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // Play services not available or outdated
-      } else {
-        // Other error occurred
-      }
-    }
-  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -65,12 +79,38 @@ export default function Login() {
           justifyContent: 'center',
         }}>
         <View style={styles.content}>
-          <Text style={styles.text}>로그인</Text>
+          <Text style={styles.text}>회원가입</Text>
+          <View style={styles.inputContainer}>
+            <View style={styles.icon}>
+              <Ionicons name="person" size={15} color={'white'} />
+            </View>
+            <TextInput
+              onChangeText={text => setName(text)}
+              style={styles.input}
+              placeholder="성함"
+              placeholderTextColor="white"
+              selectionColor="white"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <View style={styles.icon}>
+              <Ionicons name="happy" size={15} color={'white'} />
+            </View>
+            {/* //TODO: 중복 체크 버튼 추가 */}
+            <TextInput
+              onChangeText={text => setUsername(text)}
+              style={styles.input}
+              placeholder="유저네임"
+              placeholderTextColor="white"
+              selectionColor="white"
+            />
+          </View>
           <View style={styles.inputContainer}>
             <View style={styles.icon}>
               <Ionicons name="mail" size={15} color={'white'} />
             </View>
             <TextInput
+              onChangeText={text => setEmail(text)}
               style={styles.input}
               placeholder="이메일 주소"
               placeholderTextColor="white"
@@ -82,6 +122,7 @@ export default function Login() {
               <Ionicons name="lock-closed-outline" size={15} color={'white'} />
             </View>
             <TextInput
+              onChangeText={text => setPwd(text)}
               style={styles.input}
               placeholder="비밀번호"
               placeholderTextColor="white"
@@ -91,45 +132,18 @@ export default function Login() {
               <Ionicons name="eye-off" size={15} color={'white'} />
             </TouchableOpacity>
           </View>
-          <View style={styles.forgotButtons}>
-            <TouchableOpacity style={styles.forgotIdButton}>
-              <Text style={styles.forgotIdButtonText}>아이디 찾기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.forgotPasswordButton}>
-              <Text style={styles.forgotPasswordButtonText}>비밀번호 찾기</Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>로그인</Text>
-          </TouchableOpacity>
-          <View style={styles.orContainer}>
-            <View style={styles.orLine} />
-            <Text style={styles.orText}>또는</Text>
-            <View style={styles.orLine} />
-          </View>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('EmailRegisterMain');
+              onPressRegister();
             }}
             style={styles.setAccountButton}>
             <Text style={styles.setAccountButtonText}>회원가입</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={signInWithKakao}>
-            <Image source={assets.images.kakao_login_medium_narrow} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLoginWithGoogle}>
-            <GoogleSigninButton
-              style={{width: 192, height: 48}}
-              size={GoogleSigninButton.Size.Wide}
-              color={GoogleSigninButton.Color.Light}
-              onPress={handleLoginWithGoogle}
-            />
           </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -159,6 +173,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   input: {
+    color: colors.white,
     borderBottomWidth: 1.5,
     flex: 1,
     paddingBottom: 10,
@@ -250,3 +265,5 @@ const styles = StyleSheet.create({
   //   textAlign: "center",
   // },
 });
+
+export default EmailRegisterMain;
