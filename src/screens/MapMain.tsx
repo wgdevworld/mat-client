@@ -414,7 +414,7 @@ function App(): JSX.Element {
               renderItem={renderItem}
               contentContainerStyle={styles.contentContainer}
               ListHeaderComponent={
-                <Text style={styles.flatListHeaderText}>근처 나의 맛집들</Text>
+                <Text style={styles.flatListHeaderText}>근처 나의 맛집들 🍶</Text>
               }
               ListFooterComponent={<View style={{height: 200}} />}
             />
