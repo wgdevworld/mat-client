@@ -1,5 +1,6 @@
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Rating} from 'react-native-ratings';
 import assets from '../../assets';
 import {
   View,
@@ -32,7 +33,20 @@ const ReviewForm = (
   return (
     <View style={styles.container}>
       <Text style={styles.text}>리뷰 작성하기</Text>
-      {/* <Rate /> */}
+      <View style={styles.icon}>
+        <Ionicons name="star-outline" size={15} color={'white'} />
+      </View>
+      <Rating
+        imageSize={20}
+        ratingCount={5}
+        style={{paddingVertical: 10}}
+        tintColor="blue"
+        fractions={1}
+        jumpValue={0.5}
+        startingValue={0}
+        minValue={1}
+        // onFinishRating={}
+      />
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
           <Ionicons name="text" size={15} color={'white'} />
@@ -42,21 +56,27 @@ const ReviewForm = (
           placeholder="리뷰를 작성해주세요!"
           placeholderTextColor="white"
           selectionColor="white"
+          multiline
         />
       </View>
-
-      <View style={styles.inputContainer}>
+      {/* useState to store data, add onPress to TouchableOpacity */}
+      <TouchableOpacity>
+        <Text
+          style={{color: 'black', marginBottom: 5, backgroundColor: 'white'}}>
+          등록
+        </Text>
+      </TouchableOpacity>
+      {/* <View style={styles.inputContainer}>
         <View style={styles.icon}>
           <Ionicons name="star-outline" size={15} color={'white'} />
         </View>
-        {/* <Rate allowHalf /> */}
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
           placeholderTextColor="white"
           selectionColor="white"
         />
-      </View>
+      </View> */}
       {/* <TouchableOpacity style={styles.forgotIdButton}>
         <Text style={styles.forgotIdButtonText}>아이디 찾기</Text>
       </TouchableOpacity> */}
@@ -169,6 +189,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomColor: '#eee',
     fontSize: 16,
+    color: 'white',
   },
 });
 
