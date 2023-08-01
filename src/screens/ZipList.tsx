@@ -53,7 +53,7 @@ export default function ZipList() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>{mapData.map.name}</Text>
+        <Text style={styles.heading}>{mapData.map.name} 👀</Text>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={zipData}
