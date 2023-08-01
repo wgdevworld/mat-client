@@ -42,6 +42,7 @@ type Place = {
   coordinate: Coordinate;
 };
 
+//TODO: Item 없애고 Zip으로 변경/통합
 type Item = {
   imageSrc: ImageSourcePropType;
   name: string;

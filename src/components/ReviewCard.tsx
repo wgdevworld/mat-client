@@ -31,6 +31,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
       <Text>{author}</Text>
       <Text>{rating}</Text>
       <Text>{content}</Text>
+
       <Text>{date.toLocaleDateString('ko-KR')}</Text>
       {/* <ImageCarousel images={images} /> */}
     </View>

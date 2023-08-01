@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
+import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 
 // interface MatZipProps {
@@ -40,7 +41,7 @@ const ExpandableView = ({expanded = false}) => {
 
   useEffect(() => {
     Animated.timing(height, {
-      toValue: !expanded ? reviews.length * 70 : 0,
+      toValue: !expanded ? reviews.length * 200 : 0,
       duration: 150,
       useNativeDriver: false,
     }).start();
@@ -63,6 +64,7 @@ const ExpandableView = ({expanded = false}) => {
           />
         )}
       />
+      <ReviewForm />
     </Animated.View>
   );
 };
@@ -88,7 +90,7 @@ const reviews = [
   },
 ];
 
-export default function () {
+export default function MatZip() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZip'>>();
   const zipData = route.params;
   const handlePressReviewChevron = () => {
