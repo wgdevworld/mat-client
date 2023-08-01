@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 // TODO: refresh after scroll down from top
 
 interface MapCardProps {
@@ -27,9 +27,7 @@ const MapCard: React.FC<MapCardProps> = ({
     // communicate with backend
   };
   const images = [
-    assets.images.산방산국수맛집1,
-    assets.images.산방산국수맛집2,
-    assets.images.애월제주다,
+    assets.images.default_map
   ];
   return (
     <View style={styles.container}>
