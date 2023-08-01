@@ -3,6 +3,7 @@ import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from './ImageCarousel';
+import colors from '../styles/colors';
 
 interface ZipCardProps {
   name: string;
@@ -31,16 +32,16 @@ const ZipCard: React.FC<ZipCardProps> = ({
   ];
   return (
     <View style={styles.container}>
-      <ImageCarousel images={images} />
+      {/* <ImageCarousel images={images} /> */}
       <TouchableOpacity onPress={onPressZip} style={styles.lowerHalf}>
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
             <Text style={styles.mapName}>{name}</Text>
-            {/* <Text style={styles.mapAuthor}>평점: {stars}</Text>
-            <Text style={styles.mapAuthor}>{address}</Text>
+            {/* <Text style={styles.mapAuthor}>평점: {stars}</Text> */}
+            {/* <Text style={styles.mapAuthor}>{address}</Text> */}
             <Text style={styles.mapAuthor}>{category}</Text>
-            <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
-            <Text style={styles.followersCount}>나와의 거리: {distance}</Text>
+            {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
+            <Text style={styles.mapAuthor}>나와의 거리: {distance}</Text>
           </View>
           <Ionicons
             name={
@@ -49,7 +50,7 @@ const ZipCard: React.FC<ZipCardProps> = ({
                 : 'checkmark-circle-outline'
             }
             size={30}
-            color="white"
+            color={colors.coral1}
           />
         </View>
       </TouchableOpacity>
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.grey,
     borderRadius: 0,
     marginBottom: 12,
     shadowColor: '#000',
@@ -81,15 +82,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: 'white',
+    color: colors.coral1,
   },
   mapAuthor: {
     fontSize: 12,
     marginBottom: 5,
-    color: 'white',
+    color: 'black',
   },
   followersCount: {
-    color: 'white',
+    color: colors.coral1,
     marginBottom: 10,
   },
   lowerHalf: {
