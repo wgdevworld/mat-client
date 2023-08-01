@@ -12,6 +12,7 @@ import LoginMain from './screens/LoginMain';
 import TabNavContainer from './screens/TabNavContainer';
 import messaging from '@react-native-firebase/messaging';
 import {onDisplayNotification} from './controls/NotificationControl';
+import EmailRegisterMain from './screens/EmailRegisterMain';
 
 const Stack = createStackNavigator<ScreenParamList>();
 
@@ -52,6 +53,13 @@ const App = () => {
               <Stack.Screen
                 name="LoginMain"
                 component={LoginMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="EmailRegisterMain"
+                component={EmailRegisterMain}
                 options={{
                   headerShown: false,
                 }}
