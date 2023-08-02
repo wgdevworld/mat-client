@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,36 +12,33 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
+import { fetchAllMaps } from '../controls/MatMapControl';
+import { initialState } from '../store/modules/matMap';
+import { initPushNotification } from '../controls/NotificationControl';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const mapData = [
-    {
-      id: '1',
-      name: '라멘여지도',
-      numFollower: 342,
-      author: '홍길동',
-    },
-    {
-      id: '2',
-      name: '또간집',
-      numFollower: 10230,
-      author: '윤지원',
-    },
-    {
-      id: '3',
-      name: '비밀이야',
-      numFollower: 210000,
-      author: '운영진',
-    },
-  ];
+  const [maps, setMaps] = useState([initialState]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchAllMaps();
+      console.log(data)
+      if (data.fetchAllMaps) {
+        setMaps(data.fetchAllMaps);
+      }
+    };
+    fetchData();
+    initPushNotification();
+  }, []);
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <Text style={styles.heading}>📌 지도 모음집</Text>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
-            data={mapData}
+            data={maps}
             keyExtractor={item => item.name}
             scrollEnabled={false}
             renderItem={({item}) => (

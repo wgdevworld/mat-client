@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView } from 'react-native';
 import colors from '../styles/colors';
+import { fetchAllMaps } from '../controls/MatMapControl';
 
 
 export default function CreateMatZip() {
@@ -13,6 +14,7 @@ export default function CreateMatZip() {
     const [category, setCategory] = useState('');
 
     const handleCreateZip = async () => {
+        
     }
 
     return (
@@ -45,7 +47,7 @@ export default function CreateMatZip() {
             value={category}
             onChangeText={setCategory}
           />
-          <TouchableOpacity style={styles.addButton} onPress={handleCreateZip}>
+          <TouchableOpacity style={styles.addButton} onPress={fetchAllMaps}>
             <Text style={styles.addButtonText}>맛집 등록하기</Text>
           </TouchableOpacity>
         </View>

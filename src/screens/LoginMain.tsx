@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    width: '125%',
+    width: '126%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,

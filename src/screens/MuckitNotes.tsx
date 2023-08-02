@@ -16,7 +16,7 @@ export default function MuckitNotes() {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
 
-  const handleCheckboxToggle = (itemId) => {
+  const handleCheckboxToggle = (itemId: number) => {
     setItems((prevItems) =>
       prevItems.map((item) =>
         item.id === itemId ? { ...item, checked: !item.checked } : item
@@ -139,5 +139,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
-  },
+  }
 });

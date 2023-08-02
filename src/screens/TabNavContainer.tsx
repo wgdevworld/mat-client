@@ -8,7 +8,6 @@ import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import colors from '../styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapMain from './MapMain';
-import ProfileMain from './ProfileMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
