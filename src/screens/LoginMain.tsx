@@ -115,11 +115,11 @@ export default function Login() {
             <Text style={styles.setAccountButtonText}>회원가입</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={signInWithKakao}>
-            <Image source={assets.images.kakao_login_medium_narrow} />
+            <Image source={assets.images.kakao_login_medium_narrow} style={{width: 200, height: 45, borderRadius: 15}}/>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleLoginWithGoogle}>
             <GoogleSigninButton
-              style={{width: 192, height: 48}}
+              style={{width: 200, height: 48, borderRadius: 25}}
               size={GoogleSigninButton.Size.Wide}
               color={GoogleSigninButton.Color.Light}
               onPress={handleLoginWithGoogle}
@@ -145,11 +145,13 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 40,
+    marginBottom: 50,
+    marginTop: 60,
+    alignSelf: 'center'
   },
   inputContainer: {
     flexDirection: 'row',
-    width: '100%',
+    width: '125%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomColor: '#eee',
     fontSize: 16,
+    color: 'white'
   },
   passwordVisibleButton: {
     position: 'absolute',
@@ -173,6 +176,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 0,
+    marginBottom: 15
   },
   forgotPasswordButton: {
     flex: 1,
@@ -182,6 +187,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '500',
+    alignSelf: 'flex-end'
   },
   forgotIdButton: {
     flex: 1,

@@ -36,7 +36,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'MapMain'}>
+            <Stack.Navigator initialRouteName={'LoginMain'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
