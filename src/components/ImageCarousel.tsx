@@ -34,7 +34,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 200,
+    height: 220,
   },
   wrapper: {
     // TODO: add style
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
     width: '100%',
     flex: 1,
     resizeMode: 'cover',

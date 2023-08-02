@@ -11,8 +11,50 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import {KakaoOAuthToken, login} from '@react-native-seoul/kakao-login';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 export default function Login() {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const signInWithKakao = async (): Promise<void> => {
+    try {
+      const token: KakaoOAuthToken = await login();
+      console.log(JSON.stringify(token));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const handleLoginWithGoogle = async () => {
+    try {
+      // Initialize Google Sign-In
+      await GoogleSignin.configure({
+        webClientId:
+          '81406653474-to8tib4bi1cscpm0mg73er2gd8lkfi1u.apps.googleusercontent.com',
+      });
+
+      // Prompt the user to sign in
+      await GoogleSignin.signIn();
+
+      // Handle successful sign-in here
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // User canceled the sign-in flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // Sign-in is in progress
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // Play services not available or outdated
+      } else {
+        // Other error occurred
+      }
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -65,11 +107,23 @@ export default function Login() {
             <Text style={styles.orText}>또는</Text>
             <View style={styles.orLine} />
           </View>
-          <TouchableOpacity style={styles.setAccountButton}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('EmailRegisterMain');
+            }}
+            style={styles.setAccountButton}>
             <Text style={styles.setAccountButtonText}>회원가입</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={signInWithKakao}>
             <Image source={assets.images.kakao_login_medium_narrow} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLoginWithGoogle}>
+            <GoogleSigninButton
+              style={{width: 192, height: 48}}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Light}
+              onPress={handleLoginWithGoogle}
+            />
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -16,7 +16,7 @@ export default function ZipList() {
     {
       id: '1',
       name: '멘야준',
-      stars: 5,
+      stars: 5.0,
       numReview: 123,
       //TODO: change to string after completing image upload functionality
       // imageSrc: ImageSourcePropType;,
@@ -53,7 +53,7 @@ export default function ZipList() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>{mapData.map.name}</Text>
+        <Text style={styles.heading}>{mapData.map.name} 👀</Text>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={zipData}

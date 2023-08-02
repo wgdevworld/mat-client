@@ -31,9 +31,9 @@ import {ScreenParamList} from '../types/navigation';
 // }
 
 const images = [
-  assets.images.스시올로지,
-  assets.images.야키토리나루토,
-  assets.images.월량관,
+  assets.images.산방산국수맛집1,
+  assets.images.산방산국수맛집2,
+  assets.images.애월제주다,
 ];
 
 const ExpandableView = ({expanded = false}) => {
@@ -113,40 +113,43 @@ export default function MatZip() {
                 backgroundColor: '#f2f2f2f2',
                 borderRadius: 8,
                 padding: 7,
+                height: 30,
+                width: 50
               }}>
               <View style={styles.horizontal}>
-                <Ionicons name="star" color="orange" size={30} />
+                <Ionicons name="star" color="orange" size={15} />
                 <Text style={styles.matZipRatingText}>{zipData.zip.stars}</Text>
               </View>
             </View>
           </View>
 
-          <Text style={styles.matZipListText}> @맛집리스트이름... 에 포함</Text>
+          <Text style={styles.matZipListText}> @muckit_list 맛집에 포함</Text>
           <View style={styles.horizontal}>
             <Ionicons name="location-outline" color="black" size={18} />
             <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
-            <Ionicons name="call-outline" color="black" size={18} />
+            <Ionicons name="call-outline" color="black" size={16} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
+          <Text style={styles.matZipDescriptionText}>산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만 여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든 콩육수라 역대급 담백고소함!</Text>
 
-          <Text style={styles.matZipInfoText}>
+          {/* <Text style={styles.matZipInfoText}>
             리뷰수: {zipData.zip.numReview}
           </Text>
           <Text style={styles.matZipInfoText}>
             방문여부: {zipData.zip.isVisited ? '방문 전' : '방문함'}
           </Text>
-          {/* <Text style={styles.matZipInfoText}>좋아요: {zipData.zip.}</Text> */}
+          <Text style={styles.matZipInfoText}>좋아요: {zipData.zip.}</Text>
           <Text style={styles.matZipInfoText}>
             카테고리: {zipData.zip.category}
-          </Text>
+          </Text> */}
 
           {/* if touched, icon chevron changes */}
           <TouchableOpacity
             style={styles.row}
             onPress={handlePressReviewChevron}>
-            <Text style={styles.rowText}>리뷰</Text>
+            <Text style={styles.rowText}>리뷰 {zipData.zip.numReview}개</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name={
@@ -192,22 +195,31 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   matZipListText: {
-    fontSize: 18,
-    color: 'gray',
+    fontSize: 13,
+    color: 'black',
     textAlign: 'left',
-    marginBottom: 5,
+    marginBottom: 25,
+    marginTop: -5
   },
   matZipInfoText: {
     fontSize: 18,
     color: 'black',
     textAlign: 'left',
   },
+  matZipDescriptionText: {
+    fontSize: 14,
+    color: 'black',
+    textAlign: 'left',
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 2
+  },
   matZipRatingText: {
-    fontSize: 30,
+    fontSize: 14,
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'left',
-    marginLeft: 3,
+    marginLeft: 5,
   },
   horizontal: {
     flexDirection: 'row',
@@ -219,10 +231,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    height: 50,
+    height: 40,
     backgroundColor: '#FF4000',
     borderRadius: 8,
     paddingHorizontal: 12,
+    marginTop: 10
   },
   rowText: {
     fontSize: 17,

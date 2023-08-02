@@ -28,11 +28,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   ];
   return (
     <View style={styles.container}>
-      <Text>{author}</Text>
-      <Text>{rating}</Text>
-      <Text>{content}</Text>
+      <Text>
+        {date.toLocaleDateString('ko-KR')} @{author} | 평점: {rating}
+      </Text>
+      <Text style={styles.contentText}>{content}</Text>
 
-      <Text>{date.toLocaleDateString('ko-KR')}</Text>
       {/* <ImageCarousel images={images} /> */}
     </View>
   );
@@ -41,16 +41,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'flex-start',
     backgroundColor: '#f2f2f2f2',
-    borderRadius: 15,
+    borderRadius: 10,
     marginBottom: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
+    padding: 12,
   },
   infoContainer: {
     flex: 1,
@@ -73,6 +74,9 @@ const styles = StyleSheet.create({
   followersCount: {
     color: 'white',
     marginBottom: 10,
+  },
+  contentText: {
+    marginTop: 5,
   },
   lowerHalf: {
     flex: 1,

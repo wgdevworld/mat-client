@@ -9,10 +9,10 @@ export const initialState: Zip = {
   name: '맛집',
   stars: 0,
   numReview: 0,
-  imageSrc: assets.images.placeholder,
   address: '',
   distance: 0,
   isVisited: false,
+  category: ''
 };
 
 export const zipSlice = createSlice({
