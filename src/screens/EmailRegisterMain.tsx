@@ -137,7 +137,7 @@ const EmailRegisterMain = () => {
               onPressRegister();
             }}
             style={styles.setAccountButton}>
-            <Text style={styles.setAccountButtonText}>회원가입</Text>
+            <Text style={styles.setAccountButtonText}>가입하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -159,11 +159,13 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 40,
+    marginBottom: 50,
+    marginTop: 0,
+    alignSelf: 'center'
   },
   inputContainer: {
     flexDirection: 'row',
-    width: '100%',
+    width: '126%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -224,6 +226,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
+    marginTop: 30
   },
   setAccountButtonText: {
     color: 'white',
