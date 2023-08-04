@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
-import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 // TODO: refresh after scroll down from top
 
 interface MapCardProps {

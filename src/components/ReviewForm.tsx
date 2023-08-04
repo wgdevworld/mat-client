@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 // import assets from '../../assets';
 import StarRating from 'react-native-star-rating-widget';
+import colors from '../styles/colors';
 import {
   View,
   Text,
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'blue',
+    backgroundColor: colors.coral1,
     borderRadius: 15,
     marginBottom: 5,
     shadowColor: '#000',

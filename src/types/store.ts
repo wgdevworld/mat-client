@@ -31,3 +31,10 @@ export interface ZipList {
   name: string;
   zipList: Zip[];
 }
+
+export interface Review {
+  author: string;
+  rating: number;
+  content: string;
+  date: Date;
+}

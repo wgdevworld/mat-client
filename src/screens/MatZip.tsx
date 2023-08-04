@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -17,6 +17,7 @@ import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
+import Review from '../types/store';
 
 // interface MatZipProps {
 //   name: string;
@@ -49,22 +50,32 @@ const ExpandableView = ({expanded = false}) => {
 
   // console.log('rerendered');
 
+  const renderItem = useCallback(
+    ({item}: {item: Review}) => (
+      <ReviewCard
+        author={item.author}
+        rating={item.rating}
+        content={item.content}
+        date={item.date}
+      />
+    ),
+    [],
+  );
+
   return (
     <Animated.View style={{height}}>
       <FlatList
         data={reviews}
         keyExtractor={item => item.author}
-        scrollEnabled={false}
-        renderItem={({item}) => (
-          <ReviewCard
-            author={item.author}
-            rating={item.rating}
-            content={item.content}
-            date={item.date}
-          />
-        )}
+        scrollEnabled={true}
+        maxToRenderPerBatch={5}
+        initialNumToRender={5}
+        windowSize={10}
+        removeClippedSubviews={true}
+        renderItem={renderItem}
+        // ListHeaderComponent={<ReviewForm />}
       />
-      <ReviewForm />
+      {/* <ReviewForm /> */}
     </Animated.View>
   );
 };
@@ -148,7 +159,7 @@ export default function MatZip() {
           <Text style={styles.matZipInfoText}>
             카테고리: {zipData.zip.category}
           </Text> */}
-
+          <ReviewForm />
           {/* if touched, icon chevron changes */}
           <TouchableOpacity
             style={styles.row}
@@ -165,6 +176,7 @@ export default function MatZip() {
               size={22}
             />
           </TouchableOpacity>
+          {/* <ReviewForm /> */}
           <ExpandableView expanded={toggleReview} />
           {/* <FlatList
             data={reviews}
