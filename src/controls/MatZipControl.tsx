@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const createZip = async () => {};
 
-export const zips = async (zipId: string) => {
+export const fetchZip = async (zipId: string) => {
   try {
     const query = `{
       fetchZip(id: "${zipId}") {

@@ -1,4 +1,4 @@
-import {MatMap, Zip} from './store';
+import {MatMap, MatZip} from './store';
 
 export type ScreenParamList = RootStackParamList;
 
@@ -22,7 +22,7 @@ export type RootStackParamList = {
   };
   MatZip: {
     // zipID: string;
-    zip: Zip;
+    zip: MatZip;
   };
 };
 

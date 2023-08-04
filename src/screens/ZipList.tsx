@@ -2,7 +2,7 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -42,7 +42,7 @@ export default function ZipList() {
   //   }
   // };
   // const zipData = zips('0923');
-  const testZips = zips('0923');
+  // const testZips = zips('0923');
   const zipData = [
     {
       id: '1',
@@ -81,6 +81,7 @@ export default function ZipList() {
       category: '일본라멘',
     },
   ];
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>

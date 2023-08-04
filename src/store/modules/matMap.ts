@@ -7,4 +7,8 @@ export const initialState: MatMap = {
   name: '맛집',
   author: '홍길동',
   numFollower: 0,
+  publicStatus: false,
+  areaCode: '',
+  zipList: [],
+  followerList: [],
 };

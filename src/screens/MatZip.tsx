@@ -18,7 +18,7 @@ import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
-import Review from '../types/store';
+import {Review} from '../types/store';
 
 // interface MatZipProps {
 //   name: string;
@@ -74,53 +74,6 @@ const ExpandableView = ({expanded = false}) => {
     }),
     [],
   );
-
-  // const onPressRegister = async () => {
-  //   try {
-  //     const userInput = {
-  //       name: name,
-  //       username: username,
-  //       email: email,
-  //       pwd: pwd,
-  //       institution: 'lalala',
-  //       address: 'lololo',
-  //     };
-  //     console.log(userInput);
-  //     const query = `
-  //     query($zipID: ) {
-  //       fetchReviewsByZipId($zipId: zipId) {
-  //         rating
-  //         createdAt
-  //         writer {
-  //           name
-  //           id
-  //         }
-  //       }
-  //     }
-  //       `;
-
-  //     axios
-  //       .post(
-  //         'https://muckit-server.site/graphql',
-  //         {
-  //           query,
-  //           userInput,
-  //         },
-  //         {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //             Accept: 'application/json',
-  //           },
-  //         },
-  //       )
-  //       .then((result: {data: any}) => {
-  //         console.log(result.data);
-  //       })
-  //       .catch(e => console.log(e));
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
 
   return (
     <Animated.View style={{height}}>

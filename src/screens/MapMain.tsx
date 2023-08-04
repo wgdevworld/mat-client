@@ -25,6 +25,7 @@ import {calculateDistance} from '../tools/CommonFunc';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
+import {MatZip} from '../types/store';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -54,6 +55,7 @@ type Item = {
 };
 
 //FIXME: Don't let this be a global variable and figure out how to read in from marker component
+// TODO: change Item to MatZip?
 let newCard: Item = {
   imageSrc: assets.images.스시올로지,
   name: 'Default name',
@@ -152,6 +154,7 @@ function App(): JSX.Element {
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonOpacity, setButtonOpacity] = useState(1);
   const [markers, setMarkers] = useState<Place[]>([]);
+  // TODO: change Item to Matzip
   const [cards, setCards] = useState<Item[]>(data);
 
   //TODO: 리덕스에다 저장
@@ -247,7 +250,8 @@ function App(): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = useCallback(
-    ({item}: {item: Item}) => {
+    // REFACTOR: change Item to MatZip
+    ({item}: {item: MatZip}) => {
       return (
         <TouchableOpacity
           style={styles.itemContainer}
