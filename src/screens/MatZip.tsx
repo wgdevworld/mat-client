@@ -114,7 +114,7 @@ export default function MatZip() {
                 borderRadius: 8,
                 padding: 7,
                 height: 30,
-                width: 50
+                width: 50,
               }}>
               <View style={styles.horizontal}>
                 <Ionicons name="star" color="orange" size={15} />
@@ -132,7 +132,11 @@ export default function MatZip() {
             <Ionicons name="call-outline" color="black" size={16} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
-          <Text style={styles.matZipDescriptionText}>산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만 여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든 콩육수라 역대급 담백고소함!</Text>
+          <Text style={styles.matZipDescriptionText}>
+            산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만
+            여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든
+            콩육수라 역대급 담백고소함!
+          </Text>
 
           {/* <Text style={styles.matZipInfoText}>
             리뷰수: {zipData.zip.numReview}
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'left',
     marginBottom: 25,
-    marginTop: -5
+    marginTop: -5,
   },
   matZipInfoText: {
     fontSize: 18,
@@ -212,7 +216,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: 2
+    marginLeft: 2,
   },
   matZipRatingText: {
     fontSize: 14,
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF4000',
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginTop: 10
+    marginTop: 10,
   },
   rowText: {
     fontSize: 17,

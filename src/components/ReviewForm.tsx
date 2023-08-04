@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Rating} from 'react-native-ratings';
 import assets from '../../assets';
@@ -30,12 +30,18 @@ const ReviewForm = (
     assets.images.야키토리나루토,
     assets.images.월량관,
   ];
+
+  const [getRating, setRating] = useState(0);
+  function ratingCompleted(rating: any) {
+    setRating(rating);
+    console.log(getRating);
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.text}>리뷰 작성하기</Text>
-      <View style={styles.icon}>
+      {/* <View style={styles.icon}>
         <Ionicons name="star-outline" size={15} color={'white'} />
-      </View>
+      </View> */}
       <Rating
         imageSize={20}
         ratingCount={5}
@@ -45,7 +51,7 @@ const ReviewForm = (
         jumpValue={0.5}
         startingValue={0}
         minValue={1}
-        // onFinishRating={}
+        onFinishRating={ratingCompleted}
       />
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
@@ -60,10 +66,21 @@ const ReviewForm = (
         />
       </View>
       {/* useState to store data, add onPress to TouchableOpacity */}
-      <TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          marginBottom: 5,
+          paddingHorizontal: 10,
+          paddingVertical: 5,
+          borderRadius: 20,
+          backgroundColor: 'white',
+        }}>
         <Text
-          style={{color: 'black', marginBottom: 5, backgroundColor: 'white'}}>
-          등록
+          style={{
+            color: 'black',
+
+            backgroundColor: 'white',
+          }}>
+          등록하기
         </Text>
       </TouchableOpacity>
       {/* <View style={styles.inputContainer}>

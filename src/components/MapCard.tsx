@@ -26,9 +26,7 @@ const MapCard: React.FC<MapCardProps> = ({
     // subscribe/unsubscribe to the map
     // communicate with backend
   };
-  const images = [
-    assets.images.default_map
-  ];
+  const images = [assets.images.default_map];
   return (
     <View style={styles.container}>
       <ImageCarousel images={images} />
