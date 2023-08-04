@@ -1,17 +1,48 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import axios from 'axios';
 import React from 'react';
 import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ZipCard from '../components/ZipCard';
+import {zips} from '../controls/MatZipControl';
 import {ScreenParamList} from '../types/navigation';
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
   const mapData = route.params;
+
+  // const zips = async (zipId: string) => {
+  //   try {
+  //     const query = `{
+  //     fetchZip(id: "${zipId}") {
+  //       name
+  //       address
+  //       reviewCount
+  //       parentMap {
+  //         name
+  //       }
+  //     }
+  //   }`;
+
+  //     const url = `https://muckit-server.site/graphql?query=${query}`;
+
+  //     const response = await axios.get(url, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     });
+
+  //     console.log(response.data);
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+  // const zipData = zips('0923');
+  const testZips = zips('0923');
   const zipData = [
     {
       id: '1',

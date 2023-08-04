@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
+import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
@@ -62,6 +63,65 @@ const ExpandableView = ({expanded = false}) => {
     [],
   );
 
+  // REFACTOR: dynamic height
+  const ITEM_HEIGHT = 60;
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
+  // const onPressRegister = async () => {
+  //   try {
+  //     const userInput = {
+  //       name: name,
+  //       username: username,
+  //       email: email,
+  //       pwd: pwd,
+  //       institution: 'lalala',
+  //       address: 'lololo',
+  //     };
+  //     console.log(userInput);
+  //     const query = `
+  //     query($zipID: ) {
+  //       fetchReviewsByZipId($zipId: zipId) {
+  //         rating
+  //         createdAt
+  //         writer {
+  //           name
+  //           id
+  //         }
+  //       }
+  //     }
+  //       `;
+
+  //     axios
+  //       .post(
+  //         'https://muckit-server.site/graphql',
+  //         {
+  //           query,
+  //           userInput,
+  //         },
+  //         {
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             Accept: 'application/json',
+  //           },
+  //         },
+  //       )
+  //       .then((result: {data: any}) => {
+  //         console.log(result.data);
+  //       })
+  //       .catch(e => console.log(e));
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
   return (
     <Animated.View style={{height}}>
       <FlatList
@@ -73,6 +133,7 @@ const ExpandableView = ({expanded = false}) => {
         windowSize={10}
         removeClippedSubviews={true}
         renderItem={renderItem}
+        getItemLayout={getItemLayout}
         // ListHeaderComponent={<ReviewForm />}
       />
       {/* <ReviewForm /> */}

@@ -11,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import axios from 'axios';
 
 // interface ReviewCardProps {
 //   author: string;
@@ -20,11 +21,6 @@ import {
 //   //   images: Image[];
 // }
 
-// class ReviewForm extends Component {
-//   ratingCompleted(rating: any) {
-//     console.log(rating);
-//   }
-
 const ReviewForm = () => {
   // const images = [
   //   assets.images.스시올로지,
@@ -32,13 +28,56 @@ const ReviewForm = () => {
   //   assets.images.월량관,
   // ];
   // render()
-  const handlePressSumbit = () => {
-    // add data to db and rerender
-    console.log(comment);
-    console.log(rating);
-  };
+  // const handlePressSumbit = () => {
+  //   // add data to db and rerender
+  //   console.log(comment);
+  //   console.log(rating);
+  // };
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [content, setContent] = useState('');
+
+  const handlePressSubmit = async () => {
+    try {
+      const reviewInput = {
+        rating: rating,
+        content: content,
+      };
+      console.log(reviewInput);
+      const query = `
+      mutation {
+        createReview(matZipId: "0923", reviewInput: {
+          rating: $rating,
+          content: $content
+        }) {
+          id
+          rating
+          createdAt
+        }
+      }
+        `;
+
+      axios
+        .post(
+          'https://muckit-server.site/graphql',
+          {
+            query,
+            reviewInput,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          },
+        )
+        .then((result: {data: any}) => {
+          console.log(result.data);
+        })
+        .catch(e => console.log(e));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -76,11 +115,10 @@ const ReviewForm = () => {
           placeholderTextColor="white"
           selectionColor="white"
           multiline
-          onChangeText={text => setComment(text)}
+          onChangeText={text => setContent(text)}
         />
       </View>
-      {/* add onPress to TouchableOpacity */}
-      <TouchableOpacity style={styles.submitButton} onPress={handlePressSumbit}>
+      <TouchableOpacity style={styles.submitButton} onPress={handlePressSubmit}>
         <Text style={styles.submitText}>등록하기</Text>
       </TouchableOpacity>
     </View>
@@ -98,13 +136,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  cardHorizontal: {
-    alignItems: 'center',
-    flexDirection: 'row',
   },
   text: {
     fontSize: 20,
@@ -142,7 +173,6 @@ const styles = StyleSheet.create({
   },
   submitText: {
     color: 'black',
-
     backgroundColor: 'white',
   },
 });
