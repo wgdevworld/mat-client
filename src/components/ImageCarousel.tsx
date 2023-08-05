@@ -1,10 +1,18 @@
-import React from 'react';
-import {View, Image, StyleSheet, ImageSourcePropType} from 'react-native';
+import React, {useRef} from 'react';
+import {
+  View,
+  Image,
+  StyleSheet,
+  ImageSourcePropType,
+  StyleProp,
+} from 'react-native';
 import Swiper from 'react-native-swiper';
 interface ImageCarouselProps {
   images: ImageSourcePropType[];
+  // styles: StyleProp;
 }
 
+// , style
 const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
   return (
     <View style={styles.container}>
@@ -16,7 +24,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
         loop>
         {images.map((imageSource, index) => (
           <View key={index} style={styles.slide}>
-            <Image source={imageSource} style={styles.image} />
+            <Image source={imageSource} style={{...styles, ...styles.image}} />
           </View>
         ))}
       </Swiper>

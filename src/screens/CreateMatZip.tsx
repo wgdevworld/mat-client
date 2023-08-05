@@ -1,27 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 import colors from '../styles/colors';
-import { fetchAllMaps } from '../controls/MatMapControl';
-
+import {fetchAllMaps} from '../controls/MatMapControl';
 
 export default function CreateMatZip() {
+  const [id, setId] = useState('');
+  const [number, setNumber] = useState('');
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [imgSrc, setImgSrc] = useState('');
+  const [category, setCategory] = useState('');
 
-    const [id, setId] = useState('');
-    const [number, setNumber] = useState('');
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
-    const [imgSrc, setImgSrc] = useState('');
-    const [category, setCategory] = useState('');
+  const handleCreateZip = async () => {};
 
-    const handleCreateZip = async () => {
-        
-    }
-
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-          <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.heading}>🏠 새로운 맛집 등록하기</Text>
-            <View style={styles.container}>
+  return (
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.heading}>🏠 새로운 맛집 등록하기</Text>
+        <View style={styles.container}>
           <TextInput
             style={styles.input}
             placeholder="장소명"
@@ -51,11 +56,10 @@ export default function CreateMatZip() {
             <Text style={styles.addButtonText}>맛집 등록하기</Text>
           </TouchableOpacity>
         </View>
-          </ScrollView>
-        </SafeAreaView>
-      );
-};
-
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -66,7 +70,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    marginLeft: 15
+    marginLeft: 15,
   },
   input: {
     height: 40,
@@ -80,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
   },
   addButtonText: {
     color: 'white',

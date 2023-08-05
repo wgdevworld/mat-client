@@ -22,6 +22,10 @@ import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
 import {calculateDistance} from '../tools/CommonFunc';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
+import {MatZip} from '../types/store';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -39,6 +43,7 @@ type Place = {
   coordinate: Coordinate;
 };
 
+//TODO: Item 없애고 Zip으로 변경/통합
 type Item = {
   imageSrc: ImageSourcePropType;
   name: string;
@@ -50,6 +55,7 @@ type Item = {
 };
 
 //FIXME: Don't let this be a global variable and figure out how to read in from marker component
+// TODO: change Item to MatZip?
 let newCard: Item = {
   imageSrc: assets.images.스시올로지,
   name: 'Default name',
@@ -148,6 +154,7 @@ function App(): JSX.Element {
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonOpacity, setButtonOpacity] = useState(1);
   const [markers, setMarkers] = useState<Place[]>([]);
+  // TODO: change Item to Matzip
   const [cards, setCards] = useState<Item[]>(data);
 
   //TODO: 리덕스에다 저장
@@ -240,34 +247,42 @@ function App(): JSX.Element {
     setCards(prevCards => [...prevCards, newCard]);
   };
 
-  const renderItem = useCallback(({item}: {item: Item}) => {
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemImageContainer}>
-          <Image source={item.imageSrc} style={styles.itemImage} />
-        </View>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemTitleStarsContainer}>
-            <Text style={styles.itemTitleText}>{item.name}</Text>
-            {item.isVisited && (
-              <Ionicons
-                name="checkmark-done-circle-outline"
-                size={20}
-                color={'white'}
-              />
-            )}
-            <View style={styles.itemStarReviewContainer}>
-              <Ionicons name="star" size={14} color={'white'} />
-              <Text style={styles.itemStarsText}>{item.stars}</Text>
-              <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
-            </View>
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+
+  const renderItem = useCallback(
+    // REFACTOR: change Item to MatZip
+    ({item}: {item: MatZip}) => {
+      return (
+        <TouchableOpacity
+          style={styles.itemContainer}
+          onPress={() => navigation.navigate('MatZip', {zip: item})}>
+          <View style={styles.itemImageContainer}>
+            <Image source={item.imageSrc} style={styles.itemImage} />
           </View>
-          <Text style={styles.itemSubtext}>{item.address}</Text>
-          <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
-        </View>
-      </View>
-    );
-  }, []);
+          <View style={styles.itemInfoContainer}>
+            <View style={styles.itemTitleStarsContainer}>
+              <Text style={styles.itemTitleText}>{item.name}</Text>
+              {item.isVisited && (
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={20}
+                  color={'white'}
+                />
+              )}
+              <View style={styles.itemStarReviewContainer}>
+                <Ionicons name="star" size={14} color={'white'} />
+                <Text style={styles.itemStarsText}>{item.stars}</Text>
+                <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
+              </View>
+            </View>
+            <Text style={styles.itemSubtext}>{item.address}</Text>
+            <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [navigation],
+  );
 
   return (
     <View style={{flex: 1}}>
@@ -414,7 +429,9 @@ function App(): JSX.Element {
               renderItem={renderItem}
               contentContainerStyle={styles.contentContainer}
               ListHeaderComponent={
-                <Text style={styles.flatListHeaderText}>근처 나의 맛집들 🍶</Text>
+                <Text style={styles.flatListHeaderText}>
+                  근처 나의 맛집들 🍶
+                </Text>
               }
               ListFooterComponent={<View style={{height: 200}} />}
             />

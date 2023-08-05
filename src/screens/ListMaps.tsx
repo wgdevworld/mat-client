@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,18 +12,18 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
-import { fetchAllMaps } from '../controls/MatMapControl';
-import { initialState } from '../store/modules/matMap';
-import { initPushNotification } from '../controls/NotificationControl';
+import {fetchAllMaps} from '../controls/MatMapControl';
+import {initialState} from '../store/modules/matMap';
+import {initPushNotification} from '../controls/NotificationControl';
 
 export default function ListMaps() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [maps, setMaps] = useState([initialState]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchAllMaps();
-      console.log(data)
+      console.log(data);
       if (data.fetchAllMaps) {
         setMaps(data.fetchAllMaps);
       }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const fetchAllMaps = async () => {
-    try {
+  try {
     const query = `
       {
         fetchAllMaps {
@@ -26,9 +26,7 @@ export const fetchAllMaps = async () => {
       },
     );
     return res.data.data;
-
-    }
-    catch(error) {
-        console.log(error)
-    }
-}
+  } catch (error) {
+    console.log(error);
+  }
+};

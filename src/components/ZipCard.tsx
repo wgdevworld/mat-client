@@ -27,9 +27,7 @@ const ZipCard: React.FC<ZipCardProps> = ({
   onPressZip,
 }) => {
   // Dummy image data here
-  const images = [
-    assets.images.교래퐁낭1,
-  ];
+  const images = [assets.images.교래퐁낭1];
   return (
     <View style={styles.container}>
       {/* <ImageCarousel images={images} /> */}
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
-    padding: 1
+    padding: 1,
   },
   cardHorizontal: {
     alignItems: 'center',

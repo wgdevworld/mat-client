@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import axios from 'axios';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -15,7 +16,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
+import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
+import {Review} from '../types/store';
 
 // interface MatZipProps {
 //   name: string;
@@ -40,7 +43,7 @@ const ExpandableView = ({expanded = false}) => {
 
   useEffect(() => {
     Animated.timing(height, {
-      toValue: !expanded ? reviews.length * 70 : 0,
+      toValue: !expanded ? reviews.length * 200 : 0,
       duration: 150,
       useNativeDriver: false,
     }).start();
@@ -48,21 +51,45 @@ const ExpandableView = ({expanded = false}) => {
 
   // console.log('rerendered');
 
+  const renderItem = useCallback(
+    ({item}: {item: Review}) => (
+      <ReviewCard
+        author={item.author}
+        rating={item.rating}
+        content={item.content}
+        date={item.date}
+      />
+    ),
+    [],
+  );
+
+  // REFACTOR: dynamic height
+  const ITEM_HEIGHT = 60;
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    }),
+    [],
+  );
+
   return (
     <Animated.View style={{height}}>
       <FlatList
         data={reviews}
         keyExtractor={item => item.author}
-        scrollEnabled={false}
-        renderItem={({item}) => (
-          <ReviewCard
-            author={item.author}
-            rating={item.rating}
-            content={item.content}
-            date={item.date}
-          />
-        )}
+        scrollEnabled={true}
+        maxToRenderPerBatch={5}
+        initialNumToRender={5}
+        windowSize={10}
+        removeClippedSubviews={true}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
+        // ListHeaderComponent={<ReviewForm />}
       />
+      {/* <ReviewForm /> */}
     </Animated.View>
   );
 };
@@ -88,7 +115,7 @@ const reviews = [
   },
 ];
 
-export default function () {
+export default function MatZip() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZip'>>();
   const zipData = route.params;
   const handlePressReviewChevron = () => {
@@ -112,7 +139,7 @@ export default function () {
                 borderRadius: 8,
                 padding: 7,
                 height: 30,
-                width: 50
+                width: 50,
               }}>
               <View style={styles.horizontal}>
                 <Ionicons name="star" color="orange" size={15} />
@@ -130,7 +157,11 @@ export default function () {
             <Ionicons name="call-outline" color="black" size={16} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
-          <Text style={styles.matZipDescriptionText}>산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만 여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든 콩육수라 역대급 담백고소함!</Text>
+          <Text style={styles.matZipDescriptionText}>
+            산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만
+            여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든
+            콩육수라 역대급 담백고소함!
+          </Text>
 
           {/* <Text style={styles.matZipInfoText}>
             리뷰수: {zipData.zip.numReview}
@@ -142,7 +173,7 @@ export default function () {
           <Text style={styles.matZipInfoText}>
             카테고리: {zipData.zip.category}
           </Text> */}
-
+          <ReviewForm />
           {/* if touched, icon chevron changes */}
           <TouchableOpacity
             style={styles.row}
@@ -159,6 +190,7 @@ export default function () {
               size={22}
             />
           </TouchableOpacity>
+          {/* <ReviewForm /> */}
           <ExpandableView expanded={toggleReview} />
           {/* <FlatList
             data={reviews}
@@ -197,7 +229,7 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'left',
     marginBottom: 25,
-    marginTop: -5
+    marginTop: -5,
   },
   matZipInfoText: {
     fontSize: 18,
@@ -210,7 +242,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: 2
+    marginLeft: 2,
   },
   matZipRatingText: {
     fontSize: 14,
@@ -233,7 +265,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF4000',
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginTop: 10
+    marginTop: 10,
   },
   rowText: {
     fontSize: 17,
