@@ -1,5 +1,5 @@
 const colors = {
-  coral1: '#FF4000',
+  coral1: '#ee3f37',
   white: '#FFFFFF',
 };
 

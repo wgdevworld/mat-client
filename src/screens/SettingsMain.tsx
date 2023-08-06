@@ -9,19 +9,36 @@ import {
   TouchableOpacity,
   Image,
   Switch,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 import assets from '../../assets';
+import colors from '../styles/colors'; 
+
 
 export default function Settings() {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isPush, setIsPush] = React.useState(true);
   const togglePush = () => setIsPush(prev => !prev);
   const [isLocPush, setIsLocPush] = React.useState(true);
   const toggleLocPush = () => setIsLocPush(prev => !prev);
+  const screenWidth = Dimensions.get('window').width;
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#FF4000'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <ScrollView contentContainerStyle={styles.containter}>
-        <Text style={styles.heading}>설정</Text>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30}}>
+                <Ionicons 
+                  name="chevron-back-outline" 
+                  color="#0c0c0c" 
+                  size={30}
+                  style={{ marginLeft: 18}} />
+                <Text style={styles.heading}>설정</Text>
+            </View>
+          </View>
         <TouchableOpacity
           style={{paddingHorizontal: 24}}
           onPress={() => {
@@ -104,7 +121,12 @@ export default function Settings() {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>도움말</Text>
-          <View style={styles.row}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Help');
+            }}
+            style={styles.row}
+            >
             <Text style={styles.rowText}>앱 사용법</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -112,16 +134,20 @@ export default function Settings() {
               color="#0c0c0c"
               size={22}
             />
-          </View>
-          <View style={styles.row}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('FAQ');
+            }}
+            style={styles.row}
+          >
             <Text style={styles.rowText}>자주 물어보는 질문</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
               color="#0c0c0c"
-              size={22}
-            />
-          </View>
+              size={22}/>
+          </TouchableOpacity>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>지원</Text>
@@ -159,8 +185,9 @@ export default function Settings() {
           </View>
         </View>
         <View style={{paddingHorizontal: 60}}>
+          
           <TouchableOpacity style={styles.logout}>
-            <Text style={styles.logoutText}>로그아웃</Text>
+            <Text style={styles.logoutText}>탈퇴하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -173,19 +200,18 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   heading: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'left',
+    fontSize: 20,
+    color: 'black',
+    marginBottom: 0,
+    textAlign: 'center',
     paddingHorizontal: 24,
   },
   profileWrapper: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#f2f2f2f2',
+    backgroundColor: colors.coral1,
     borderRadius: 20,
-    marginBottom: 12,
+    marginBottom: 25,
     paddingHorizontal: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -204,14 +230,14 @@ const styles = StyleSheet.create({
     // marginTop: 20,
     fontSize: 19,
     fontWeight: '600',
-    color: '#414d63',
+    color: '#FFFFFF',
     textAlign: 'center',
     // backgroundColor: 'white',
   },
   profileUserID: {
     marginTop: 5,
     fontSize: 16,
-    color: '#989898',
+    color: '#F2F2F2',
     textAlign: 'center',
   },
   section: {
@@ -221,10 +247,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
+  
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -243,14 +270,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
-    backgroundColor: 'grey',
+    height: 40,
+    backgroundColor: '#bebebe',
     borderRadius: 8,
     marginTop: 15,
   },
   logoutText: {
-    fontSize: 17,
-    color: 'red',
+    fontSize: 15,
+    color: 'white',
     fontWeight: 'bold',
   },
 });

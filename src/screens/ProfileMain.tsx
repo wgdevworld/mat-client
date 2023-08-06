@@ -15,6 +15,7 @@ import assets from '../../assets';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
+import colors from '../styles/colors';
 
 export default function Settings() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -25,7 +26,7 @@ export default function Settings() {
   const toggleEditAddr = () => setIsEditAddr(true);
   const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#FF4000'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1,}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <Text style={styles.heading}>프로필</Text>
         <View style={{paddingHorizontal: 24}}>
@@ -96,19 +97,13 @@ export default function Settings() {
               size={22}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.delete}
-            onPress={() => {
-              // to backend, to login screen
-            }}>
-            <Text style={styles.deleteText}>탈퇴하기</Text>
-          </TouchableOpacity>
+          
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('SettingsMain');
             }}>
             <View style={styles.row}>
-              <Text style={styles.rowText}>계정 관리</Text>
+              <Text style={styles.accText}>계정 관리</Text>
               <View style={{flex: 1}} />
               <Ionicons
                 name="chevron-forward-outline"
@@ -117,6 +112,15 @@ export default function Settings() {
               />
             </View>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.delete}
+            onPress={() => {
+              // to backend, to login screen
+            }}>
+            <Text style={styles.deleteText}>로그아웃</Text>
+          </TouchableOpacity>
+
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -202,6 +206,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'right',
   },
+  accText: {
+    fontSize: 17,
+    color: colors.coral1,
+    fontWeight: 'bold',
+  },
   delete: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -214,7 +223,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 17,
-    color: 'red',
+    color: 'white',
     fontWeight: 'bold',
   },
 });

@@ -465,9 +465,9 @@ const styles = StyleSheet.create({
   },
   searchTextInputContainer: {
     position: 'absolute',
-    top: getStatusBarHeight(),
+    top: getStatusBarHeight() * 3,
     zIndex: 1,
-    width: '95%',
+    width: '90%',
     flexDirection: 'row',
     alignSelf: 'center',
     paddingHorizontal: 10,
@@ -490,12 +490,12 @@ const styles = StyleSheet.create({
   mapBtn: {
     zIndex: 2,
     position: 'absolute',
-    right: '3%',
+    right: '4%'
   },
   mapBtnContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 50,
     backgroundColor: colors.coral1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -507,13 +507,13 @@ const styles = StyleSheet.create({
     color: colors.coral1,
     fontSize: 20,
     paddingLeft: 16,
-    paddingBottom: 5,
+    paddingBottom: 12,
   },
   itemContainer: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 13,
     marginHorizontal: 12,
-    marginVertical: 5,
+    marginVertical: 6,
     backgroundColor: colors.coral1,
     borderRadius: 10,
   },

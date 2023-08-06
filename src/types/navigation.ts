@@ -6,6 +6,8 @@ export type RootStackParamList = {
   };
   LoginMain: undefined;
   SettingsMain: undefined;
+  FAQ: undefined;
+  Help: undefined;
 
   //BottomTab
   MapMain: undefined;
