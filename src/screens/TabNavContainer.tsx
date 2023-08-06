@@ -12,6 +12,7 @@ import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
 import CreateMatZip from './CreateMatZip';
+import AppleLoginPage from './AppleLoginTest';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -100,7 +101,7 @@ const TabNavContainer = () => {
           headerShown: false,
         };
       }}>
-      <Tab.Screen name="Map" component={MapMain} />
+      <Tab.Screen name="Map" component={AppleLoginPage} />
       <Tab.Screen name="List" component={ListMaps} />
       <Tab.Screen name="Community" component={MuckitNotes} />
       <Tab.Screen name="Settings" component={SettingsMain} />
