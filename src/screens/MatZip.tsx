@@ -19,6 +19,8 @@ import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
+import colors from '../styles/colors';
+
 
 // interface MatZipProps {
 //   name: string;
@@ -125,6 +127,12 @@ export default function MatZip() {
     console.log('Review Chevron pressed');
   };
   const [toggleReview, setToggleReview] = useState(true);
+  const [saveIcon, setSaveIcon] = useState(true);
+  const handleIconPress = () => {
+    setSaveIcon((prev) => !prev);
+    // save zip (add zip to user.savedZips)
+    // use server API: communicate with backend
+  };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -132,6 +140,15 @@ export default function MatZip() {
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
             <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
+
+            <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
+            <Ionicons
+              name='bookmark-outline'
+              size={28}
+              color={saveIcon ? colors.coral1 : "darkgrey"}
+            />
+          </TouchableOpacity>
+
             <View style={{flex: 1}} />
             <View
               style={{
@@ -339,4 +356,8 @@ const styles = StyleSheet.create({
     color: 'red',
     fontWeight: 'bold',
   },
+  saveIcon: {
+    marginTop: 10,
+    marginLeft: 5
+  }
 });

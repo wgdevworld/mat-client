@@ -44,7 +44,7 @@ const MapCard: React.FC<MapCardProps> = ({
           <TouchableOpacity onPress={handleIconPress} style={styles.addButton}>
             <Ionicons
               name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
-              size={30}
+              size={35}
               color={colors.coral1}
             />
           </TouchableOpacity>
