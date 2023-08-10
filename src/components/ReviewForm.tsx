@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     backgroundColor: colors.grey,
-    borderRadius: 15,
+    borderRadius: 8,
     marginBottom: 20,
     marginTop: 20,
     shadowColor: '#000',

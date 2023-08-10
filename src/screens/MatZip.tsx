@@ -154,7 +154,7 @@ export default function MatZip() {
             <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
-            <Ionicons name="call-outline" color="black" size={16} />
+            <Ionicons name="information-circle-outline" color="black" size={18} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
           <Text style={styles.matZipDescriptionText}>
@@ -232,9 +232,10 @@ const styles = StyleSheet.create({
     marginTop: -5,
   },
   matZipInfoText: {
-    fontSize: 18,
+    fontSize: 17,
     color: 'black',
     textAlign: 'left',
+    marginLeft: 3
   },
   matZipDescriptionText: {
     fontSize: 14,

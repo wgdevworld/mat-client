@@ -553,6 +553,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'black',
     paddingBottom: 5,
+    fontWeight: 300
   },
   itemStarsText: {
     fontSize: 14,
@@ -567,6 +568,7 @@ const styles = StyleSheet.create({
   itemSubtext: {
     color: 'black',
     paddingVertical: 2,
+    fontWeight: 200
   },
   itemImageContainer: {
     width: 76,
