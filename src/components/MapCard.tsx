@@ -3,6 +3,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import colors from '../styles/colors';
 // TODO: refresh after scroll down from top
 
 interface MapCardProps {
@@ -41,7 +42,7 @@ const MapCard: React.FC<MapCardProps> = ({
             <Ionicons
               name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
               size={30}
-              color="white"
+              color={colors.coral1}
             />
           </TouchableOpacity>
         </View>
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.grey,
     borderRadius: 0,
     marginBottom: 12,
     shadowColor: '#000',
@@ -75,15 +76,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: 'white',
+    color: 'black',
   },
   mapAuthor: {
     fontSize: 12,
     marginBottom: 5,
-    color: 'white',
+    color: 'black',
   },
   followersCount: {
-    color: 'white',
+    color: 'black',
     marginBottom: 10,
   },
   lowerHalf: {

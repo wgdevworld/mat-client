@@ -266,11 +266,11 @@ function App(): JSX.Element {
                 <Ionicons
                   name="checkmark-done-circle-outline"
                   size={20}
-                  color={'white'}
+                  color={colors.coral1}
                 />
               )}
               <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={'white'} />
+                <Ionicons name="star" size={14} color={colors.coral1} />
                 <Text style={styles.itemStarsText}>{item.stars}</Text>
                 <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
               </View>
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 12,
     marginVertical: 5,
-    backgroundColor: colors.coral1,
+    backgroundColor: colors.grey,
     borderRadius: 10,
   },
   itemTitleStarsContainer: {
@@ -551,21 +551,21 @@ const styles = StyleSheet.create({
   itemTitleText: {
     fontSize: 20,
     fontWeight: '500',
-    color: 'white',
+    color: 'black',
     paddingBottom: 5,
   },
   itemStarsText: {
     fontSize: 14,
-    color: 'white',
+    color: colors.coral1,
     paddingRight: 10,
     paddingLeft: 3,
   },
   itemReviewText: {
     fontSize: 14,
-    color: 'white',
+    color: colors.coral1,
   },
   itemSubtext: {
-    color: 'white',
+    color: 'black',
     paddingVertical: 2,
   },
   itemImageContainer: {

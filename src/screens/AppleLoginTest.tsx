@@ -51,7 +51,7 @@ async function onAppleButtonPress(updateCredentialStateForUser: any) {
   
       if (identityToken) {
         // sign in with Firebase Auth using nonce & identityToken
-        console.log("💡"+nonce, identityToken);
+        console.log("💡Identity Token:"+identityToken);
       } else {
         // 음 no token - failed sign-in?
       }

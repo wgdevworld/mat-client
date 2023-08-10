@@ -101,7 +101,7 @@ export default function Settings() {
           </View>
           <View style={styles.row}>
             <Ionicons name="map-outline" size={18} />
-            <Text style={styles.rowText}>팔로우한 지도</Text>
+            <Text style={styles.rowText}>저장한 맛집들</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
-    marginLeft: 5,
+    marginLeft: 10,
   },
   logout: {
     flexDirection: 'row',
