@@ -1,6 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
-import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
@@ -20,19 +19,8 @@ import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
 import colors from '../styles/colors';
-
-
-// interface MatZipProps {
-//   name: string;
-//   address: string;
-//   numReview: number;
-//   rating: number;
-//   isVisited: boolean;
-//   numLike: number;
-//   category: string;
-//   reviewList: string[];
-//   // parent map list
-// }
+import {fetchReviewsByZipId} from '../controls/ReviewControl';
+import {initialState} from '../store/modules/review';
 
 const images = [
   assets.images.산방산국수맛집1,
@@ -40,7 +28,25 @@ const images = [
   assets.images.애월제주다,
 ];
 
-const ExpandableView = ({expanded = false}) => {
+const ExpandableView = ({
+  expanded = false,
+  zipId = '3f9e351e-a40a-47b9-b7bf-cc6b7571c5a3',
+}) => {
+  //initialState
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async (id: string) => {
+      const data = await fetchReviewsByZipId(id);
+      console.log(data);
+      if (data.fetchReviewsByZipId) {
+        setReviews(data.fetchReviewsByZipId);
+      }
+    };
+    console.log(zipId);
+    fetchData(zipId);
+  }, [zipId]);
+
   const [height] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -49,7 +55,7 @@ const ExpandableView = ({expanded = false}) => {
       duration: 150,
       useNativeDriver: false,
     }).start();
-  }, [expanded, height]);
+  }, [expanded, height, reviews.length]);
 
   // console.log('rerendered');
 
@@ -91,31 +97,30 @@ const ExpandableView = ({expanded = false}) => {
         getItemLayout={getItemLayout}
         // ListHeaderComponent={<ReviewForm />}
       />
-      {/* <ReviewForm /> */}
     </Animated.View>
   );
 };
 
-const reviews = [
-  {
-    author: '홍길동',
-    rating: 4.5,
-    content: '맛있어요!',
-    date: new Date(),
-  },
-  {
-    author: '이덕행',
-    rating: 4.8,
-    content: '사특한 맛이네요..',
-    date: new Date(),
-  },
-  {
-    author: '윤지원',
-    rating: 2.2,
-    content: '쉽지 않다...',
-    date: new Date(),
-  },
-];
+// const reviews = [
+//   {
+//     author: '홍길동',
+//     rating: 4.5,
+//     content: '맛있어요!',
+//     date: new Date(),
+//   },
+//   {
+//     author: '이덕행',
+//     rating: 4.8,
+//     content: '사특한 맛이네요..',
+//     date: new Date(),
+//   },
+//   {
+//     author: '윤지원',
+//     rating: 2.2,
+//     content: '쉽지 않다...',
+//     date: new Date(),
+//   },
+// ];
 
 export default function MatZip() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZip'>>();
@@ -129,7 +134,7 @@ export default function MatZip() {
   const [toggleReview, setToggleReview] = useState(true);
   const [saveIcon, setSaveIcon] = useState(true);
   const handleIconPress = () => {
-    setSaveIcon((prev) => !prev);
+    setSaveIcon(prev => !prev);
     // save zip (add zip to user.savedZips)
     // use server API: communicate with backend
   };
@@ -142,12 +147,12 @@ export default function MatZip() {
             <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
 
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
-            <Ionicons
-              name='bookmark-outline'
-              size={28}
-              color={saveIcon ? colors.coral1 : "darkgrey"}
-            />
-          </TouchableOpacity>
+              <Ionicons
+                name={saveIcon ? 'bookmark' : 'bookmark-outline'}
+                size={28}
+                color={saveIcon ? colors.coral1 : 'darkgrey'}
+              />
+            </TouchableOpacity>
 
             <View style={{flex: 1}} />
             <View
@@ -171,7 +176,11 @@ export default function MatZip() {
             <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
-            <Ionicons name="information-circle-outline" color="black" size={18} />
+            <Ionicons
+              name="information-circle-outline"
+              color="black"
+              size={18}
+            />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
           <Text style={styles.matZipDescriptionText}>
@@ -208,7 +217,7 @@ export default function MatZip() {
             />
           </TouchableOpacity>
           {/* <ReviewForm /> */}
-          <ExpandableView expanded={toggleReview} />
+          <ExpandableView expanded={toggleReview} zipId={zipData.zip.id} />
           {/* <FlatList
             data={reviews}
             keyExtractor={item => item.author}
@@ -252,7 +261,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'black',
     textAlign: 'left',
-    marginLeft: 3
+    marginLeft: 3,
   },
   matZipDescriptionText: {
     fontSize: 14,
@@ -358,6 +367,6 @@ const styles = StyleSheet.create({
   },
   saveIcon: {
     marginTop: 10,
-    marginLeft: 5
-  }
+    marginLeft: 5,
+  },
 });

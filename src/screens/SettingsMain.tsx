@@ -22,6 +22,12 @@ export default function Settings() {
   const togglePush = () => setIsPush(prev => !prev);
   const [isLocPush, setIsLocPush] = React.useState(true);
   const toggleLocPush = () => setIsLocPush(prev => !prev);
+
+  const onPressLogout = () => {
+    // logout query to backend/redux/asyncstorage
+    console.log('로그아웃 시도');
+    // nativatge to login screen
+  };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -51,27 +57,6 @@ export default function Settings() {
             </View>
           </View>
         </TouchableOpacity>
-        {/* <View style={styles.section}>
-          <Text style={styles.sectionHeader}>프로필 설정</Text>
-          <View style={styles.row}>
-            <Text style={styles.rowText}>이름/닉네임</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowText}>비밀번호</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowText}>연결된 계정</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowText}>주소</Text>
-          </View>
-        </View> */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>알림</Text>
           <View style={styles.row}>
@@ -173,7 +158,7 @@ export default function Settings() {
           </View>
         </View>
         <View style={{paddingHorizontal: 60}}>
-          <TouchableOpacity style={styles.logout}>
+          <TouchableOpacity style={styles.logout} onPress={onPressLogout}>
             <Text style={styles.logoutText}>로그아웃</Text>
           </TouchableOpacity>
         </View>

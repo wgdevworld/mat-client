@@ -117,11 +117,12 @@ const ReviewForm = () => {
           multiline
           onChangeText={text => setContent(text)}
         />
-        <TouchableOpacity style={styles.submitButton} onPress={handlePressSubmit}>
-        <Text style={styles.submitText}>등록</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handlePressSubmit}>
+          <Text style={styles.submitText}>등록</Text>
+        </TouchableOpacity>
       </View>
-      
     </View>
   );
 };
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
-    padding: 15
+    padding: 15,
   },
   text: {
     fontSize: 20,
@@ -154,11 +155,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 0,
     position: 'relative',
-    marginTop: 0
+    marginTop: 0,
   },
   icon: {
     marginRight: 15,
-    marginTop: 10
+    marginTop: 10,
   },
   input: {
     borderBottomWidth: 1,
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'darkgrey',
     fontSize: 16,
     color: 'black',
-    marginLeft: -13
+    marginLeft: -13,
   },
   submitButton: {
     marginBottom: 5,
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: colors.grey,
     marginRight: -23,
-    marginLeft: 9
+    marginLeft: 9,
   },
   submitText: {
     color: 'black',

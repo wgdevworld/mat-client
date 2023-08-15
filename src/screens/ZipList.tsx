@@ -11,7 +11,6 @@ import {zips} from '../controls/MatZipControl';
 import {ScreenParamList} from '../types/navigation';
 import colors from '../styles/colors';
 
-
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
@@ -88,8 +87,12 @@ export default function ZipList() {
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.heading}>{mapData.map.name} 👀</Text>
-        <View style={styles.description}><Text>2022년 4월부터 방영 중인 풍자의 맛집 탐방 콘텐츠! 
-          '또간집'이라는 프로그램명부터 알 수 있듯 여러 번 간 맛집을 찾아다니는 게 콘셉트다.</Text></View>
+        <View style={styles.description}>
+          <Text>
+            2022년 4월부터 방영 중인 풍자의 맛집 탐방 콘텐츠! '또간집'이라는
+            프로그램명부터 알 수 있듯 여러 번 간 맛집을 찾아다니는 게 콘셉트다.
+          </Text>
+        </View>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={zipData}
@@ -136,6 +139,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     borderRadius: 9,
     backgroundColor: colors.grey,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });
