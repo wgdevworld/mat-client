@@ -19,6 +19,8 @@ import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
+import colors from '../styles/colors';
+
 
 // interface MatZipProps {
 //   name: string;
@@ -125,6 +127,12 @@ export default function MatZip() {
     console.log('Review Chevron pressed');
   };
   const [toggleReview, setToggleReview] = useState(true);
+  const [saveIcon, setSaveIcon] = useState(true);
+  const handleIconPress = () => {
+    setSaveIcon((prev) => !prev);
+    // save zip (add zip to user.savedZips)
+    // use server API: communicate with backend
+  };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -132,6 +140,15 @@ export default function MatZip() {
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
             <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
+
+            <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
+            <Ionicons
+              name='bookmark-outline'
+              size={28}
+              color={saveIcon ? colors.coral1 : "darkgrey"}
+            />
+          </TouchableOpacity>
+
             <View style={{flex: 1}} />
             <View
               style={{
@@ -154,7 +171,7 @@ export default function MatZip() {
             <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
-            <Ionicons name="call-outline" color="black" size={16} />
+            <Ionicons name="information-circle-outline" color="black" size={18} />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
           <Text style={styles.matZipDescriptionText}>
@@ -232,9 +249,10 @@ const styles = StyleSheet.create({
     marginTop: -5,
   },
   matZipInfoText: {
-    fontSize: 18,
+    fontSize: 15,
     color: 'black',
     textAlign: 'left',
+    marginLeft: 3
   },
   matZipDescriptionText: {
     fontSize: 14,
@@ -338,4 +356,8 @@ const styles = StyleSheet.create({
     color: 'red',
     fontWeight: 'bold',
   },
+  saveIcon: {
+    marginTop: 10,
+    marginLeft: 5
+  }
 });

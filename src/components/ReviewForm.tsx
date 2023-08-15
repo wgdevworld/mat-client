@@ -81,7 +81,6 @@ const ReviewForm = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>리뷰 작성하기</Text>
       {/* <View style={styles.icon}>
         <Ionicons name="star-outline" size={15} color={'white'} />
       </View> */}
@@ -92,6 +91,7 @@ const ReviewForm = () => {
         enableSwiping
         maxStars={5}
         starSize={20}
+        color={colors.coral1}
         //minRating
       />
       {/* <Rating
@@ -106,36 +106,38 @@ const ReviewForm = () => {
         onFinishRating={this.rating => setRating(rating)}
       /> */}
       <View style={styles.inputContainer}>
-        <View style={styles.icon}>
-          <Ionicons name="text" size={15} color={'white'} />
-        </View>
+        {/* <View style={styles.icon}>
+          <Ionicons name="text" size={15} color={'black'} />
+        </View> */}
         <TextInput
           style={styles.input}
           placeholder="리뷰를 작성해주세요!"
-          placeholderTextColor="white"
-          selectionColor="white"
+          placeholderTextColor="darkgrey"
+          selectionColor="black"
           multiline
           onChangeText={text => setContent(text)}
         />
-      </View>
-      <TouchableOpacity style={styles.submitButton} onPress={handlePressSubmit}>
-        <Text style={styles.submitText}>등록하기</Text>
+        <TouchableOpacity style={styles.submitButton} onPress={handlePressSubmit}>
+        <Text style={styles.submitText}>등록</Text>
       </TouchableOpacity>
+      </View>
+      
     </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.coral1,
-    borderRadius: 15,
-    marginBottom: 5,
+    backgroundColor: colors.grey,
+    borderRadius: 8,
+    marginBottom: 20,
+    marginTop: 20,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
+    padding: 15
   },
   text: {
     fontSize: 20,
@@ -150,26 +152,33 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 0,
     position: 'relative',
+    marginTop: 0
   },
   icon: {
     marginRight: 15,
+    marginTop: 10
   },
   input: {
-    borderBottomWidth: 1.5,
+    borderBottomWidth: 1,
     flex: 1,
-    paddingBottom: 10,
-    borderBottomColor: '#eee',
+    marginTop: 5,
+    paddingBottom: 5,
+    paddingTop: 1,
+    borderBottomColor: 'darkgrey',
     fontSize: 16,
-    color: 'white',
+    color: 'black',
+    marginLeft: -13
   },
   submitButton: {
     marginBottom: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    backgroundColor: 'white',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 3,
+    backgroundColor: colors.grey,
+    marginRight: -23,
+    marginLeft: 9
   },
   submitText: {
     color: 'black',
