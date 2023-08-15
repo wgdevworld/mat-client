@@ -20,38 +20,32 @@ const EmailRegisterMain = () => {
 
   const onPressRegister = async () => {
     try {
-      const userInput = {
-        name: name,
-        username: username,
-        email: email,
-        pwd: pwd,
-        institution: 'lalala',
-        address: 'lololo',
+      const variables = {
+        createUserInput: {
+          name: name,
+          username: username,
+          email: email,
+          pwd: pwd,
+          institution: 'lalala',
+          address: 'lololo',
+        },
       };
-      console.log(userInput);
+
       const query = `
-            mutation {
-                createUser(userInput: {
-                name: $name,
-                username: $username,
-                email: $email,
-                pwd: $pwd,
-                institution: $institution,
-                address: $address
-                }) {
-                username
-                id
-                email
-                }
+            mutation createUser($createUserInput: CreateUserInput!) {
+                createUser(userInput: $createUserInput) {
+                    username
+                    id
+                    email
             }
-        `;
+        }`;
 
       axios
         .post(
           'https://muckit-server.site/graphql',
           {
             query,
-            userInput,
+            variables,
           },
           {
             headers: {
