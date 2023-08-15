@@ -118,7 +118,7 @@ const ReviewForm = () => {
           onChangeText={text => setContent(text)}
         />
         <TouchableOpacity style={styles.submitButton} onPress={handlePressSubmit}>
-        <Text style={styles.submitText}>작성</Text>
+        <Text style={styles.submitText}>등록</Text>
       </TouchableOpacity>
       </View>
       
@@ -152,9 +152,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 0,
     position: 'relative',
-    marginTop: 15
+    marginTop: 0
   },
   icon: {
     marginRight: 15,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 3,
-    backgroundColor: 'white',
+    backgroundColor: colors.grey,
     marginRight: -23,
     marginLeft: 9
   },

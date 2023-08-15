@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     marginTop: -5,
   },
   matZipInfoText: {
-    fontSize: 17,
+    fontSize: 15,
     color: 'black',
     textAlign: 'left',
     marginLeft: 3
