@@ -24,18 +24,18 @@ export const initPushNotification = async () => {
         }
       }
     `;
-    const res = await axios.post(
-      'https://muckit-server.site/graphql',
-      {
-        query,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    console.log(res.data);
+    // const res = await axios.post(
+    //   'https://muckit-server.site/graphql',
+    //   {
+    //     query,
+    //   },
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   },
+    // );
+    // console.log(res.data);
 
     //   const notificationQuery = `
     //   mutation sendNotification($deviceToken: String!, $message: String!) {

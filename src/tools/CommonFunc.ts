@@ -1,3 +1,5 @@
+import {Coordinate} from '../types/store';
+
 export const changeStringToJSON = (data: any) => {
   let result = data;
   while (1) {
@@ -10,19 +12,17 @@ export const changeStringToJSON = (data: any) => {
 };
 
 export function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
+  coor1: Coordinate,
+  coor2: Coordinate,
 ): number {
   const earthRadius = 6371; // Radius of the Earth in kilometers
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
+  const dLat = toRadians(coor2.latitude - coor1.latitude);
+  const dLon = toRadians(coor2.longitude - coor1.longitude);
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
+    Math.cos(toRadians(coor1.latitude)) *
+      Math.cos(toRadians(coor2.longitude)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
 

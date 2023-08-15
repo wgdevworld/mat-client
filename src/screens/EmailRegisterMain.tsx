@@ -11,12 +11,17 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../styles/colors';
 import axios from 'axios';
+import {useDispatch} from 'react-redux';
+import {createUserAction} from '../store/modules/user';
+import {User} from '../types/store';
 
 const EmailRegisterMain = () => {
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [pwd, setPwd] = useState('');
+  const [address, setAddress] = useState('천국');
 
   const onPressRegister = async () => {
     try {
@@ -26,7 +31,6 @@ const EmailRegisterMain = () => {
           username: username,
           email: email,
           pwd: pwd,
-          institution: 'lalala',
           address: 'lololo',
         },
       };
@@ -40,24 +44,41 @@ const EmailRegisterMain = () => {
             }
         }`;
 
-      axios
-        .post(
-          'https://muckit-server.site/graphql',
-          {
-            query,
-            variables,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          },
-        )
-        .then((result: {data: any}) => {
-          console.log(result.data);
-        })
-        .catch(e => console.log(e));
+      // let res = null;
+      // axios
+      //   .post(
+      //     'https://muckit-server.site/graphql',
+      //     {
+      //       query,
+      //       variables,
+      //     },
+      //     {
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //         Accept: 'application/json',
+      //       },
+      //     },
+      //   )
+      //   .then((result: {data: any}) => {
+      //     console.log(result.data);
+      //     res = result.data;
+      //   })
+      //   .catch(e => console.log(e));
+
+      // console.log(res);
+      const user: User = {
+        id: '',
+        name: name,
+        username: '사과',
+        email: email,
+        address: address,
+        userMaps: [],
+        followingMaps: [],
+        deviceToken: 'asdfasdfafd',
+        pushAllowStatus: false,
+      };
+      dispatch(createUserAction(user));
+      console.log('됨');
     } catch (e) {
       console.log(e);
     }
@@ -155,7 +176,7 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 50,
     marginTop: 0,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -220,7 +241,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
-    marginTop: 30
+    marginTop: 30,
   },
   setAccountButtonText: {
     color: 'white',
