@@ -19,6 +19,7 @@ import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
 import {View} from 'react-native';
 import colors from './styles/colors';
+import ChangePwdScreen from './screens/ChangePwdScreen';
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
@@ -60,7 +61,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'LoginMain'}>
+            <Stack.Navigator initialRouteName={'MapMain'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
@@ -116,6 +117,13 @@ const App = () => {
               <Stack.Screen
                 name="ZipList"
                 component={ZipList}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ChangePwdScreen"
+                component={ChangePwdScreen}
                 options={{
                   headerShown: false,
                 }}

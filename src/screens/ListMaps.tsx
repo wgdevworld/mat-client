@@ -28,7 +28,7 @@ export default function ListMaps() {
         setMaps(data.fetchAllMaps);
       }
     };
-    // fetchData();
+    fetchData();
     initPushNotification();
   }, []);
 

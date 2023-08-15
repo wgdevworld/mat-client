@@ -34,6 +34,36 @@ export const deleteUser = async (userId: string) => {
   }
 };
 
+export const resetPwd = async (newPwd: string) => {
+  try {
+    const query = `
+        mutation {
+            resetPwd(newPwd: ${newPwd}) {
+              email
+              username
+              name
+            }
+          }
+        `;
+    axios.post(
+      'https://muckit-server.site/graphql',
+      {
+        query,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      },
+    );
+    console.log(newPwd);
+    console.log('비밀번호가 변경되었습니다.');
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // axios
 //         .post(
 //           'https://muckit-server.site/graphql',

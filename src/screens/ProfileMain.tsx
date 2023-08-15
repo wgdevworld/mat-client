@@ -1,4 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import React from 'react';
 import {
   SafeAreaView,
@@ -12,14 +14,19 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import {useAppSelector} from '../store/hooks';
+import {ScreenParamList} from '../types/navigation';
 
 export default function ProfileMain() {
+  const user = useAppSelector(state => state.user);
   const [isEdit, setIsEdit] = React.useState(false);
   const toggleEdit = () => setIsEdit(true);
-  const [nickname, setNickname] = React.useState('홍길동');
+  const [nickname, setNickname] = React.useState(user.username);
   const [isEditAddr, setIsEditAddr] = React.useState(false);
   const toggleEditAddr = () => setIsEditAddr(true);
-  const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
+  const [addr, setAddr] = React.useState(user.address);
+
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -41,7 +48,7 @@ export default function ProfileMain() {
             <View style={{flex: 1}} />
             <View style={styles.profile}>
               <Text style={styles.profileName}>{nickname}</Text>
-              <Text style={styles.profileUserID}>@matzip-user-01</Text>
+              <Text style={styles.profileUserID}>{user.name}</Text>
               <Text style={styles.profileUserID}>{addr}</Text>
               {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
             </View>
@@ -74,7 +81,7 @@ export default function ProfileMain() {
             <TextInput
               keyboardType="default"
               style={styles.input}
-              placeholder="서울시 중구 길동로 32"
+              placeholder={user.address}
               placeholderTextColor="grey"
               selectionColor="black"
               editable={isEditAddr}
@@ -85,7 +92,11 @@ export default function ProfileMain() {
               onChangeText={text => setAddr(text)}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.row}>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => {
+              navigation.navigate('ChangePwdScreen');
+            }}>
             <Ionicons name="lock-closed-outline" size={18} />
             <Text style={styles.rowText}>비밀번호 변경</Text>
             <View style={{flex: 1}} />

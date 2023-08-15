@@ -9,6 +9,7 @@ export type RootStackParamList = {
   LoginMain: undefined;
   SettingsMain: undefined;
   EmailRegisterMain: undefined;
+  ChangePwdScreen: undefined;
 
   //BottomTab
   MapMain: undefined;
