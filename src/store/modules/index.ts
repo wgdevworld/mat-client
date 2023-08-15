@@ -1,10 +1,16 @@
 import {combineReducers} from '@reduxjs/toolkit';
-import zipData, {initialState as zipDataInitialState} from './zipData';
+import matZip, {initialState as matZipInitialState} from './matZip';
+import user, {initialState as userInitialState} from './user';
+import matMap, {initialState as matMapInitialState} from './matMap';
 
-const rootReducer = combineReducers({zipData});
+const rootReducer = combineReducers({user, matZip, matMap});
 
 export const initialStateObject: {
   [key: string]: any;
-} = {zipData: zipDataInitialState};
+} = {
+  user: userInitialState,
+  matZip: matZipInitialState,
+  matMap: matMapInitialState,
+};
 
 export default rootReducer;

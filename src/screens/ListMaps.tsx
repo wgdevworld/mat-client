@@ -13,7 +13,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
 import {fetchAllMaps} from '../controls/MatMapControl';
-import {initialState} from '../store/modules/matMap';
+import {initialState} from '../store/modules/matZip';
 import {initPushNotification} from '../controls/NotificationControl';
 
 export default function ListMaps() {
@@ -28,7 +28,7 @@ export default function ListMaps() {
         setMaps(data.fetchAllMaps);
       }
     };
-    fetchData();
+    // fetchData();
     initPushNotification();
   }, []);
 

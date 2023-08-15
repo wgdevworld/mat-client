@@ -15,8 +15,10 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import {ScreenParamList} from '../types/navigation';
+import {useAppSelector} from '../store/hooks';
 
 export default function Settings() {
+  const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isPush, setIsPush] = React.useState(true);
   const togglePush = () => setIsPush(prev => !prev);
@@ -52,8 +54,8 @@ export default function Settings() {
             </TouchableOpacity>
             <View style={{flex: 1}} />
             <View style={styles.profile}>
-              <Text style={styles.profileName}>홍길동</Text>
-              <Text style={styles.profileUserID}>@matzip-user-01</Text>
+              <Text style={styles.profileName}>{user.name}</Text>
+              <Text style={styles.profileUserID}>{user.username}</Text>
             </View>
           </View>
         </TouchableOpacity>

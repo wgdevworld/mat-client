@@ -158,7 +158,7 @@ function App(): JSX.Element {
   const [cards, setCards] = useState<Item[]>(data);
 
   //TODO: 리덕스에다 저장
-  const [currentLocation, setCurrentLocation] = useState({
+  const [currentLocation, setCurrentLocation] = useState<Coordinate>({
     latitude: 0,
     longitude: 0,
   });
@@ -184,12 +184,7 @@ function App(): JSX.Element {
   useEffect(() => {
     setData(prevData => {
       const updatedData = prevData.map(item => {
-        const distance = calculateDistance(
-          currentLocation.latitude,
-          currentLocation.longitude,
-          item.coordinates.latitude,
-          item.coordinates.longitude,
-        );
+        const distance = calculateDistance(currentLocation, item.coordinates);
         return {...item, distance};
       });
       updatedData.sort((a, b) => a.distance - b.distance);
@@ -553,7 +548,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'black',
     paddingBottom: 5,
-    fontWeight: 300
+    fontWeight: 300,
   },
   itemStarsText: {
     fontSize: 14,
@@ -568,7 +563,7 @@ const styles = StyleSheet.create({
   itemSubtext: {
     color: 'black',
     paddingVertical: 2,
-    fontWeight: 200
+    fontWeight: 200,
   },
   itemImageContainer: {
     width: 76,
