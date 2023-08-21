@@ -14,8 +14,14 @@ import axios from 'axios';
 import {useDispatch} from 'react-redux';
 import {createUserAction} from '../store/modules/user';
 import {User} from '../types/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 const EmailRegisterMain = () => {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -44,28 +50,28 @@ const EmailRegisterMain = () => {
             }
         }`;
 
-      // let res = null;
-      // axios
-      //   .post(
-      //     'https://muckit-server.site/graphql',
-      //     {
-      //       query,
-      //       variables,
-      //     },
-      //     {
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //         Accept: 'application/json',
-      //       },
-      //     },
-      //   )
-      //   .then((result: {data: any}) => {
-      //     console.log(result.data);
-      //     res = result.data;
-      //   })
-      //   .catch(e => console.log(e));
+      let res = null;
+      axios
+        .post(
+          'https://muckit-server.site/graphql',
+          {
+            query,
+            variables,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          },
+        )
+        .then((result: {data: any}) => {
+          console.log(result.data);
+          res = result.data;
+        })
+        .catch(e => console.log(e));
 
-      // console.log(res);
+      console.log(res);
       const user: User = {
         id: '',
         name: name,
@@ -78,7 +84,8 @@ const EmailRegisterMain = () => {
         pushAllowStatus: false,
       };
       dispatch(createUserAction(user));
-      console.log('됨');
+      AsyncStorage.setItem(ASYNC_STORAGE_ENUM.USER_EMAIL, email);
+      navigation.navigate('SplashScreen');
     } catch (e) {
       console.log(e);
     }
