@@ -26,6 +26,7 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import {MatZip} from '../types/store';
+import {REQ_METHOD, request} from '../controls/RequestControl';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -170,6 +171,20 @@ function App(): JSX.Element {
   useEffect(() => {
     setCards(data);
   }, [data]);
+
+  const fetchFollowingMaps = async () => {
+    try {
+      const query = ` {
+      fetchMapsFollowed {
+        id
+      }
+    }`;
+      const res = await request(query, REQ_METHOD.QUERY);
+      console.log(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const newRegion = {
@@ -432,6 +447,9 @@ function App(): JSX.Element {
             />
           </BottomSheet>
         </View>
+        <TouchableOpacity onPress={fetchFollowingMaps}>
+          <Text>Test</Text>
+        </TouchableOpacity>
       </GestureHandlerRootView>
     </View>
   );
