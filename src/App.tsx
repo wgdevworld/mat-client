@@ -62,7 +62,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'TabNavContainer'}>
+            <Stack.Navigator initialRouteName={'LoginMain'}>
               <Stack.Screen
                 name="AppleLoginTest"
                 component={AppleLoginPage}
