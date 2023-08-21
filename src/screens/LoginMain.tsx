@@ -72,6 +72,7 @@ export default function Login() {
         console.log('ℹ️ access token via kakao login: ' + accessToken);
         AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken).then(
           () => {
+            console.log(AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN));
             navigation.navigate('TabNavContainer');
           },
         );
