@@ -4,6 +4,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase.h>
 #import <RNKakaoLogins.h>
+#import <React/RCTLinkingManager.h>
 
 
 @implementation AppDelegate
@@ -26,7 +27,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
     if ([RNKakaoLogins isKakaoTalkLoginUrl:url]) {
       return [RNKakaoLogins handleOpenUrl: url];
     }
-    return NO;
+    return [RCTLinkingManager application:application openURL:url options:options];
   }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

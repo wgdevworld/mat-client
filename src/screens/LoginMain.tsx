@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,11 +14,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
@@ -67,6 +62,35 @@ export default function Login() {
       })
       .catch(e => console.log(e));
   };
+
+  useEffect(() => {
+    const deepLinkNavigation = async (url: string) => {
+      const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
+
+      if (route === 'kakao-login') {
+        const accessToken = url.split('=')[1];
+        console.log('ℹ️ access token via kakao login: ' + accessToken);
+        AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken).then(
+          () => {
+            navigation.navigate('TabNavContainer');
+          },
+        );
+        return;
+      }
+    };
+
+    Linking.getInitialURL().then(value => {
+      if (!value) {
+        return;
+      }
+      deepLinkNavigation(value);
+    });
+
+    Linking?.addEventListener('url', e => {
+      deepLinkNavigation(e.url);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signInWithKakao = async () => {
     try {
@@ -149,31 +173,6 @@ export default function Login() {
         .catch(e => console.log(e));
     }
   }
-
-  const handleLoginWithGoogle = async () => {
-    try {
-      // Initialize Google Sign-In
-      await GoogleSignin.configure({
-        webClientId:
-          '81406653474-to8tib4bi1cscpm0mg73er2gd8lkfi1u.apps.googleusercontent.com',
-      });
-
-      // Prompt the user to sign in
-      await GoogleSignin.signIn();
-
-      // Handle successful sign-in here
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // User canceled the sign-in flow
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        // Sign-in is in progress
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // Play services not available or outdated
-      } else {
-        // Other error occurred
-      }
-    }
-  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -249,14 +248,6 @@ export default function Login() {
             <Image
               source={assets.images.kakao_login_medium_narrow}
               style={{width: 200, height: 45, borderRadius: 15}}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLoginWithGoogle}>
-            <GoogleSigninButton
-              style={{width: 200, height: 48, borderRadius: 25}}
-              size={GoogleSigninButton.Size.Wide}
-              color={GoogleSigninButton.Color.Light}
-              onPress={handleLoginWithGoogle}
             />
           </TouchableOpacity>
         </View>

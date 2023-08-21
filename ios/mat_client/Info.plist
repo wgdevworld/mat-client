@@ -38,7 +38,19 @@
 				<string>com.googleusercontent.apps.81406653474-qjuhseg11tvofa430rra5crot4r6db0p</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>mucket-app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mucket-app</string>
+			</array>
+		</dict>
 	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>KAKAO_APP_KEY</key>
 	<string>7a4c5d4a50147539cfcc91e9c5b066a5</string>
 	<key>LSApplicationQueriesSchemes</key>
@@ -47,8 +59,6 @@
 		<string>storykompassauth</string>
 		<string>kakaolink</string>
 	</array>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
