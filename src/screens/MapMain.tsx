@@ -11,7 +11,6 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -27,6 +26,8 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import {MatZip} from '../types/store';
 import {REQ_METHOD, request} from '../controls/RequestControl';
+import { useAppSelector } from '../store/hooks';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -157,6 +158,9 @@ function App(): JSX.Element {
   const [markers, setMarkers] = useState<Place[]>([]);
   // TODO: change Item to Matzip
   const [cards, setCards] = useState<Item[]>(data);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([]);
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
@@ -177,14 +181,26 @@ function App(): JSX.Element {
       const query = ` {
       fetchMapsFollowed {
         id
+        name
       }
     }`;
       const res = await request(query, REQ_METHOD.QUERY);
-      console.log(res?.data);
+      return res?.data.data.fetchMapsFollowed;
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(async () => {
+    const followingMaps = await fetchFollowingMaps();
+    console.log(followingMaps)
+    const maps = followingMaps.map((obj: any) => ({
+      label: obj.name,
+      value: obj.id,
+    }));
+    console.log(maps)
+    setItems(maps)
+  }, []);
 
   useEffect(() => {
     const newRegion = {
@@ -433,16 +449,25 @@ function App(): JSX.Element {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
+            
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+            />
             <BottomSheetFlatList
               data={cards}
               keyExtractor={i => i.name}
               renderItem={renderItem}
               contentContainerStyle={styles.contentContainer}
-              ListHeaderComponent={
-                <Text style={styles.flatListHeaderText}>
-                  근처 나의 맛집들 🍶
-                </Text>
-              }
+              // ListHeaderComponent={
+              //   <Text style={styles.flatListHeaderText}>
+              //     근처 나의 맛집들 🍶
+              //   </Text>
+              // }
               ListFooterComponent={<View style={{height: 200}} />}
             />
           </BottomSheet>

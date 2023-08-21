@@ -34,11 +34,11 @@ export default function Login() {
     mutation login(
       $email: String!
       $pwd: String!) {
-        login(email: $userEmail, pwd: $pwd)
+        login(email: $email, pwd: $pwd)
     }
   `;
     const queryVariables = {
-      userEmail,
+      email: userEmail,
       pwd,
     };
     axios
