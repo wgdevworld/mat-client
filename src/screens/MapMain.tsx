@@ -22,6 +22,10 @@ import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
 import {calculateDistance} from '../tools/CommonFunc';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
+import {MatZip} from '../types/store';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -39,6 +43,7 @@ type Place = {
   coordinate: Coordinate;
 };
 
+//TODO: Item 없애고 Zip으로 변경/통합
 type Item = {
   imageSrc: ImageSourcePropType;
   name: string;
@@ -50,6 +55,7 @@ type Item = {
 };
 
 //FIXME: Don't let this be a global variable and figure out how to read in from marker component
+// TODO: change Item to MatZip?
 let newCard: Item = {
   imageSrc: assets.images.스시올로지,
   name: 'Default name',
@@ -64,8 +70,8 @@ function App(): JSX.Element {
   //TODO: read in from database + save in redux store
   const [data, setData] = useState([
     {
-      name: '스시올로지',
-      imageSrc: assets.images.스시올로지,
+      name: '달버터',
+      imageSrc: assets.images.달버터2,
       distance: 50,
       address: '서울특별시 마포구 동교로 266-11',
       stars: 4.8,
@@ -78,7 +84,7 @@ function App(): JSX.Element {
     },
     {
       name: '진만두',
-      imageSrc: assets.images.진만두,
+      imageSrc: assets.images.교래퐁낭1,
       distance: 102,
       address: '서울 마포구 와우산로29길 4-42 지하1층',
       stars: 4.7,
@@ -91,7 +97,7 @@ function App(): JSX.Element {
     },
     {
       name: '월량관',
-      imageSrc: assets.images.월량관,
+      imageSrc: assets.images.산방산국수맛집1,
       distance: 149,
       address: '서울 마포구 동교로46길 10',
       stars: 4.8,
@@ -104,7 +110,7 @@ function App(): JSX.Element {
     },
     {
       name: '이안정',
-      imageSrc: assets.images.이안정,
+      imageSrc: assets.images.달버터3,
       distance: 155,
       address: '서울 마포구 독막로15길 3-3 1층 101호',
       stars: 4.9,
@@ -117,7 +123,7 @@ function App(): JSX.Element {
     },
     {
       name: '카와카츠',
-      imageSrc: assets.images.카와카츠,
+      imageSrc: assets.images.교래퐁낭2,
       distance: 203,
       address: '서울 마포구 동교로 126 1층 102호',
       stars: 4.5,
@@ -130,7 +136,7 @@ function App(): JSX.Element {
     },
     {
       name: '야키토리 나루토',
-      imageSrc: assets.images.야키토리나루토,
+      imageSrc: assets.images.교래퐁낭3,
       distance: 293,
       address: '서울 마포구 독막로9길 26',
       stars: 4.6,
@@ -148,6 +154,7 @@ function App(): JSX.Element {
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonOpacity, setButtonOpacity] = useState(1);
   const [markers, setMarkers] = useState<Place[]>([]);
+  // TODO: change Item to Matzip
   const [cards, setCards] = useState<Item[]>(data);
 
   //TODO: 리덕스에다 저장
@@ -240,34 +247,42 @@ function App(): JSX.Element {
     setCards(prevCards => [...prevCards, newCard]);
   };
 
-  const renderItem = useCallback(({item}: {item: Item}) => {
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemImageContainer}>
-          <Image source={item.imageSrc} style={styles.itemImage} />
-        </View>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemTitleStarsContainer}>
-            <Text style={styles.itemTitleText}>{item.name}</Text>
-            {item.isVisited && (
-              <Ionicons
-                name="checkmark-done-circle-outline"
-                size={20}
-                color={'white'}
-              />
-            )}
-            <View style={styles.itemStarReviewContainer}>
-              <Ionicons name="star" size={14} color={'white'} />
-              <Text style={styles.itemStarsText}>{item.stars}</Text>
-              <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
-            </View>
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+
+  const renderItem = useCallback(
+    // REFACTOR: change Item to MatZip
+    ({item}: {item: MatZip}) => {
+      return (
+        <TouchableOpacity
+          style={styles.itemContainer}
+          onPress={() => navigation.navigate('MatZip', {zip: item})}>
+          <View style={styles.itemImageContainer}>
+            <Image source={item.imageSrc} style={styles.itemImage} />
           </View>
-          <Text style={styles.itemSubtext}>{item.address}</Text>
-          <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
-        </View>
-      </View>
-    );
-  }, []);
+          <View style={styles.itemInfoContainer}>
+            <View style={styles.itemTitleStarsContainer}>
+              <Text style={styles.itemTitleText}>{item.name}</Text>
+              {item.isVisited && (
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={20}
+                  color={'white'}
+                />
+              )}
+              <View style={styles.itemStarReviewContainer}>
+                <Ionicons name="star" size={14} color={'white'} />
+                <Text style={styles.itemStarsText}>{item.stars}</Text>
+                <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
+              </View>
+            </View>
+            <Text style={styles.itemSubtext}>{item.address}</Text>
+            <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [navigation],
+  );
 
   return (
     <View style={{flex: 1}}>
@@ -277,7 +292,7 @@ function App(): JSX.Element {
             minLength={2}
             placeholder="장소를 검색해보세요!"
             textInputProps={{
-              placeholderTextColor: 'white',
+              placeholderTextColor: 'black',
             }}
             query={{
               key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
@@ -414,7 +429,9 @@ function App(): JSX.Element {
               renderItem={renderItem}
               contentContainerStyle={styles.contentContainer}
               ListHeaderComponent={
-                <Text style={styles.flatListHeaderText}>근처 나의 맛집들</Text>
+                <Text style={styles.flatListHeaderText}>
+                  근처 나의 맛집들 🍶
+                </Text>
               }
               ListFooterComponent={<View style={{height: 200}} />}
             />
@@ -475,13 +492,13 @@ const styles = StyleSheet.create({
   searchTextInput: {
     position: 'absolute',
     textInputContainer: {
-      opacity: 0.85,
+      opacity: 0.7,
       borderRadius: 10,
     },
     textInput: {
-      backgroundColor: colors.coral1,
+      backgroundColor: 'white',
       borderRadius: 10,
-      color: 'white',
+      color: 'black',
     },
   },
   iconContainer: {

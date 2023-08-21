@@ -12,19 +12,18 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import colors from '../styles/colors';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {ScreenParamList} from '../types/navigation';
-import colors from '../styles/colors';
 
-export default function Settings() {
-  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+export default function ProfileMain() {
   const [isEdit, setIsEdit] = React.useState(false);
   const toggleEdit = () => setIsEdit(true);
   const [nickname, setNickname] = React.useState('홍길동');
   const [isEditAddr, setIsEditAddr] = React.useState(false);
   const toggleEditAddr = () => setIsEditAddr(true);
   const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
+  const navigation = useNavigation();
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1,}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -55,6 +54,7 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>프로필 설정</Text>
           <TouchableOpacity style={styles.row} onPress={toggleEdit}>
+            <Ionicons name="person-outline" size={18} />
             <Text style={styles.rowText}>닉네임</Text>
             <View style={{flex: 1}} />
             <TextInput
@@ -72,6 +72,7 @@ export default function Settings() {
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
+            <Ionicons name="navigate-outline" size={18} />
             <Text style={styles.rowText}>주소</Text>
             <View style={{flex: 1}} />
             <TextInput
@@ -89,6 +90,7 @@ export default function Settings() {
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.row}>
+            <Ionicons name="lock-closed-outline" size={18} />
             <Text style={styles.rowText}>비밀번호 변경</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
     marginBottom: 20,
     textAlign: 'left',
     paddingHorizontal: 24,
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
   profileWrapper: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#f2f2f2f2',
+    backgroundColor: '#FF4000',
     borderRadius: 20,
     marginBottom: 12,
     paddingHorizontal: 12,
@@ -161,14 +163,14 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 19,
-    fontWeight: '600',
-    color: '#414d63',
+    fontWeight: 'bold',
+    color: 'white',
     textAlign: 'center',
   },
   profileUserID: {
     marginTop: 5,
     fontSize: 16,
-    color: '#989898',
+    color: 'white',
     textAlign: 'center',
   },
   section: {
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
@@ -195,6 +197,7 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
+    marginLeft: 5,
   },
   rowResultText: {
     fontSize: 16,

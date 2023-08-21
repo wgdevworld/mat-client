@@ -3,7 +3,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <GoogleMaps/GoogleMaps.h>
 #import <Firebase.h>
-
+#import <RNKakaoLogins.h>
 
 
 @implementation AppDelegate
@@ -19,6 +19,15 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
   self.initialProps = @{};
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
+
+- (BOOL)application:(UIApplication *)application
+  openURL:(NSURL *)url
+  options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([RNKakaoLogins isKakaoTalkLoginUrl:url]) {
+      return [RNKakaoLogins handleOpenUrl: url];
+    }
+    return NO;
+  }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {

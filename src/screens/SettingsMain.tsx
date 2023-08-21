@@ -1,4 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import React from 'react';
 import {
   SafeAreaView,
@@ -12,12 +14,9 @@ import {
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import assets from '../../assets';
 import colors from '../styles/colors'; 
-
 
 export default function Settings() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -27,7 +26,7 @@ export default function Settings() {
   const toggleLocPush = () => setIsLocPush(prev => !prev);
   const screenWidth = Dimensions.get('window').width;
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <View style={{ flex: 1, justifyContent: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30}}>
@@ -42,7 +41,7 @@ export default function Settings() {
         <TouchableOpacity
           style={{paddingHorizontal: 24}}
           onPress={() => {
-            // move to profile settings page
+            navigation.navigate('ProfileMain');
           }}>
           <View style={styles.profileWrapper}>
             <TouchableOpacity
@@ -88,11 +87,13 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>알림</Text>
           <View style={styles.row}>
+            <Ionicons name="notifications-outline" size={18} />
             <Text style={styles.rowText}>푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
             <Switch onValueChange={togglePush} value={isPush} />
           </View>
           <View style={styles.row}>
+            <Ionicons name="earth-outline" size={18} />
             <Text style={styles.rowText}>위치 기반 푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
             <Switch onValueChange={toggleLocPush} value={isLocPush} />
@@ -101,6 +102,7 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>팔로우</Text>
           <View style={styles.row}>
+            <Ionicons name="people-outline" size={18} />
             <Text style={styles.rowText}>팔로우한 유저</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -110,6 +112,7 @@ export default function Settings() {
             />
           </View>
           <View style={styles.row}>
+            <Ionicons name="map-outline" size={18} />
             <Text style={styles.rowText}>팔로우한 지도</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -121,12 +124,14 @@ export default function Settings() {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>도움말</Text>
+
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('Help');
             }}
             style={styles.row}
             >
+            <Ionicons name="information-circle-outline" size={18} />
             <Text style={styles.rowText}>앱 사용법</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -135,12 +140,14 @@ export default function Settings() {
               size={22}
             />
           </TouchableOpacity>
+          
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('FAQ');
             }}
             style={styles.row}
           >
+            <Ionicons name="help-circle-outline" size={18} />
             <Text style={styles.rowText}>자주 물어보는 질문</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -152,11 +159,13 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>지원</Text>
           <View style={styles.row}>
+            <Ionicons name="construct-outline" size={18} />
             <Text style={styles.rowText}>버전 정보</Text>
             <View style={{flex: 1}} />
             <Text>0.0.1</Text>
           </View>
           <View style={styles.row}>
+            <Ionicons name="newspaper-outline" size={18} />
             <Text style={styles.rowText}>서비스 약관 및 방침</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -166,6 +175,7 @@ export default function Settings() {
             />
           </View>
           <View style={styles.row}>
+            <Ionicons name="bug-outline" size={18} />
             <Text style={styles.rowText}>버그 신고</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -175,6 +185,7 @@ export default function Settings() {
             />
           </View>
           <View style={styles.row}>
+            <Ionicons name="mail-outline" size={18} />
             <Text style={styles.rowText}>문의하기</Text>
             <View style={{flex: 1}} />
             <Ionicons
@@ -200,10 +211,11 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   heading: {
-    fontSize: 20,
+    fontSize: 30,
+    fontWeight: 'bold',
     color: 'black',
-    marginBottom: 0,
-    textAlign: 'center',
+    marginBottom: 20,
+    textAlign: 'left',
     paddingHorizontal: 24,
   },
   profileWrapper: {
@@ -230,14 +242,14 @@ const styles = StyleSheet.create({
     // marginTop: 20,
     fontSize: 19,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: 'white',
     textAlign: 'center',
     // backgroundColor: 'white',
   },
   profileUserID: {
     marginTop: 5,
     fontSize: 16,
-    color: '#F2F2F2',
+    color: 'white',
     textAlign: 'center',
   },
   section: {
@@ -265,13 +277,14 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
+    marginLeft: 5,
   },
   logout: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40,
-    backgroundColor: '#bebebe',
+    height: 50,
+    backgroundColor: '#f2f2f2f2',
     borderRadius: 8,
     marginTop: 15,
   },
