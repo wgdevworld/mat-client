@@ -20,6 +20,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
+import colors from '../styles/colors';
 
 export default function Login() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -161,15 +162,18 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   input: {
-    borderBottomWidth: 1.5,
+    borderWidth: 0.9,
     flex: 1,
-    paddingBottom: 10,
-    borderBottomColor: '#eee',
+    padding: 10,
+    borderColor: '#eee',
+    borderRadius: 10,
     fontSize: 16,
-    color: 'white'
+    color: 'white',
+    backgroundColor: 'fafafa'
   },
   passwordVisibleButton: {
     position: 'absolute',
+    marginRight: 10,
     right: 0,
   },
   forgotButtons: {

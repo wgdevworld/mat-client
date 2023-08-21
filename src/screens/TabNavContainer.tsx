@@ -101,7 +101,7 @@ const TabNavContainer = () => {
           headerShown: false,
         };
       }}>
-      <Tab.Screen name="Map" component={MapMain} />
+      <Tab.Screen name="Map" component={CreateMatZip} />
       <Tab.Screen name="List" component={ListMaps} />
       <Tab.Screen name="Community" component={MuckitNotes} />
       <Tab.Screen name="Settings" component={SettingsMain} />
