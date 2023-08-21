@@ -287,15 +287,17 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   input: {
-    borderBottomWidth: 1.5,
+    borderWidth: 0.9,
     flex: 1,
-    paddingBottom: 10,
-    borderBottomColor: '#eee',
+    padding: 10,
+    borderColor: '#eee',
+    borderRadius: 10,
     fontSize: 16,
     color: 'white',
   },
   passwordVisibleButton: {
     position: 'absolute',
+    marginRight: 10,
     right: 0,
   },
   forgotButtons: {
