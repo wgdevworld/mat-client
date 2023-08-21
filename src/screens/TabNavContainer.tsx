@@ -11,8 +11,6 @@ import MapMain from './MapMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
-import CreateMatZip from './CreateMatZip';
-import AppleLoginPage from './AppleLoginTest';
 
 const screenWidth = Dimensions.get('window').width;
 
