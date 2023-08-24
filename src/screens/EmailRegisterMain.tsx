@@ -11,47 +11,52 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../styles/colors';
 import axios from 'axios';
+import {useDispatch} from 'react-redux';
+import {createUserAction} from '../store/modules/user';
+import {User} from '../types/store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 const EmailRegisterMain = () => {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [pwd, setPwd] = useState('');
+  const [address, setAddress] = useState('천국');
 
   const onPressRegister = async () => {
     try {
-      const userInput = {
-        name: name,
-        username: username,
-        email: email,
-        pwd: pwd,
-        institution: 'lalala',
-        address: 'lololo',
+      const variables = {
+        createUserInput: {
+          name: name,
+          username: username,
+          email: email,
+          pwd: pwd,
+          address: 'lololo',
+        },
       };
-      console.log(userInput);
-      const query = `
-            mutation {
-                createUser(userInput: {
-                name: $name,
-                username: $username,
-                email: $email,
-                pwd: $pwd,
-                institution: $institution,
-                address: $address
-                }) {
-                username
-                id
-                email
-                }
-            }
-        `;
 
+      const query = `
+            mutation createUser($createUserInput: CreateUserInput!) {
+                createUser(userInput: $createUserInput) {
+                    username
+                    id
+                    email
+            }
+        }`;
+
+      let res = null;
       axios
         .post(
           'https://muckit-server.site/graphql',
           {
             query,
-            userInput,
+            variables,
           },
           {
             headers: {
@@ -62,8 +67,25 @@ const EmailRegisterMain = () => {
         )
         .then((result: {data: any}) => {
           console.log(result.data);
+          res = result.data;
         })
         .catch(e => console.log(e));
+
+      console.log(res);
+      const user: User = {
+        id: '',
+        name: name,
+        username: '사과',
+        email: email,
+        address: address,
+        userMaps: [],
+        followingMaps: [],
+        deviceToken: 'asdfasdfafd',
+        pushAllowStatus: false,
+      };
+      dispatch(createUserAction(user));
+      AsyncStorage.setItem(ASYNC_STORAGE_ENUM.USER_EMAIL, email);
+      navigation.navigate('SplashScreen');
     } catch (e) {
       console.log(e);
     }
@@ -161,7 +183,7 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 50,
     marginTop: 0,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -226,7 +248,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
-    marginTop: 30
+    marginTop: 30,
   },
   setAccountButtonText: {
     color: 'white',

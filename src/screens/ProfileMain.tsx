@@ -12,9 +12,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
-import colors from '../styles/colors';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
 
 export default function ProfileMain() {
   const [isEdit, setIsEdit] = React.useState(false);
@@ -25,7 +22,7 @@ export default function ProfileMain() {
   const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
   const navigation = useNavigation();
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1,}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <Text style={styles.heading}>프로필</Text>
         <View style={{paddingHorizontal: 24}}>
@@ -99,8 +96,14 @@ export default function ProfileMain() {
               size={22}
             />
           </TouchableOpacity>
-          
           <TouchableOpacity
+            style={styles.delete}
+            onPress={() => {
+              // to backend, to login screen
+            }}>
+            <Text style={styles.deleteText}>탈퇴하기</Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate('SettingsMain');
             }}>
@@ -113,16 +116,7 @@ export default function ProfileMain() {
                 size={22}
               />
             </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.delete}
-            onPress={() => {
-              // to backend, to login screen
-            }}>
-            <Text style={styles.deleteText}>로그아웃</Text>
-          </TouchableOpacity>
-
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
     </SafeAreaView>

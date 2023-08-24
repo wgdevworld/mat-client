@@ -1,11 +1,11 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ScreenParamList} from './types/navigation';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {persistStore} from 'redux-persist';
-import store from './store/store';
+import store, {initStore} from './store/store';
 import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
@@ -28,9 +28,14 @@ import SignupEmail from './screens/Signup/SIgnupEmail';
 import SignupPwd from './screens/Signup/SignupPwd';
 import SignupUser from './screens/Signup/SignupUser';
 import AccessGrant from './screens/Onboarding/AccessGrant';
+import {View} from 'react-native';
+import colors from './styles/colors';
+import SplashScreen from './screens/SplashScreen';
+import AppleLoginPage from './screens/AppleLoginTest';
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       onDisplayNotification(
@@ -41,6 +46,27 @@ const App = () => {
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    // timeOutId = setTimeout(() => {
+    //   SplashScreen.hide();
+    // }, 1000);
+
+    const init = async () => {
+      await initStore();
+
+      setIsLoaded(true);
+    };
+
+    init();
+
+    // return () => clearTimeout(timeOutId);
+  }, []);
+
+  if (!isLoaded) {
+    return <View style={{flex: 1, backgroundColor: colors.dark}} />;
+  }
+
   const persistor = persistStore(store);
   return (
     <Provider store={store}>
@@ -48,6 +74,24 @@ const App = () => {
         <SafeAreaProvider>
           <NavigationContainer>
             <Stack.Navigator initialRouteName={'LoginMain'}>
+              <Stack.Screen
+                name="AppleLoginTest"
+                component={AppleLoginPage}
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
+                }}
+              />
+              <Stack.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
+                }}
+              />
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}

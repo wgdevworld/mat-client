@@ -1,13 +1,11 @@
-import {ImageSourcePropType} from 'react-native';
-
 export interface MatZip {
   id: string;
   name: string;
-  stars: number;
-  numReview: number;
+  reviews: Review[];
   //TODO: change to string after completing image upload functionality
   //TODO: imageSrc --> there could be multiple images
   // imageSrc: ImageSourcePropType[];
+  coordinate: Coordinate;
   address: string;
   distance: number;
   isVisited: boolean;
@@ -33,9 +31,8 @@ export interface User {
   name: string;
   username: string;
   email: string;
-  institution: string;
-  createdAt: Date;
   address: string;
+  userMaps: MatMap[];
   followingMaps: MatMap[];
   deviceToken: string;
   pushAllowStatus: Boolean;
@@ -45,11 +42,6 @@ export interface Coordinate {
   latitude: number;
   longitude: number;
 }
-
-// export interface ZipList {
-//   name: string;
-//   zipList: MatZip[];
-// }
 
 export interface Review {
   author: string;

@@ -16,14 +16,14 @@ export const initPushNotification = async () => {
         remoteMessage.notification?.title,
       );
     });
-    // const query = `
-    //   {
-    //     fetchAllMaps {
-    //       id
-    //       name
-    //     }
-    //   }
-    // `;
+    const query = `
+      {
+        fetchAllMaps {
+          id
+          name
+        }
+      }
+    `;
     // const res = await axios.post(
     //   'https://muckit-server.site/graphql',
     //   {
@@ -35,30 +35,31 @@ export const initPushNotification = async () => {
     //     },
     //   },
     // );
+    // console.log(res.data);
 
-    const notificationQuery = `
-    mutation sendNotification($deviceToken: String!, $message: String!) {
-      sendNotification(deviceToken: $deviceToken, message: $message)
-    }
-  `;
-    const variables = {
-      deviceToken: token,
-      message: 'Hello',
-    };
+    //   const notificationQuery = `
+    //   mutation sendNotification($deviceToken: String!, $message: String!) {
+    //     sendNotification(deviceToken: $deviceToken, message: $message)
+    //   }
+    // `;
+    //   const variables = {
+    //     deviceToken: token,
+    //     message: 'Hello',
+    //   };
 
-    await axios.post(
-      'https://muckit-server.site/graphql',
-      {
-        query: notificationQuery,
-        variables,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          // other headers if needed
-        },
-      },
-    );
+    //   await axios.post(
+    //     'https://muckit-server.site/graphql',
+    //     {
+    //       query: notificationQuery,
+    //       variables,
+    //     },
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         // other headers if needed
+    //       },
+    //     },
+    //   );
 
     // console.log(res.data.data.fetchAllMaps);
   } catch (e) {

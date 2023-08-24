@@ -26,11 +26,9 @@ const ZipCard: React.FC<ZipCardProps> = ({
   category,
   onPressZip,
 }) => {
-  // Dummy image data here
-  const images = [assets.images.교래퐁낭1];
+
   return (
     <View style={styles.container}>
-      {/* <ImageCarousel images={images} /> */}
       <TouchableOpacity onPress={onPressZip} style={styles.lowerHalf}>
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
@@ -39,7 +37,7 @@ const ZipCard: React.FC<ZipCardProps> = ({
             {/* <Text style={styles.mapAuthor}>{address}</Text> */}
             <Text style={styles.mapAuthor}>{category}</Text>
             {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
-            <Text style={styles.mapAuthor}>나와의 거리: {distance}</Text>
+            <Text style={styles.mapDistance}>나와의 거리: {distance}</Text>
           </View>
           <Ionicons
             name={
@@ -60,8 +58,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: colors.grey,
-    borderRadius: 20,
+    backgroundColor: 'white',
+    borderRadius: 3,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -80,13 +78,18 @@ const styles = StyleSheet.create({
   },
   mapName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontWeight: 300,
+    marginBottom: 8,
     color: colors.coral1,
   },
   mapAuthor: {
     fontSize: 12,
     marginBottom: 4,
+    color: 'black',
+  },
+  mapDistance: {
+    fontSize: 12,
+    marginBottom: 8,
     color: 'black',
   },
   followersCount: {

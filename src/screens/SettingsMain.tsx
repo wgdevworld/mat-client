@@ -14,11 +14,13 @@ import {
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {ScreenParamList} from '../types/navigation';
 import assets from '../../assets';
 import colors from '../styles/colors'; 
+import {ScreenParamList} from '../types/navigation';
+import {useAppSelector} from '../store/hooks';
 
 export default function Settings() {
+  const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isPush, setIsPush] = React.useState(true);
   const togglePush = () => setIsPush(prev => !prev);
@@ -58,8 +60,8 @@ export default function Settings() {
             </TouchableOpacity>
             <View style={{flex: 1}} />
             <View style={styles.profile}>
-              <Text style={styles.profileName}>홍길동</Text>
-              <Text style={styles.profileUserID}>@matzip-user-01</Text>
+              <Text style={styles.profileName}>{user.name}</Text>
+              <Text style={styles.profileUserID}>{user.username}</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -113,7 +115,7 @@ export default function Settings() {
           </View>
           <View style={styles.row}>
             <Ionicons name="map-outline" size={18} />
-            <Text style={styles.rowText}>팔로우한 지도</Text>
+            <Text style={styles.rowText}>저장한 맛집들</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
@@ -277,7 +279,7 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
-    marginLeft: 5,
+    marginLeft: 10,
   },
   logout: {
     flexDirection: 'row',

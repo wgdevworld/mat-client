@@ -11,7 +11,6 @@ import MapMain from './MapMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
-import CreateMatZip from './CreateMatZip';
 
 const screenWidth = Dimensions.get('window').width;
 

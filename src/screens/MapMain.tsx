@@ -26,6 +26,7 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import {MatZip} from '../types/store';
+import {REQ_METHOD, request} from '../controls/RequestControl';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -158,7 +159,7 @@ function App(): JSX.Element {
   const [cards, setCards] = useState<Item[]>(data);
 
   //TODO: 리덕스에다 저장
-  const [currentLocation, setCurrentLocation] = useState({
+  const [currentLocation, setCurrentLocation] = useState<Coordinate>({
     latitude: 0,
     longitude: 0,
   });
@@ -170,6 +171,20 @@ function App(): JSX.Element {
   useEffect(() => {
     setCards(data);
   }, [data]);
+
+  const fetchFollowingMaps = async () => {
+    try {
+      const query = ` {
+      fetchMapsFollowed {
+        id
+      }
+    }`;
+      const res = await request(query, REQ_METHOD.QUERY);
+      console.log(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const newRegion = {
@@ -184,12 +199,7 @@ function App(): JSX.Element {
   useEffect(() => {
     setData(prevData => {
       const updatedData = prevData.map(item => {
-        const distance = calculateDistance(
-          currentLocation.latitude,
-          currentLocation.longitude,
-          item.coordinates.latitude,
-          item.coordinates.longitude,
-        );
+        const distance = calculateDistance(currentLocation, item.coordinates);
         return {...item, distance};
       });
       updatedData.sort((a, b) => a.distance - b.distance);
@@ -266,11 +276,11 @@ function App(): JSX.Element {
                 <Ionicons
                   name="checkmark-done-circle-outline"
                   size={20}
-                  color={'white'}
+                  color={colors.coral1}
                 />
               )}
               <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={'white'} />
+                <Ionicons name="star" size={14} color={colors.coral1} />
                 <Text style={styles.itemStarsText}>{item.stars}</Text>
                 <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
               </View>
@@ -437,6 +447,9 @@ function App(): JSX.Element {
             />
           </BottomSheet>
         </View>
+        <TouchableOpacity onPress={fetchFollowingMaps}>
+          <Text>Test</Text>
+        </TouchableOpacity>
       </GestureHandlerRootView>
     </View>
   );
@@ -530,8 +543,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 13,
     marginHorizontal: 12,
-    marginVertical: 6,
-    backgroundColor: colors.coral1,
+    marginVertical: 5,
+    backgroundColor: colors.grey,
     borderRadius: 10,
   },
   itemTitleStarsContainer: {
@@ -551,22 +564,24 @@ const styles = StyleSheet.create({
   itemTitleText: {
     fontSize: 20,
     fontWeight: '500',
-    color: 'white',
+    color: 'black',
     paddingBottom: 5,
+    fontWeight: 300,
   },
   itemStarsText: {
     fontSize: 14,
-    color: 'white',
+    color: colors.coral1,
     paddingRight: 10,
     paddingLeft: 3,
   },
   itemReviewText: {
     fontSize: 14,
-    color: 'white',
+    color: colors.coral1,
   },
   itemSubtext: {
-    color: 'white',
+    color: 'black',
     paddingVertical: 2,
+    fontWeight: 200,
   },
   itemImageContainer: {
     width: 76,

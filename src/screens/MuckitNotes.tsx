@@ -7,6 +7,8 @@ import {
   View,
   TextInput,
   Button,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -77,35 +79,39 @@ export default function MuckitNotes() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>✔️ 나만의 먹킷리스트</Text>
-        <View style={{paddingHorizontal: 24}}>
-          <FlatList
-            data={items}
-            keyExtractor={item => item.id.toString()}
-            renderItem={renderItem}
-          />
-          <View style={styles.formContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="새로운 먹킷"
-              value={newTitle}
-              onChangeText={setNewTitle}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView>
+          <Text style={styles.heading}>✔️ 나만의 먹킷리스트</Text>
+          <View style={{paddingHorizontal: 24}}>
+            <FlatList
+              data={items}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderItem}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="추가 노트"
-              value={newDescription}
-              onChangeText={setNewDescription}
-            />
-            <Button
-              title="먹킷 추가하기"
-              onPress={handleAddItem}
-              color={colors.coral1}
-            />
+            <View style={styles.formContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="새로운 먹킷"
+                value={newTitle}
+                onChangeText={setNewTitle}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="추가 노트"
+                value={newDescription}
+                onChangeText={setNewDescription}
+              />
+              <Button
+                title="먹킷 추가하기"
+                onPress={handleAddItem}
+                color={colors.coral1}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -126,20 +132,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 14,
+    borderRadius: 8,
+    padding: 13,
+    marginBottom: 8,
   },
   checkedItem: {
     backgroundColor: colors.grey,
   },
   itemTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
   },
   itemDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'black',
     marginTop: 2,
   },
