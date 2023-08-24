@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   },
   searchTextInputContainer: {
     position: 'absolute',
-    top: getStatusBarHeight() * 3,
+    top: getStatusBarHeight(),
     zIndex: 1,
     width: '90%',
     flexDirection: 'row',

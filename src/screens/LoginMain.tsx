@@ -20,6 +20,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
+import colors from '../styles/colors';
 
 export default function Login() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -109,7 +110,7 @@ export default function Login() {
           </View>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('EmailRegisterMain');
+              navigation.navigate('SignupEmail');
             }}
             style={styles.setAccountButton}>
             <Text style={styles.setAccountButtonText}>회원가입</Text>
@@ -134,7 +135,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.coral1,
     alignItems: 'center',
     justifyContent: 'center',
   },
