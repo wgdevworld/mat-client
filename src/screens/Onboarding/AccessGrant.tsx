@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
 
-const ICON_SIZE = 60;
+const ICON_SIZE = 50;
 
 export default function AccessGrant() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -40,17 +40,30 @@ export default function AccessGrant() {
       <Text style={styles.heading}>앱 사용을 위해 {'\n'}접근 권한을 허용해주세요.</Text>
       <Text style={styles.redtitle}>선택적 접근 권한</Text>
       
-      <View style={styles.iconsContainer1}>
-        {locIcon}
+      <View style={styles.textContainer}>
+        <View style={styles.iconContainer}>
+          {locIcon}
+        </View>
+        <View style={styles.textInnerContainer}>
+          <Text style={styles.subtitle}>위치</Text>
+          <Text style={styles.detail}>현재 위치 주변에 맛집을 찾을 수{'\n'}
+          있도록 위치정보 접근 설정을{'\n'}
+          <Text style={styles.boldText}>항상 허용</Text>으로 변경해주세요.</Text>
+        </View>
       </View>
-      <Text style={styles.subtitle1}>위치</Text>
-      <Text style={styles.detail1}>현재 위치 주변에 맛집을 찾을 수 있도록 위치정보 접근 설정을 항상 허용으로 변경해주세요.</Text>
-      <View style={styles.iconsContainer2}>
-        {notifIcon}
+      <View style={styles.textContainer}>
+        <View style={styles.iconContainer}>
+          {notifIcon}
+        </View>
+        <View style={styles.textInnerContainer}>
+          <Text style={styles.subtitle}>알림</Text>
+          <Text style={styles.detail}>근처에 맛집이 있을 때 알림을{'\n'}
+          받을 수 있도록 알림 설정을{'\n'}<Text style={styles.boldText}>허용</Text>으로 변경해주세요.</Text>
+        </View>
       </View>
-      <Text style={styles.subtitle2}>알림</Text>
-      <Text style={styles.detail2}>근처에 맛집이 있을 때 알림을 받을 수 있도록 알림 설정을 허용으로 변경해주세요.</Text>
-  
+      <View>
+        <Text style={styles.sentence}>허용에 동의하지 않으셔도 먹킷을 이용하실 수 있으나, 일부 서비스의 사용이 제한될 수 있습니다. ‘설정 > 먹킷’에서 접근권한 변경이 가능합니다. </Text>
+      </View>
       <TouchableOpacity 
         style={styles.startButton}
         onPress={handleNext}>
@@ -84,7 +97,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'left',
     alignSelf: 'flex-start',
-    marginTop: 70,
+    marginTop:100,
     marginBottom: 40,
     //paddingHorizontal: 30,
   },
@@ -92,47 +105,40 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'left',
     alignSelf: 'flex-start',
-    marginBottom: 20,
     //paddingHorizontal: 30,
     color: colors.coral1,
   },
-  iconsContainer1: {
-    alignSelf: 'flex-start',
-    //paddingHorizontal: 30,
+  textContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 30,
   },
-  iconsContainer2: {
-    alignSelf: 'flex-start',
-    //paddingHorizontal: 30,
+  iconContainer: {
+    width: ICON_SIZE,
+    alignItems: 'center',
   },
-  subtitle1: {
+  textInnerContainer: {
+    flex: 1,
+    marginLeft: 23,
+  },
+  subtitle: {
     fontSize: 23,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 90,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
-  subtitle2: {
-    fontSize: 23,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 90,
+  detail: {
+    fontSize: 17,
+    lineHeight: 24,
+  },
+  boldText: {
     fontWeight: 'bold',
+    color: 'black', 
   },
-  detail1: {
-    fontSize: 17,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 90,
-  },
-  detail2: {
-    fontSize: 17,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 90,
+  sentence: {
+    fontSize: 14,
+    marginTop: 40,
+    color: 'gray',
   },
   startButton: {
     backgroundColor: colors.coral1,
