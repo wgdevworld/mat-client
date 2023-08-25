@@ -19,7 +19,12 @@ import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
 import {View} from 'react-native';
 import colors from './styles/colors';
+<<<<<<< HEAD
 import ChangePwdScreen from './screens/ChangePwdScreen';
+=======
+import SplashScreen from './screens/SplashScreen';
+import AppleLoginPage from './screens/AppleLoginTest';
+>>>>>>> main
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
@@ -62,6 +67,24 @@ const App = () => {
         <SafeAreaProvider>
           <NavigationContainer>
             <Stack.Navigator initialRouteName={'MapMain'}>
+              <Stack.Screen
+                name="AppleLoginTest"
+                component={AppleLoginPage}
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
+                }}
+              />
+              <Stack.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
+                }}
+              />
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
