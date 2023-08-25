@@ -16,6 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import {ScreenParamList} from '../types/navigation';
 import {useAppSelector} from '../store/hooks';
+import {logout} from '../controls/LoginControl';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
@@ -27,8 +28,11 @@ export default function Settings() {
 
   const onPressLogout = () => {
     // logout query to backend/redux/asyncstorage
+    logout; // to backend
+    // TODO: RESET REDUX HERE
     console.log('로그아웃 시도');
     // nativatge to login screen
+    navigation.navigate('LoginMain');
   };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -76,7 +80,7 @@ export default function Settings() {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>팔로우</Text>
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <Ionicons name="people-outline" size={18} />
             <Text style={styles.rowText}>팔로우한 유저</Text>
             <View style={{flex: 1}} />
@@ -85,7 +89,7 @@ export default function Settings() {
               color="#0c0c0c"
               size={22}
             />
-          </View>
+          </View> */}
           <View style={styles.row}>
             <Ionicons name="map-outline" size={18} />
             <Text style={styles.rowText}>저장한 맛집들</Text>

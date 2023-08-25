@@ -12,7 +12,7 @@ export const fetchReviewsByZipId = async (zipId: string) => {
 
     const url = `https://muckit-server.site/graphql?query=${query}`;
 
-    const response = await axios.get(url, {
+    const response = await axios.post(url, {
       headers: {
         'Content-Type': 'application/json',
       },

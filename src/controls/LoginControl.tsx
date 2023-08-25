@@ -11,7 +11,7 @@ export const logout = async () => {
 
     const url = `https://muckit-server.site/graphql?query=${query}`;
 
-    await axios.get(url, {
+    await axios.post(url, {
       headers: {
         'Content-Type': 'application/json',
       },
