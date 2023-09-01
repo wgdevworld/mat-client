@@ -232,7 +232,7 @@ export default function Login() {
           </View>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('EmailRegisterMain');
+              navigation.navigate('SignupEmail');
             }}
             style={styles.setAccountButton}>
             <Text style={styles.setAccountButtonText}>회원가입</Text>

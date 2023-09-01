@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
+import colors from '../styles/colors';
 
 export default function ProfileMain() {
   const [isEdit, setIsEdit] = React.useState(false);
