@@ -31,12 +31,8 @@ export default function Settings() {
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
         <View style={{ flex: 1, justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30}}>
-                <Ionicons 
-                  name="chevron-back-outline" 
-                  color="#0c0c0c" 
-                  size={30}
-                  style={{ marginLeft: 18}} />
+            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                
                 <Text style={styles.heading}>설정</Text>
             </View>
           </View>
@@ -198,9 +194,8 @@ export default function Settings() {
           </View>
         </View>
         <View style={{paddingHorizontal: 60}}>
-          
           <TouchableOpacity style={styles.logout}>
-            <Text style={styles.logoutText}>탈퇴하기</Text>
+            <Text style={styles.logoutText}>로그아웃</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -286,12 +281,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
-    backgroundColor: '#f2f2f2f2',
+    backgroundColor: 'gray',
     borderRadius: 8,
     marginTop: 15,
   },
   logoutText: {
-    fontSize: 15,
+    fontSize: 17,
     color: 'white',
     fontWeight: 'bold',
   },

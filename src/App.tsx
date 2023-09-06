@@ -23,7 +23,6 @@ import Welcome from './screens/Onboarding/Welcome';
 import Survey1 from './screens/Onboarding/Survey1';
 import Survey2 from './screens/Onboarding/Survey2';
 import Survey3 from './screens/Onboarding/Survey3';
-import SignupAddress from './screens/Signup/SignupAddress';
 import SignupEmail from './screens/Signup/SIgnupEmail';
 import SignupPwd from './screens/Signup/SignupPwd';
 import SignupUser from './screens/Signup/SignupUser';
@@ -181,12 +180,6 @@ const App = () => {
                <Stack.Screen
                name="Survey3"
                component={Survey3}
-               options={{headerShown: false,
-              }}
-               />
-               <Stack.Screen
-               name="SignupAddress"
-               component={SignupAddress}
                options={{headerShown: false,
               }}
                />

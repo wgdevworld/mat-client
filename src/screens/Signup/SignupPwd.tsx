@@ -114,7 +114,7 @@ export default function SignupPwd() {
           fontSize: 18,
         },
         button: {
-          backgroundColor: colors.grey2,
+          backgroundColor: 'black',
           width: 320,
           height: 60,
           alignItems: 'center',

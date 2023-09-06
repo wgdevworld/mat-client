@@ -13,6 +13,8 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import colors from '../styles/colors';
+import {useNavigation} from '@react-navigation/native';
+import { color } from 'react-native-reanimated';
 
 export default function ProfileMain() {
   const [isEdit, setIsEdit] = React.useState(false);
@@ -69,24 +71,7 @@ export default function ProfileMain() {
               onChangeText={text => setNickname(text)}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
-            <Ionicons name="navigate-outline" size={18} />
-            <Text style={styles.rowText}>주소</Text>
-            <View style={{flex: 1}} />
-            <TextInput
-              keyboardType="default"
-              style={styles.input}
-              placeholder="서울시 중구 길동로 32"
-              placeholderTextColor="grey"
-              selectionColor="black"
-              editable={isEditAddr}
-              onEndEditing={() => {
-                setIsEditAddr(false);
-                // TODO: change nickname text onEndEditing
-              }}
-              onChangeText={text => setAddr(text)}
-            />
-          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.row}>
             <Ionicons name="lock-closed-outline" size={18} />
             <Text style={styles.rowText}>비밀번호 변경</Text>
@@ -97,13 +82,7 @@ export default function ProfileMain() {
               size={22}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.delete}
-            onPress={() => {
-              // to backend, to login screen
-            }}>
-            <Text style={styles.deleteText}>탈퇴하기</Text>
-          </TouchableOpacity>
+          
           {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate('SettingsMain');
@@ -119,6 +98,14 @@ export default function ProfileMain() {
             </View>
           </TouchableOpacity> */}
         </View>
+        <View style={{paddingHorizontal: 60}}>
+            <TouchableOpacity style={styles.delete}
+              onPress={() => {
+              // to backend, to login screen
+              }}>
+              <Text style={styles.deleteText}>탈퇴하기</Text>
+            </TouchableOpacity>
+          </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -139,7 +126,7 @@ const styles = StyleSheet.create({
   profileWrapper: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.coral1,
     borderRadius: 20,
     marginBottom: 12,
     paddingHorizontal: 12,
@@ -210,14 +197,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   delete: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
-    backgroundColor: 'grey',
+    backgroundColor: 'gray',
     borderRadius: 8,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    textAlign: 'center',
+    marginTop: 15,
   },
   deleteText: {
     fontSize: 17,

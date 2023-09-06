@@ -98,11 +98,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    //justifyContent: 'center',
-    marginTop: 190,
     paddingHorizontal: 20,
   },
   question: {
+    marginTop: 190,
     fontSize: 20,
     marginBottom: 50,
     fontWeight: 'bold',
