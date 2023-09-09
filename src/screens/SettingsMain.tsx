@@ -32,10 +32,9 @@ export default function Settings() {
       <ScrollView contentContainerStyle={styles.containter}>
         <View style={{ flex: 1, justifyContent: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                
                 <Text style={styles.heading}>설정</Text>
             </View>
-          </View>
+        </View>
         <TouchableOpacity
           style={{paddingHorizontal: 24}}
           onPress={() => {

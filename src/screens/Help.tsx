@@ -19,8 +19,8 @@ export default function Helps() {
         <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
             <ScrollView contentContainerStyle={styles.containter}>
                 <Text style={styles.heading}>
-                        다양한 기능
-                </Text>
+                        앱 사용법
+                </Text>git
                 <View style={styles.section}>
                     <Text style={styles.sectionHeader}>나의 맛집 리스트 만들기</Text>
                     <Text style={styles.step}>

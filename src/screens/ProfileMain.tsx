@@ -46,7 +46,6 @@ export default function ProfileMain() {
             <View style={styles.profile}>
               <Text style={styles.profileName}>{nickname}</Text>
               <Text style={styles.profileUserID}>@matzip-user-01</Text>
-              <Text style={styles.profileUserID}>{addr}</Text>
               {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
             </View>
           </View>
