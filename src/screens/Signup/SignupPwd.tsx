@@ -87,7 +87,7 @@ export default function SignupPwd() {
       divider: {
         height: 5,
         backgroundColor: 'white',
-        width: '75%',
+        
       },
       container: {
           flex: 1,
