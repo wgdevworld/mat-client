@@ -4,7 +4,6 @@ import 'react-native-gesture-handler';
 import {
   Dimensions,
   Image,
-  ImageSourcePropType,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,170 +20,53 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
-import {calculateDistance} from '../tools/CommonFunc';
+import {
+  addressToCoordinate,
+  calculateDistance,
+  ratingAverage,
+} from '../tools/CommonFunc';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
-import {MatZip} from '../types/store';
+import {Coordinate, MatMap, MatZip} from '../types/store';
+import {useAppSelector} from '../store/hooks';
+import {useDispatch} from 'react-redux';
+import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
+import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-type Coordinate = {
-  latitude: number;
-  longitude: number;
-};
-
-type Place = {
-  name: string;
-  address: string;
-  rating: number;
-  numReview: number;
-  coordinate: Coordinate;
-};
-
-//TODO: Item 없애고 Zip으로 변경/통합
-type Item = {
-  imageSrc: ImageSourcePropType;
-  name: string;
-  stars: number;
-  numReview: number;
-  address: string;
-  distance: number;
-  isVisited: boolean;
-};
-
-//FIXME: Don't let this be a global variable and figure out how to read in from marker component
-// TODO: change Item to MatZip?
-let newCard: Item = {
-  imageSrc: assets.images.스시올로지,
-  name: 'Default name',
-  stars: 0,
-  numReview: 0,
-  address: 'Default address',
-  distance: 0,
-  isVisited: false,
-};
-
 function App(): JSX.Element {
-  //TODO: read in from database + save in redux store
-  const [data, setData] = useState([
-    {
-      name: '달버터',
-      imageSrc: assets.images.달버터2,
-      distance: 50,
-      address: '서울특별시 마포구 동교로 266-11',
-      stars: 4.8,
-      numReview: 22,
-      isVisited: false,
-      coordinates: {
-        latitude: 37.5629026,
-        longitude: 126.925946,
-      },
-    },
-    {
-      name: '진만두',
-      imageSrc: assets.images.교래퐁낭1,
-      distance: 102,
-      address: '서울 마포구 와우산로29길 4-42 지하1층',
-      stars: 4.7,
-      numReview: 35,
-      isVisited: false,
-      coordinates: {
-        latitude: 37.5551921,
-        longitude: 126.929247,
-      },
-    },
-    {
-      name: '월량관',
-      imageSrc: assets.images.산방산국수맛집1,
-      distance: 149,
-      address: '서울 마포구 동교로46길 10',
-      stars: 4.8,
-      numReview: 32,
-      isVisited: false,
-      coordinates: {
-        latitude: 37.5625237,
-        longitude: 126.925267,
-      },
-    },
-    {
-      name: '이안정',
-      imageSrc: assets.images.달버터3,
-      distance: 155,
-      address: '서울 마포구 독막로15길 3-3 1층 101호',
-      stars: 4.9,
-      numReview: 42,
-      isVisited: true,
-      coordinates: {
-        latitude: 37.5480964,
-        longitude: 126.921626,
-      },
-    },
-    {
-      name: '카와카츠',
-      imageSrc: assets.images.교래퐁낭2,
-      distance: 203,
-      address: '서울 마포구 동교로 126 1층 102호',
-      stars: 4.5,
-      numReview: 30,
-      isVisited: false,
-      coordinates: {
-        latitude: 37.5547239,
-        longitude: 126.916187,
-      },
-    },
-    {
-      name: '야키토리 나루토',
-      imageSrc: assets.images.교래퐁낭3,
-      distance: 293,
-      address: '서울 마포구 독막로9길 26',
-      stars: 4.6,
-      numReview: 15,
-      isVisited: false,
-      coordinates: {
-        latitude: 37.5493388,
-        longitude: 126.920199,
-      },
-    },
-  ]);
+  const dispatch = useDispatch();
+  const userOwnMaps = useAppSelector(state => state.userMaps.ownMaps);
+  const userFollowingMaps = useAppSelector(
+    state => state.userMaps.followingMaps,
+  );
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
 
+  const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonOpacity, setButtonOpacity] = useState(1);
-  const [markers, setMarkers] = useState<Place[]>([]);
-  // TODO: change Item to Matzip
-  const [cards, setCards] = useState<Item[]>(data);
+  const [marker, setMarker] = useState<MatZip | null>();
+
+  // States used for DropDownPicker
+  const [dropDownOpen, setDropDownOpen] = useState(false);
+  const [dropDownItems, setDropDownItems] = useState(
+    userOwnMaps.map(item => ({
+      label: item.name,
+      value: item.id,
+    })),
+  );
+  const [dropDownValue, setDropDownValue] = useState(null);
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
     latitude: 0,
     longitude: 0,
   });
-
-  useEffect(() => {
-    console.log(currentLocation);
-  }, [currentLocation]);
-
-  useEffect(() => {
-    setCards(data);
-  }, [data]);
-
-  const fetchFollowingMaps = async () => {
-    try {
-      const query = ` {
-      fetchMapsFollowed {
-        id
-      }
-    }`;
-      const res = await request(query, REQ_METHOD.QUERY);
-      console.log(res?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   useEffect(() => {
     const newRegion = {
@@ -196,53 +78,102 @@ function App(): JSX.Element {
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
 
-  useEffect(() => {
-    setData(prevData => {
-      const updatedData = prevData.map(item => {
-        const distance = calculateDistance(currentLocation, item.coordinates);
-        return {...item, distance};
-      });
-      updatedData.sort((a, b) => a.distance - b.distance);
-      return updatedData;
-    });
-    console.log(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation]);
-
-  const onPressSearchResult = (details: any) => {
-    const location = details.geometry.location;
-    const newMarker = {
-      name: details.name,
-      address: details.formatted_address,
-      rating: 5,
-      numReview: 5,
-      coordinate: {
-        latitude: location.lat,
-        longitude: location.lng,
-      },
+  const onPressSearchResult = async (data: any, details: any) => {
+    console.log(data, details);
+    const location: Coordinate = {
+      latitude: details.geometry.location.lat,
+      longitude: details.geometry.location.lng,
     };
-    setMarkers(prevMarkers => [...prevMarkers, newMarker]);
+    let fetchedZipData: any = null;
+    const fetchZipQuery = `{
+          fetchZipByGID(gid: "${data.place_id}") {
+            id
+            name
+            address
+            reviewCount
+            reviewAvgRating
+            parentMap {
+              name
+            }
+            category
+          }
+        }`;
+    const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+    fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+    //TODO: add functionality for custom Zips
+    if (!fetchedZipData) {
+      console.log('ℹ️ 맛집 생성중');
+      const variables = {
+        zipInfo: {
+          name: details.name,
+          number: data.place_id,
+          description: data.description,
+          address: details.formatted_address,
+          imgSrc: [],
+          category: data.types[0] ? data.types[0] : '식당',
+        },
+      };
+      const addZipMutation = `
+        mutation addZip($zipInfo: CreateZipInput!) {
+          addZip(zipInfo: $zipInfo) {
+            id
+            name
+            address
+            reviewCount
+            reviewAvgRating
+            category
+          }
+      }`;
+      const addZipRes = await request(
+        addZipMutation,
+        REQ_METHOD.MUTATION,
+        variables,
+      );
+      fetchedZipData = addZipRes?.data.data.addZip;
+    }
+
+    const fetchReviewQuery = `{
+      fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+        writer {
+          name
+        }
+        rating
+        content
+        createdAt
+        images {
+          src
+        }
+      }
+    }`;
+    const fetchedReviewRes = await request(fetchReviewQuery, REQ_METHOD.QUERY);
+    const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
+
+    const selectedMatZip: MatZip = {
+      id: fetchedZipData.id,
+      name: fetchedZipData.name,
+      imageSrc: fetchedZipData.images
+        ? fetchedZipData.images[0].src
+        : assets.images.placeholder,
+      coordinate: location,
+      reviews: fetchedReviewData ? fetchedReviewData : [],
+      reviewAvgRating: fetchedZipData.reviewAvgRating,
+      reviewCount: fetchedZipData.reviewCount,
+      address: fetchedZipData.address,
+      category: fetchedZipData.category,
+    };
+    setMarker(selectedMatZip);
     mapRef.current?.animateToRegion(
       {
-        latitude: location.lat,
-        longitude: location.lng,
+        latitude: location.latitude,
+        longitude: location.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       },
       1000,
     );
-    newCard = {
-      name: details.name,
-      imageSrc: assets.images.스시올로지,
-      stars: 4.8,
-      numReview: 22,
-      address: details.formatted_address,
-      distance: 50,
-      isVisited: false,
-    };
   };
 
-  const snapPoints = useMemo(() => ['26%', '40%', '80%'], []);
+  const snapPoints = useMemo(() => ['30%', '80%'], []);
 
   const handleSheetChange = useCallback(
     (index: any) => {
@@ -253,46 +184,122 @@ function App(): JSX.Element {
     [snapPoints],
   );
 
-  const onPressAddBtn = () => {
-    setCards(prevCards => [...prevCards, newCard]);
+  const findAndSetCurMatMapByID = (givenId: string) => {
+    const newMatMap = [...userOwnMaps, ...userFollowingMaps].find(
+      item => item.id === givenId,
+    );
+    newMatMap && setCurMatMap(newMatMap);
+  };
+
+  const onPressAddBtn = async () => {
+    try {
+      const variables = {
+        mapId: curMatMap.id,
+        zipId: marker?.id,
+      };
+      const addToMapQuery = `
+    mutation addToMap($mapId: String! $zipId:String!) {
+      addToMap(mapId: $mapId zipId: $zipId) {
+        id
+        name
+        address
+        reviewCount
+        reviewAvgRating
+        category
+        images {
+          src
+        }
+      }
+    }`;
+      const addToMapRes = await request(
+        addToMapQuery,
+        REQ_METHOD.MUTATION,
+        variables,
+      );
+      const addToMapDataArr = addToMapRes?.data.data.addToMap;
+      const serializedZipList: MatZip[] = await Promise.all(
+        addToMapDataArr.map(async (zip: any) => {
+          let imgSrcArr = [];
+          if (zip.images !== null) {
+            imgSrcArr = zip.images.map((img: any) => img.src);
+          } else {
+            imgSrcArr = [];
+          }
+          let coordinate: Coordinate;
+          try {
+            coordinate = await addressToCoordinate(zip.address);
+          } catch (error) {
+            console.error(
+              `Failed to get coordinates for address: ${zip.address}`,
+              error,
+            );
+            coordinate = {latitude: 0, longitude: 0};
+          }
+
+          return {
+            id: zip.id,
+            name: zip.name,
+            imageSrc: imgSrcArr,
+            coordinate,
+            address: zip.address,
+            reviewCount: zip.reviewCount,
+            reviewAvgRating: zip.reviewAvgRating,
+            category: zip.category,
+          } as MatZip;
+        }),
+      );
+      dispatch(replaceOwnMatMapZipListAction(serializedZipList));
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
-  const renderItem = useCallback(
-    // REFACTOR: change Item to MatZip
-    ({item}: {item: MatZip}) => {
-      return (
-        <TouchableOpacity
-          style={styles.itemContainer}
-          onPress={() => navigation.navigate('MatZip', {zip: item})}>
-          <View style={styles.itemImageContainer}>
-            <Image source={item.imageSrc} style={styles.itemImage} />
-          </View>
-          <View style={styles.itemInfoContainer}>
-            <View style={styles.itemTitleStarsContainer}>
-              <Text style={styles.itemTitleText}>{item.name}</Text>
-              {item.isVisited && (
-                <Ionicons
-                  name="checkmark-done-circle-outline"
-                  size={20}
-                  color={colors.coral1}
-                />
-              )}
-              <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={colors.coral1} />
-                <Text style={styles.itemStarsText}>{item.stars}</Text>
-                <Text style={styles.itemReviewText}>리뷰 {item.numReview}</Text>
-              </View>
+  const renderItem = (matZip: MatZip) => {
+    return (
+      <TouchableOpacity
+        key={matZip.id}
+        style={styles.itemContainer}
+        onPress={() => navigation.navigate('MatZipMain', {zip: matZip})}>
+        <View style={styles.itemImageContainer}>
+          <Image
+            source={
+              matZip.imageSrc && matZip.imageSrc.length === 0
+                ? assets.images.placeholder
+                : {uri: matZip.imageSrc[0]}
+            }
+            style={styles.itemImage}
+          />
+        </View>
+        <View style={styles.itemInfoContainer}>
+          <View style={styles.itemTitleStarsContainer}>
+            <Text style={styles.itemTitleText}>{matZip.name}</Text>
+            {matZip.isVisited && (
+              <Ionicons
+                name="checkmark-done-circle-outline"
+                size={20}
+                color={colors.coral1}
+              />
+            )}
+            <View style={styles.itemStarReviewContainer}>
+              <Ionicons name="star" size={14} color={colors.coral1} />
+              <Text style={styles.itemStarsText}>
+                {ratingAverage(matZip.reviews)}
+              </Text>
+              <Text style={styles.itemReviewText}>
+                리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
+              </Text>
             </View>
-            <Text style={styles.itemSubtext}>{item.address}</Text>
-            <Text style={styles.itemSubtext}>나와의 거리 {item.distance}m</Text>
           </View>
-        </TouchableOpacity>
-      );
-    },
-    [navigation],
-  );
+          <Text style={styles.itemSubtext}>{matZip.address}</Text>
+          <Text style={styles.itemSubtext}>
+            나와의 거리 {calculateDistance(matZip.coordinate, currentLocation)}m
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={{flex: 1}}>
@@ -311,8 +318,8 @@ function App(): JSX.Element {
             }}
             keyboardShouldPersistTaps={'handled'}
             fetchDetails={true}
-            onPress={details => {
-              onPressSearchResult(details);
+            onPress={(data, details = null) => {
+              onPressSearchResult(data, details);
             }}
             onFail={error => console.error(error)}
             onNotFound={() => console.error('검색 결과 없음')}
@@ -333,20 +340,19 @@ function App(): JSX.Element {
                 : 126.923643,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
+            }}
+            onPress={() => {
+              setMarker(null);
             }}>
-            {markers.map((place, index) => (
-              <Marker key={index} coordinate={place.coordinate}>
+            {marker && (
+              <Marker coordinate={marker.coordinate}>
                 <View style={styles.markerContentContainer}>
-                  <PlaceInfoMapCard
-                    name={place.name}
-                    address={place.address}
-                    numReview={place.numReview}
-                    rating={place.rating}
-                  />
+                  <PlaceInfoMapCard marker={marker} />
                   <Ionicons name="location" size={35} color={colors.coral1} />
                 </View>
               </Marker>
-            ))}
+            )}
+
             {currentLocation && (
               <Marker
                 coordinate={{
@@ -364,37 +370,6 @@ function App(): JSX.Element {
               </Marker>
             )}
           </MapView>
-
-          {/* <View style={styles.navBtnContainer}>
-          <TouchableOpacity style={styles.navBtn}>
-            <Ionicons
-              name="map-outline"
-              size={screenWidth * 0.08}
-              color={colors.coral1}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navBtn}>
-            <Ionicons
-              name="star-outline"
-              size={screenWidth * 0.08}
-              color={colors.coral1}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navBtn}>
-            <Ionicons
-              name="people-outline"
-              size={screenWidth * 0.08}
-              color={colors.coral1}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navBtn}>
-            <Ionicons
-              name="person-circle-outline"
-              size={screenWidth * 0.08}
-              color={colors.coral1}
-            />
-          </TouchableOpacity>
-        </View> */}
           <TouchableOpacity
             style={{
               ...styles.mapBtn,
@@ -418,6 +393,7 @@ function App(): JSX.Element {
               ...styles.mapBtn,
               bottom: buttonHeight + 50,
               opacity: buttonOpacity,
+              display: marker ? 'flex' : 'none',
             }}
             onPress={onPressAddBtn}>
             <View style={styles.mapBtnContainer}>
@@ -434,22 +410,42 @@ function App(): JSX.Element {
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
             <BottomSheetFlatList
-              data={cards}
-              keyExtractor={i => i.name}
-              renderItem={renderItem}
+              data={curMatMap.zipList}
+              keyExtractor={i => i.id}
+              renderItem={({item}) => renderItem(item)}
               contentContainerStyle={styles.contentContainer}
               ListHeaderComponent={
-                <Text style={styles.flatListHeaderText}>
-                  근처 나의 맛집들 🍶
-                </Text>
+                <View style={styles.bottomSheetHeader}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      alignSelf: 'center',
+                      marginLeft: 16,
+                      color: colors.coral1,
+                    }}>
+                    근처 나의 맛집들 📍
+                  </Text>
+                  <DropDownPicker
+                    containerStyle={styles.dropDownPickerContainer}
+                    placeholder="맛맵 선택"
+                    open={dropDownOpen}
+                    setOpen={setDropDownOpen}
+                    value={dropDownValue}
+                    setValue={setDropDownValue}
+                    onChangeValue={item => {
+                      item && findAndSetCurMatMapByID(item);
+                    }}
+                    items={dropDownItems}
+                    setItems={setDropDownItems}
+                    itemKey="value"
+                  />
+                </View>
               }
+              stickyHeaderIndices={[0]}
               ListFooterComponent={<View style={{height: 200}} />}
             />
           </BottomSheet>
         </View>
-        <TouchableOpacity onPress={fetchFollowingMaps}>
-          <Text>Test</Text>
-        </TouchableOpacity>
       </GestureHandlerRootView>
     </View>
   );
@@ -461,6 +457,10 @@ const styles = StyleSheet.create({
   },
   mapBottomSheetContainer: {
     flex: 1,
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   map: {
     position: 'absolute',
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   searchTextInputContainer: {
     position: 'absolute',
-    top: getStatusBarHeight(),
+    paddingTop: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
     flexDirection: 'row',
@@ -566,7 +566,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'black',
     paddingBottom: 5,
-    fontWeight: 300,
   },
   itemStarsText: {
     fontSize: 14,
@@ -581,7 +580,7 @@ const styles = StyleSheet.create({
   itemSubtext: {
     color: 'black',
     paddingVertical: 2,
-    fontWeight: 200,
+    fontWeight: '200',
   },
   itemImageContainer: {
     width: 76,
@@ -593,6 +592,11 @@ const styles = StyleSheet.create({
   itemImage: {
     width: '100%',
     height: '100%',
+  },
+  dropDownPickerContainer: {
+    width: '30%',
+    alignSelf: 'center',
+    marginRight: 16,
   },
 });
 
