@@ -1,7 +1,6 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 import {Coordinate, MatMap, MatZip} from '../../types/store';
 import {calculateDistance} from '../../tools/CommonFunc';
-import {Alert} from 'react-native';
 
 export const initialState: {ownMaps: MatMap[]; followingMaps: MatMap[]} = {
   ownMaps: [],
@@ -53,13 +52,6 @@ export const userMapsSlice = createSlice({
       return state;
     },
     replaceOwnMatMapZipListAction: (state, action: PayloadAction<MatZip[]>) => {
-      if (
-        state.ownMaps[0].zipList.find(zip => {
-          action.payload.find(newZip => newZip.id === zip.id);
-        })
-      ) {
-        Alert.alert('이미 추가하신 맛집입니다!');
-      }
       state.ownMaps[0].zipList = action.payload;
       return state;
     },

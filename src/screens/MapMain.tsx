@@ -60,13 +60,17 @@ function App(): JSX.Element {
       value: item.id,
     })),
   );
-  const [dropDownValue, setDropDownValue] = useState(null);
+  const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
     latitude: 0,
     longitude: 0,
   });
+
+  useEffect(() => {
+    setCurMatMap(userOwnMaps[0]);
+  }, [userOwnMaps]);
 
   useEffect(() => {
     const newRegion = {
@@ -79,7 +83,6 @@ function App(): JSX.Element {
   }, [currentLocation]);
 
   const onPressSearchResult = async (data: any, details: any) => {
-    console.log(data, details);
     const location: Coordinate = {
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng,
