@@ -21,7 +21,6 @@ import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
 import colors from '../styles/colors';
 
-
 // interface MatZipProps {
 //   name: string;
 //   address: string;
@@ -117,8 +116,8 @@ const reviews = [
   },
 ];
 
-export default function MatZip() {
-  const route = useRoute<RouteProp<ScreenParamList, 'MatZip'>>();
+export default function MatZipMain() {
+  const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
   const zipData = route.params;
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
@@ -129,7 +128,7 @@ export default function MatZip() {
   const [toggleReview, setToggleReview] = useState(true);
   const [saveIcon, setSaveIcon] = useState(true);
   const handleIconPress = () => {
-    setSaveIcon((prev) => !prev);
+    setSaveIcon(prev => !prev);
     // save zip (add zip to user.savedZips)
     // use server API: communicate with backend
   };
@@ -142,12 +141,12 @@ export default function MatZip() {
             <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
 
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
-            <Ionicons
-              name='bookmark-outline'
-              size={28}
-              color={saveIcon ? colors.coral1 : "darkgrey"}
-            />
-          </TouchableOpacity>
+              <Ionicons
+                name="bookmark-outline"
+                size={28}
+                color={saveIcon ? colors.coral1 : 'darkgrey'}
+              />
+            </TouchableOpacity>
 
             <View style={{flex: 1}} />
             <View
@@ -171,7 +170,11 @@ export default function MatZip() {
             <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
           </View>
           <View style={styles.horizontal}>
-            <Ionicons name="information-circle-outline" color="black" size={18} />
+            <Ionicons
+              name="information-circle-outline"
+              color="black"
+              size={18}
+            />
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
           <Text style={styles.matZipDescriptionText}>
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'black',
     textAlign: 'left',
-    marginLeft: 3
+    marginLeft: 3,
   },
   matZipDescriptionText: {
     fontSize: 14,
@@ -358,6 +361,6 @@ const styles = StyleSheet.create({
   },
   saveIcon: {
     marginTop: 10,
-    marginLeft: 5
-  }
+    marginLeft: 5,
+  },
 });

@@ -58,7 +58,7 @@ export default function Login() {
       .then((result: {data: any}) => {
         result.data.data === null
           ? Alert.alert('이메일이나 비밀번호를 확인해주세요.')
-          : navigation.navigate('TabNavContainer');
+          : navigation.navigate('SplashScreen');
       })
       .catch(e => console.log(e));
   };
@@ -73,7 +73,7 @@ export default function Login() {
         AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken).then(
           () => {
             console.log(AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN));
-            navigation.navigate('TabNavContainer');
+            navigation.navigate('SplashScreen');
           },
         );
         return;
@@ -169,7 +169,7 @@ export default function Login() {
             ASYNC_STORAGE_ENUM.ID_TOKEN,
             result.data.data.loginApple,
           );
-          navigation.navigate('TabNavContainer');
+          navigation.navigate('SplashScreen');
         })
         .catch(e => console.log(e));
     }

@@ -40,23 +40,25 @@ export const request = async (
             },
           },
         );
+        console.log('ℹ️ Query success: ' + response);
         break;
       case REQ_METHOD.MUTATION:
         response = await axios.post(
           'https://muckit-server.site/graphql',
           {
             query,
-            variables,
+            variables: variables,
           },
           {
             headers: {
               'Content-Type': 'application/json',
+              Accept: 'application/json',
             },
           },
         );
+        console.log('ℹ️ Mutation success: ' + response);
         break;
     }
-    console.log('ℹ️ Request success: ' + response);
     return response;
   } catch (error) {
     console.log('🚨 Server error: ' + error);
