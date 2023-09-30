@@ -31,7 +31,7 @@ export type RootStackParamList = {
     // mapID: string;
     map: MatMap;
   };
-  MatZip: {
+  MatZipMain: {
     // zipID: string;
     zip: MatZip;
   };

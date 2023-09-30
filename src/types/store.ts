@@ -1,29 +1,36 @@
 export interface MatZip {
   id: string;
   name: string;
-  reviews: Review[];
-  //TODO: change to string after completing image upload functionality
-  //TODO: imageSrc --> there could be multiple images
-  // imageSrc: ImageSourcePropType[];
+  reviews?: Review[];
+  imageSrc: string[];
   coordinate: Coordinate;
   address: string;
-  distance: number;
-  isVisited: boolean;
+  distance?: number;
+  isVisited?: boolean;
   category: string;
+  reviewAvgRating?: number;
+  reviewCount?: number;
   //TODO: to MatZip page using zipId
 }
 
+//TODO: 스플래시에서 데이터 받아오면 옵셔널 뺴기
 export interface MatMap {
   id: string;
   name: string;
-  author: string;
-  // creator: User;
-  numFollower: number;
+  description: string;
+  creatorName: string;
   publicStatus: boolean;
   // images
   areaCode: string;
   zipList: MatZip[];
-  followerList: User[];
+  followerList?: User[];
+}
+
+export interface MuckitItem {
+  id: string;
+  title: string;
+  description: string;
+  completeStatus: boolean;
 }
 
 export interface User {
@@ -32,8 +39,6 @@ export interface User {
   username: string;
   email: string;
   address: string;
-  userMaps: MatMap[];
-  followingMaps: MatMap[];
   deviceToken: string;
   pushAllowStatus: Boolean;
 }
@@ -48,4 +53,9 @@ export interface Review {
   rating: number;
   content: string;
   date: Date;
+}
+
+export interface MatZipPayload {
+  id: string;
+  matZip: MatZip;
 }

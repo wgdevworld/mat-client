@@ -12,13 +12,23 @@ import LoginMain from './screens/LoginMain';
 import FAQ from './screens/FAQ';
 import Help from './screens/Help';
 import TabNavContainer from './screens/TabNavContainer';
-import MatZip from './screens/MatZip';
+import MatZipMain from './screens/MatZipMain';
 import ListMaps from './screens/ListMaps';
 import messaging from '@react-native-firebase/messaging';
 import {onDisplayNotification} from './controls/NotificationControl';
 import EmailRegisterMain from './screens/EmailRegisterMain';
 import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
+
+import {LogBox, View} from 'react-native';
+import colors from './styles/colors';
+import SplashScreen from './screens/SplashScreen';
+import AppleLoginPage from './screens/AppleLoginTest';
+LogBox.ignoreLogs([
+  'VirtualizedLists should never be nested',
+  'Non-serializable values were found in the navigation state',
+]);
+
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
@@ -92,8 +102,8 @@ const App = () => {
               />
               {/* temporarily here for building */}
               <Stack.Screen
-                name="MatZip"
-                component={MatZip}
+                name="MatZipMain"
+                component={MatZipMain}
                 options={{
                   headerShown: false,
                 }}
