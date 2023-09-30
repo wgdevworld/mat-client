@@ -21,15 +21,16 @@ export default function ListMaps() {
   const [maps, setMaps] = useState([initialState]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchAllMaps();
-      console.log(data);
-      if (data.fetchAllMaps) {
-        setMaps(data.fetchAllMaps);
+    async function fetchData() {
+      try {
+        const data = await fetchAllMaps();
+        setMaps(data?.fetchAllMaps || []);
+      } catch (err) {
+        console.log(err)
       }
-    };
-    // fetchData();
-    initPushNotification();
+    }
+    fetchData();
+    console.log(maps)
   }, []);
 
   return (
@@ -43,6 +44,7 @@ export default function ListMaps() {
             scrollEnabled={false}
             renderItem={({item}) => (
               <MapCard
+                id={item.id}
                 mapName={item.name}
                 followers={item.numFollower}
                 author={item.author}

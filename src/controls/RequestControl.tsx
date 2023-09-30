@@ -19,6 +19,7 @@ export const request = async (
 ) => {
   try {
     const idToken = await getValidIdToken();
+    console.log(idToken)
     if (idToken) {
       await AsyncStorage.setItem(
         ASYNC_STORAGE_ENUM.ID_TOKEN,
@@ -52,7 +53,8 @@ export const request = async (
           {
             headers: {
               'Content-Type': 'application/json',
-              Accept: 'application/json',
+              Accept: 'application/json'
+
             },
           },
         );
