@@ -33,7 +33,7 @@ const assets: AssetImages = {
     산방산국수맛집1: require('./image/14.png'),
     산방산국수맛집2: require('./image/15.png'),
     애월제주다: require('./image/16.png'),
-    default_map: require('./image/map_default.jpeg'),
+    default_map: require('./image/instagram_page.png'),
     placeholder: require('./image/placeholder.png'),
     default_profile: require('./image/default_profile.png'),
     kakao_login_medium_narrow: require('./image/kakao_login_medium_narrow.png'),

@@ -40,7 +40,7 @@ export const request = async (
             },
           },
         );
-        console.log('ℹ️ Query success: ' + response);
+        console.log('ℹ️ Query success: ' + response.data.data);
         break;
       case REQ_METHOD.MUTATION:
         response = await axios.post(

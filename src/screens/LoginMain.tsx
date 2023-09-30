@@ -23,10 +23,11 @@ import appleAuth, {
 } from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import colors from '../styles/colors';
 
 export default function Login() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const [userEmail, setUserEmail] = useState('');
+  const [email, setUserEmail] = useState('');
   const [pwd, setPwd] = useState('');
 
   const onLogin = () => {
@@ -34,11 +35,11 @@ export default function Login() {
     mutation login(
       $email: String!
       $pwd: String!) {
-        login(email: $userEmail, pwd: $pwd)
+        login(email: $email, pwd: $pwd)
     }
   `;
     const queryVariables = {
-      userEmail,
+      email,
       pwd,
     };
     axios
@@ -60,7 +61,7 @@ export default function Login() {
           ? Alert.alert('이메일이나 비밀번호를 확인해주세요.')
           : navigation.navigate('SplashScreen');
       })
-      .catch(e => console.log(e));
+      .catch(e => console.log(e.response ? e.response.data : e.message));
   };
 
   useEffect(() => {
@@ -183,7 +184,7 @@ export default function Login() {
           justifyContent: 'center',
         }}>
         <View style={styles.content}>
-          <Text style={styles.text}>로그인</Text>
+          <Text style={styles.text}>muckit!</Text>
           <View style={styles.inputContainer}>
             <View style={styles.icon}>
               <Ionicons name="mail" size={15} color={'white'} />
@@ -233,23 +234,19 @@ export default function Login() {
             onPress={() => {
               navigation.navigate('EmailRegisterMain');
             }}
-            style={styles.setAccountButton}>
-            <Text style={styles.setAccountButtonText}>회원가입</Text>
+            style={styles.setAccountButtonEmail}>
+            <Text style={styles.setAccountButtonTextEmail}>이메일로 시작하기</Text>
           </TouchableOpacity>
+          
           {appleAuth.isSupported && (
-            <AppleButton
-              style={styles.appleButton}
-              cornerRadius={5}
-              buttonStyle={AppleButton.Style.WHITE}
-              buttonType={AppleButton.Type.CONTINUE}
-              onPress={onAppleButtonPress}
-            />
+            <TouchableOpacity
+            onPress={onAppleButtonPress}
+            style={styles.setAccountButton}>
+            <Text style={styles.setAccountButtonText}>Apple로 계속하기</Text>
+          </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={signInWithKakao}>
-            <Image
-              source={assets.images.kakao_login_medium_narrow}
-              style={{width: 200, height: 45, borderRadius: 15}}
-            />
+          <TouchableOpacity onPress={signInWithKakao} style={styles.setAccountButton}>
+          <Text style={styles.setAccountButtonText}>Kakao로 계속하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -331,6 +328,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginTop: 20,
+    height: 47
   },
   loginButtonText: {
     color: 'white',
@@ -343,9 +341,23 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
+    height: 46
   },
   setAccountButtonText: {
     color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  setAccountButtonEmail: {
+    backgroundColor: colors.grey,
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 10,
+    height: 45
+  },
+  setAccountButtonTextEmail: {
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 16,

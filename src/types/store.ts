@@ -26,6 +26,13 @@ export interface MatMap {
   followerList?: User[];
 }
 
+export interface MuckitItem {
+  id: string;
+  title: string;
+  description: string;
+  completeStatus: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
