@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
 import ImageCarousel from './ImageCarousel';
@@ -16,6 +16,29 @@ interface ZipCardProps {
   onPressZip: () => void;
 }
 
+const getCategoryEmoji = (category: string) => {
+  switch (category) {
+    case 'D': case 'cafe': case 'bakery':
+      return '🍰'; // 디저트
+    case 'K':
+      return '🍚'; // 한식
+    case 'C':
+      return '🥡'; // 중식
+    case 'F':
+      return '🍕'; // 양식
+    case 'M':
+      return '🥩'; // 고기
+    case 'J':
+      return '🍣'; // 일식
+    case 'I':
+      return '🥘'; // 인도식
+    case 'B': case 'bar':
+      return '🍻'; // 주점
+    default:
+      return '🍴'; // 그 외
+  }
+};
+
 const ZipCard: React.FC<ZipCardProps> = ({
   name,
   stars,
@@ -26,24 +49,27 @@ const ZipCard: React.FC<ZipCardProps> = ({
   category,
   onPressZip,
 }) => {
+  const categoryEmoji = getCategoryEmoji(category);
 
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onPressZip} style={styles.lowerHalf}>
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
-            <Text style={styles.mapName}>{name}</Text>
+            <Text style={styles.mapName}>
+              {categoryEmoji} {name}
+            </Text>
             {/* <Text style={styles.mapAuthor}>평점: {stars}</Text> */}
             {/* <Text style={styles.mapAuthor}>{address}</Text> */}
-            <Text style={styles.mapAuthor}>{category}</Text>
+            {/* <Text style={styles.mapAuthor}>{category}</Text> */}
             {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
             <Text style={styles.mapDistance}>나와의 거리: {distance}</Text>
           </View>
           <Ionicons
             name={
               isVisited
-                ? 'radio-button-off-outline'
-                : 'checkmark-circle-outline'
+                ? 'checkmark-circle-outline'
+                : 'chevron-forward-outline'
             }
             size={30}
             color={colors.coral1}
@@ -62,9 +88,9 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowRadius: 1,
     elevation: 2,
     padding: 0,
   },
@@ -80,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 300,
     marginBottom: 8,
-    color: colors.coral1,
+    color: 'black',
   },
   mapAuthor: {
     fontSize: 12,

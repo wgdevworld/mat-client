@@ -115,6 +115,13 @@ const App = () => {
                   animationEnabled: false,
                 }}
               />
+              <Stack.Screen
+                name="MatZip"
+                component={MatZipMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaProvider>

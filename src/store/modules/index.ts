@@ -4,8 +4,9 @@ import user, {initialState as userInitialState} from './user';
 import matMap, {initialState as matMapInitialState} from './matMap';
 import userMaps, {initialState as userMapsInitialState} from './userMaps';
 import userMuckitems, {initialState as itemsInitialState} from './userItems';
+import publicMaps, {initialState as publicMapsInitialState} from './publicMaps';
 
-const rootReducer = combineReducers({user, matZip, matMap, userMaps, userMuckitems});
+const rootReducer = combineReducers({user, matZip, matMap, userMaps, userMuckitems, publicMaps});
 
 export const initialStateObject: {
   [key: string]: any;
@@ -14,7 +15,8 @@ export const initialStateObject: {
   userMaps: userMapsInitialState,
   matZip: matZipInitialState,
   matMap: matMapInitialState,
-  userMuckitems: itemsInitialState
+  userMuckitems: itemsInitialState,
+  publicMaps: publicMapsInitialState
 };
 
 export default rootReducer;
