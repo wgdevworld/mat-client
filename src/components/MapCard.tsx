@@ -13,7 +13,7 @@ interface MapCardProps {
   mapName: string;
   followers: number;
   author: string;
-  // move to corresponding map
+  imgSrc: string[];
   onPressMap: () => void;
 }
 
@@ -22,6 +22,7 @@ const MapCard: React.FC<MapCardProps> = ({
   mapName,
   followers,
   author,
+  imgSrc,
   onPressMap,
 }) => {
   const [addIcon, setAddIcon] = useState(true);
@@ -30,7 +31,7 @@ const MapCard: React.FC<MapCardProps> = ({
 
   return (
     <View>
-      <ImageCarousel images={images} />
+      <ImageCarousel images={imgSrc} />
       <TouchableOpacity onPress={onPressMap}>
         <View style={styles.overlay}>
           <View>

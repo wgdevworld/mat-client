@@ -21,7 +21,7 @@ import { addMuckitemAction, updateMuckitemAction } from '../store/modules/userIt
 
 export default function MuckitNotes() {
   const dispatch = useDispatch();
-  const userOwnItems = useAppSelector(state => state.userMuckitems.ownMuckitems)
+  const userOwnItems = useAppSelector(state => state.userMuckitems.ownMuckitems);
 
   const [items, setItems] = useState<MuckitItem[]>(userOwnItems);
   const [newItemText, setNewItemText] = useState('');

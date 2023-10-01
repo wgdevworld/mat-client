@@ -122,6 +122,22 @@ const App = () => {
                   headerShown: false,
                 }}
               />
+              <Stack.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                  animationEnabled: false,
+                }}
+              />
+              <Stack.Screen
+                name="MatZip"
+                component={MatZipMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaProvider>

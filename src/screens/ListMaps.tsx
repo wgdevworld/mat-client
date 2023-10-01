@@ -13,25 +13,17 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
 import {fetchAllMaps} from '../controls/MatMapControl';
-import {initialState} from '../store/modules/matZip';
 import {initPushNotification} from '../controls/NotificationControl';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '../store/hooks';
+import { MatMap } from '../types/store';
 
 export default function ListMaps() {
-  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const [maps, setMaps] = useState([initialState]);
+  const dispatch = useDispatch();
+  const publicMaps = useAppSelector(state => state.publicMaps.maps);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const data = await fetchAllMaps();
-        setMaps(data?.fetchAllMaps || []);
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    fetchData();
-    console.log(maps)
-  }, []);
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const [maps, setMaps] = useState<MatMap[]>(publicMaps);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -46,8 +38,9 @@ export default function ListMaps() {
               <MapCard
                 id={item.id}
                 mapName={item.name}
-                followers={item.numFollower}
+                followers={1}
                 author={item.author}
+                imgSrc={item.imageSrc}
                 onPressMap={() => navigation.navigate('ZipList', {map: item})}
               />
             )}
