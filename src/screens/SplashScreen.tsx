@@ -2,8 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
 import {Coordinate, MatMap, MatZip, MuckitItem} from '../types/store';
@@ -13,7 +14,9 @@ import {addressToCoordinate} from '../tools/CommonFunc';
 import { replaceOwnMuckitemsAction } from '../store/modules/userItems';
 import { replacePublicMapsAction } from '../store/modules/publicMaps';
 
+
 const SplashScreen = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const dispatch = useDispatch();
 

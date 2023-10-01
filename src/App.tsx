@@ -9,6 +9,8 @@ import store from './store/store';
 import {PersistGate} from 'redux-persist/integration/react';
 import SettingsMain from './screens/SettingsMain';
 import LoginMain from './screens/LoginMain';
+import FAQ from './screens/FAQ';
+import Help from './screens/Help';
 import TabNavContainer from './screens/TabNavContainer';
 import MatZipMain from './screens/MatZipMain';
 import ListMaps from './screens/ListMaps';
@@ -59,6 +61,20 @@ const App = () => {
               <Stack.Screen
                 name="SettingsMain"
                 component={SettingsMain}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="FAQ"
+                component={FAQ}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Help"
+                component={Help}
                 options={{
                   headerShown: false,
                 }}

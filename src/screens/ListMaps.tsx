@@ -36,6 +36,7 @@ export default function ListMaps() {
             scrollEnabled={false}
             renderItem={({item}) => (
               <MapCard
+                id={item.id}
                 mapName={item.name}
                 followers={1}
                 author={item.author}

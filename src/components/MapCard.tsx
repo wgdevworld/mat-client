@@ -4,10 +4,12 @@ import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '../styles/colors';
+import { addUserFollower } from '../controls/MatMapControl';
 
 // TODO: refresh after scroll down from top
 
 interface MapCardProps {
+  id: string;
   mapName: string;
   followers: number;
   author: string;
@@ -16,6 +18,7 @@ interface MapCardProps {
 }
 
 const MapCard: React.FC<MapCardProps> = ({
+  id,
   mapName,
   followers,
   author,
@@ -23,13 +26,7 @@ const MapCard: React.FC<MapCardProps> = ({
   onPressMap,
 }) => {
   const [addIcon, setAddIcon] = useState(true);
-
-  const handleIconPress = () => {
-    setAddIcon((prev) => !prev);
-    // subscribe/unsubscribe to the map
-    // communicate with backend
-  };
-
+  
   const images = [assets.images.default_map];
 
   return (
@@ -42,7 +39,7 @@ const MapCard: React.FC<MapCardProps> = ({
             <Text style={styles.mapAuthorOverlay}>by: {author} | 팔로워 {followers} | 유튜브 </Text>
           </View>
           
-          <TouchableOpacity onPress={handleIconPress} style={styles.addButton}>
+          <TouchableOpacity onPress={() => addUserFollower(id)} style={styles.addButton}>
             <Ionicons
               name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
               size={35}
@@ -70,6 +67,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+    marginBottom: 14
   },
   addButton: {
     marginLeft: 'auto'
