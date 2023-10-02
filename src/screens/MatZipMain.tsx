@@ -1,6 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useRoute} from '@react-navigation/native';
-import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   FlatList,
   Animated,
+  Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -20,49 +20,24 @@ import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
 import colors from '../styles/colors';
+import {useAppSelector} from '../store/hooks';
 
-// interface MatZipProps {
-//   name: string;
-//   address: string;
-//   numReview: number;
-//   rating: number;
-//   isVisited: boolean;
-//   numLike: number;
-//   category: string;
-//   reviewList: string[];
-//   // parent map list
-// }
-
-const images = [
-  assets.images.산방산국수맛집1,
-  assets.images.산방산국수맛집2,
-  assets.images.애월제주다,
-];
-
-const ExpandableView = ({expanded = false}) => {
+const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
+  expanded = false,
+  reviews,
+}) => {
   const [height] = useState(new Animated.Value(0));
 
   useEffect(() => {
     Animated.timing(height, {
-      toValue: !expanded ? reviews.length * 200 : 0,
+      toValue: !expanded ? (reviews ? reviews.length * 200 : 0) : 0,
       duration: 150,
       useNativeDriver: false,
     }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expanded, height]);
 
-  // console.log('rerendered');
-
-  const renderItem = useCallback(
-    ({item}: {item: Review}) => (
-      <ReviewCard
-        author={item.author}
-        rating={item.rating}
-        content={item.content}
-        date={item.date}
-      />
-    ),
-    [],
-  );
+  const renderItem = ({item}: {item: Review}) => <ReviewCard review={item} />;
 
   // REFACTOR: dynamic height
   const ITEM_HEIGHT = 60;
@@ -80,7 +55,7 @@ const ExpandableView = ({expanded = false}) => {
     <Animated.View style={{height}}>
       <FlatList
         data={reviews}
-        keyExtractor={item => item.author}
+        keyExtractor={(item, index) => index.toString()}
         scrollEnabled={true}
         maxToRenderPerBatch={5}
         initialNumToRender={5}
@@ -95,35 +70,17 @@ const ExpandableView = ({expanded = false}) => {
   );
 };
 
-const reviews = [
-  {
-    author: '홍길동',
-    rating: 4.5,
-    content: '맛있어요!',
-    date: new Date(),
-  },
-  {
-    author: '이덕행',
-    rating: 4.8,
-    content: '사특한 맛이네요..',
-    date: new Date(),
-  },
-  {
-    author: '윤지원',
-    rating: 2.2,
-    content: '쉽지 않다...',
-    date: new Date(),
-  },
-];
-
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
-  const zipData = route.params;
+  const zipId = route.params.zipID;
+  const zipData = useAppSelector(state =>
+    state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
+  );
+  const images = zipData?.imageSrc;
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
     // show review shen toggled
-    console.log('Review Chevron pressed');
   };
   const [toggleReview, setToggleReview] = useState(true);
   const [saveIcon, setSaveIcon] = useState(true);
@@ -132,13 +89,24 @@ export default function MatZipMain() {
     // save zip (add zip to user.savedZips)
     // use server API: communicate with backend
   };
+  const [reviews, setReviews] = useState<Review[]>(
+    zipData?.reviews ? zipData.reviews : [],
+  );
+  console.log(zipData);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
-        <ImageCarousel images={images} />
+        {images?.length === 0 ? (
+          <Image
+            source={assets.images.placeholder}
+            style={{width: '100%', height: 220}}
+          />
+        ) : (
+          <ImageCarousel images={images} />
+        )}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
-            <Text style={styles.zipNameText}>{zipData.zip.name}</Text>
+            <Text style={styles.zipNameText}>{zipData?.name}</Text>
 
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
               <Ionicons
@@ -159,7 +127,9 @@ export default function MatZipMain() {
               }}>
               <View style={styles.horizontal}>
                 <Ionicons name="star" color="orange" size={15} />
-                <Text style={styles.matZipRatingText}>{zipData.zip.stars}</Text>
+                <Text style={styles.matZipRatingText}>
+                  {zipData?.reviewAvgRating}
+                </Text>
               </View>
             </View>
           </View>
@@ -167,7 +137,7 @@ export default function MatZipMain() {
           <Text style={styles.matZipListText}> @muckit_list 맛집에 포함</Text>
           <View style={styles.horizontal}>
             <Ionicons name="location-outline" color="black" size={18} />
-            <Text style={styles.matZipInfoText}>{zipData.zip.address}</Text>
+            <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
           </View>
           <View style={styles.horizontal}>
             <Ionicons
@@ -193,12 +163,12 @@ export default function MatZipMain() {
           <Text style={styles.matZipInfoText}>
             카테고리: {zipData.zip.category}
           </Text> */}
-          <ReviewForm />
+          {zipData && <ReviewForm zipId={zipData.id} setReviews={setReviews} />}
           {/* if touched, icon chevron changes */}
           <TouchableOpacity
             style={styles.row}
             onPress={handlePressReviewChevron}>
-            <Text style={styles.rowText}>리뷰 {zipData.zip.numReview}개</Text>
+            <Text style={styles.rowText}>리뷰 {zipData?.reviewCount}개</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name={
@@ -210,21 +180,7 @@ export default function MatZipMain() {
               size={22}
             />
           </TouchableOpacity>
-          {/* <ReviewForm /> */}
-          <ExpandableView expanded={toggleReview} />
-          {/* <FlatList
-            data={reviews}
-            keyExtractor={item => item.author}
-            scrollEnabled={false}
-            renderItem={({item}) => (
-              <ReviewCard
-                author={item.author}
-                rating={item.rating}
-                content={item.content}
-                date={item.date}
-              />
-            )}
-          /> */}
+          <ExpandableView expanded={toggleReview} reviews={reviews} />
         </View>
       </ScrollView>
     </SafeAreaView>

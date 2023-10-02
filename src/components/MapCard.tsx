@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import colors from '../styles/colors';
 
 // TODO: refresh after scroll down from top
@@ -24,7 +24,7 @@ const MapCard: React.FC<MapCardProps> = ({
   const [addIcon, setAddIcon] = useState(true);
 
   const handleIconPress = () => {
-    setAddIcon((prev) => !prev);
+    setAddIcon(prev => !prev);
     // subscribe/unsubscribe to the map
     // communicate with backend
   };
@@ -38,9 +38,11 @@ const MapCard: React.FC<MapCardProps> = ({
         <View style={styles.overlay}>
           <View>
             <Text style={styles.mapNameOverlay}>{mapName}</Text>
-            <Text style={styles.mapAuthorOverlay}>by: {author} | 팔로워 {followers} | 유튜브 </Text>
+            <Text style={styles.mapAuthorOverlay}>
+              by: {author} | 팔로워 {followers} | 유튜브{' '}
+            </Text>
           </View>
-          
+
           <TouchableOpacity onPress={handleIconPress} style={styles.addButton}>
             <Ionicons
               name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
@@ -49,14 +51,12 @@ const MapCard: React.FC<MapCardProps> = ({
             />
           </TouchableOpacity>
         </View>
-        
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-
   overlay: {
     flex: 1,
     flexDirection: 'row',
@@ -71,13 +71,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   addButton: {
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   mapNameOverlay: {
     fontSize: 20,
     marginBottom: 5,
     color: 'black',
-    fontWeight: 600
+    fontWeight: 600,
   },
   mapAuthorOverlay: {
     fontSize: 12,

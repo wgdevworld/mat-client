@@ -26,41 +26,57 @@ export const request = async (
       );
       axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
     }
+    let headers = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
     let response;
     switch (method) {
       case REQ_METHOD.QUERY:
+        // Handle QUERY (unchanged from your original version)
         response = await axios.post(
           'https://muckit-server.site/graphql',
           {
             query,
           },
           {
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers,
           },
         );
         console.log('ℹ️ Query success: ' + response);
         break;
       case REQ_METHOD.MUTATION:
-        response = await axios.post(
-          'https://muckit-server.site/graphql',
-          {
-            query,
-            variables: variables,
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
+        if (variables instanceof FormData) {
+          headers = {
+            ...headers,
+            'Content-Type': 'multipart/form-data',
+          };
+          response = await axios.post(
+            'https://muckit-server.site/graphql',
+            variables,
+            {headers},
+          );
+        } else {
+          response = await axios.post(
+            'https://muckit-server.site/graphql',
+            {
+              query,
+              variables,
             },
-          },
-        );
+            {
+              headers,
+            },
+          );
+        }
         console.log('ℹ️ Mutation success: ' + response);
         break;
     }
+
     return response;
-  } catch (error) {
-    console.log('🚨 Server error: ' + error);
+  } catch (error: any) {
+    console.log(
+      '🚨 Server error:',
+      error.response ? error.response.data : error.message,
+    );
   }
 };

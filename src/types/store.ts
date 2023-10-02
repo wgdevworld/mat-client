@@ -46,6 +46,7 @@ export interface Review {
   rating: number;
   content: string;
   date: Date;
+  images?: string[];
 }
 
 export interface MatZipPayload {

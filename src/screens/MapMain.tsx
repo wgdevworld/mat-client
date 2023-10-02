@@ -134,6 +134,7 @@ function App(): JSX.Element {
       );
       fetchedZipData = addZipRes?.data.data.addZip;
     }
+    console.log(fetchedZipData);
 
     const fetchReviewQuery = `{
       fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
@@ -149,6 +150,7 @@ function App(): JSX.Element {
       }
     }`;
     const fetchedReviewRes = await request(fetchReviewQuery, REQ_METHOD.QUERY);
+    console.log(fetchedReviewRes?.data);
     const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
 
     const selectedMatZip: MatZip = {
@@ -264,7 +266,7 @@ function App(): JSX.Element {
       <TouchableOpacity
         key={matZip.id}
         style={styles.itemContainer}
-        onPress={() => navigation.navigate('MatZipMain', {zip: matZip})}>
+        onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
         <View style={styles.itemImageContainer}>
           <Image
             source={

@@ -1,39 +1,40 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 // import Ionicons from 'react-native-vector-icons/Ionicons';
 // import ImageCarousel from '../components/ImageCarousel';
 // import assets from '../../assets';
-import {View, Text, StyleSheet} from 'react-native';
-
-// TODO: refresh after scroll down from top
+import {View, Text, StyleSheet, ScrollView, Image} from 'react-native';
+import {Review} from '../types/store';
 
 interface ReviewCardProps {
-  author: string;
-  rating: number;
-  content: string;
-  date: Date;
-  //   images: Image[];
+  review: Review;
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({
-  author,
-  rating,
-  content,
-  date,
-  //   images,
-}) => {
-  // const images = [
-  //   assets.images.스시올로지,
-  //   assets.images.야키토리나루토,
-  //   assets.images.월량관,
-  // ];
+const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
   return (
     <View style={styles.container}>
       <Text>
-        {date.toLocaleDateString('ko-KR')} @{author} | 평점: {rating}
+        {review.date.toLocaleDateString('ko-KR') +
+          ' ' +
+          review.date.toLocaleTimeString('ko-KR')}{' '}
+        @{review.author} | 평점: {review.rating}
       </Text>
-      <Text style={styles.contentText}>{content}</Text>
-
-      {/* <ImageCarousel images={images} /> */}
+      <Text style={styles.contentText}>{review.content}</Text>
+      {review.images && review.images.length > 0 && (
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+          {review.images.map((image: any) => (
+            <Image
+              key={image}
+              style={{
+                width: 100,
+                height: 100,
+                margin: 10,
+              }}
+              source={{uri: image.src}}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };

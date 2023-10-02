@@ -1,6 +1,6 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-import {Coordinate, MatMap, MatZip} from '../../types/store';
-import {calculateDistance} from '../../tools/CommonFunc';
+import {Coordinate, MatMap, MatZip, Review} from '../../types/store';
+import {calculateDistance, ratingAverage} from '../../tools/CommonFunc';
 
 export const initialState: {ownMaps: MatMap[]; followingMaps: MatMap[]} = {
   ownMaps: [],
@@ -55,6 +55,25 @@ export const userMapsSlice = createSlice({
       state.ownMaps[0].zipList = action.payload;
       return state;
     },
+    addReviewAction: (
+      state,
+      action: PayloadAction<{review: Review[]; zipId?: string}>,
+    ) => {
+      if (!action.payload.zipId) {
+        return;
+      }
+      const targetZip = state.ownMaps[0].zipList.find(
+        (zip: MatZip) => zip.id === action.payload.zipId,
+      );
+      if (targetZip) {
+        console.log('ℹ️ updating review list');
+        targetZip.reviews = action.payload.review;
+        console.log(targetZip.reviews.length);
+        targetZip.reviewCount = targetZip.reviews.length;
+        targetZip.reviewAvgRating = ratingAverage(targetZip.reviews);
+      }
+      return state;
+    },
   },
 });
 
@@ -65,5 +84,6 @@ export const {
   followMatMapAction,
   addMatZipAction,
   updateDistanceForMatMapAction,
+  addReviewAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;

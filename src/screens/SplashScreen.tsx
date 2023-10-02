@@ -6,7 +6,7 @@ import React, {useEffect} from 'react';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
-import {Coordinate, MatMap, MatZip} from '../types/store';
+import {Coordinate, MatMap, MatZip, Review} from '../types/store';
 import {replaceOwnMatMapAction} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
 import {addressToCoordinate} from '../tools/CommonFunc';
@@ -72,6 +72,47 @@ const SplashScreen = () => {
             const serializedZipList: MatZip[] = await Promise.all(
               userOwnMapData.zipList.map(async (zip: any) => {
                 const imgSrcArr = zip.images.map((img: any) => img.src);
+                const fetchReviewQuery = `{
+                  fetchReviewsByZipId(zipId: "${zip.id}") {
+                    writer {
+                      name
+                    }
+                    rating
+                    content
+                    createdAt
+                    images {
+                      src
+                    }
+                  }
+                }`;
+                const fetchedReviewRes = await request(
+                  fetchReviewQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const fetchedReviewData =
+                  fetchedReviewRes?.data.data.fetchReviewsByZipId;
+                const imageList = fetchedReviewData.reduce(
+                  (acc: any[], review: any) => {
+                    const reviewImages = review.images.map((image: any) => {
+                      return {
+                        src: image.src,
+                      };
+                    });
+                    return acc.concat(reviewImages);
+                  },
+                  [],
+                );
+                const filteredReviewList: Review[] = fetchedReviewData.map(
+                  (review: any) => {
+                    return {
+                      author: review.writer.name,
+                      rating: review.rating,
+                      content: review.content,
+                      date: new Date(review.createdAt),
+                      images: imageList,
+                    };
+                  },
+                );
                 let coordinate: Coordinate;
                 try {
                   coordinate = await addressToCoordinate(zip.address);
@@ -82,7 +123,6 @@ const SplashScreen = () => {
                   );
                   coordinate = {latitude: 0, longitude: 0}; // Fallback
                 }
-
                 return {
                   id: zip.id,
                   name: zip.name,
@@ -92,11 +132,12 @@ const SplashScreen = () => {
                   reviewCount: zip.reviewCount,
                   reviewAvgRating: zip.reviewAvgRating,
                   category: zip.category,
+                  reviews: filteredReviewList,
                 } as MatZip;
               }),
             );
 
-            console.log(serializedZipList);
+            // console.log(serializedZipList);
             const userOwnMap: MatMap = {
               id: userOwnMapData.id,
               name: userOwnMapData.name,
