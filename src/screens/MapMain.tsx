@@ -34,6 +34,7 @@ import {useDispatch} from 'react-redux';
 import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
+import Config from 'react-native-config';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -317,7 +318,7 @@ function App(): JSX.Element {
               placeholderTextColor: 'black',
             }}
             query={{
-              key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
+              key: Config.MAPS_API,
               language: 'ko',
               components: 'country:kr',
             }}
