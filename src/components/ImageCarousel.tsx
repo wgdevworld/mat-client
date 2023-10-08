@@ -29,6 +29,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
 const styles = StyleSheet.create({
   container: {
     height: 220,
+    marginBottom: 10,
   },
   wrapper: {
     // TODO: add style

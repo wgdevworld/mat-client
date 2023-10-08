@@ -148,9 +148,7 @@ export default function MatZipMain() {
             <Text style={styles.matZipInfoText}> 02-123-4567</Text>
           </View>
           <Text style={styles.matZipDescriptionText}>
-            산방산에 가면 먹어야 할 산방산뷰 국수집🥢 일반 국수도 넘 맛있지만
-            여름 별미라는 시원한 서리태콩국수는 꼭 먹어봐🤭 직접 갈아만든
-            콩육수라 역대급 담백고소함!
+            {zipData?.description}
           </Text>
 
           {/* <Text style={styles.matZipInfoText}>

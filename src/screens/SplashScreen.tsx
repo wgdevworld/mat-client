@@ -4,16 +4,19 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import React, {useEffect} from 'react';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
-import {Coordinate, MatMap, MatZip, Review} from '../types/store';
+import {Coordinate, MatMap, MatZip, Review, MuckitItem} from '../types/store';
 import {replaceOwnMatMapAction} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
 import {addressToCoordinate} from '../tools/CommonFunc';
+import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
+import {replacePublicMapsAction} from '../store/modules/publicMaps';
 
 const SplashScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const dispatch = useDispatch();
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   useEffect(() => {
     AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN)
@@ -31,6 +34,9 @@ const SplashScreen = () => {
               publicStatus
               creator {
                 name
+              }
+              images {
+                src
               }
               zipList {
                 id
@@ -67,8 +73,9 @@ const SplashScreen = () => {
           //   REQ_METHOD.QUERY,
           // );
           // const userFollowingMapData = userFollowingMapRes?.data.data;
-          const userOwnMapData = userOwnMapRes?.data.data.fetchUserMap;
+          const userOwnMapData = userOwnMapRes?.data?.data?.fetchUserMap;
           if (userOwnMapData) {
+            const imgSrcArr = userOwnMapData.images.map((img: any) => img.src);
             const serializedZipList: MatZip[] = await Promise.all(
               userOwnMapData.zipList.map(async (zip: any) => {
                 const imgSrcArr = zip.images.map((img: any) => img.src);
@@ -137,7 +144,6 @@ const SplashScreen = () => {
               }),
             );
 
-            // console.log(serializedZipList);
             const userOwnMap: MatMap = {
               id: userOwnMapData.id,
               name: userOwnMapData.name,
@@ -146,8 +152,8 @@ const SplashScreen = () => {
               areaCode: userOwnMapData.areaCode,
               zipList: serializedZipList,
               followerList: userOwnMapData.followerList,
-              // TODO: replace with what we get from DB
-              creatorName: userOwnMapData.creator.name,
+              imageSrc: imgSrcArr,
+              author: userOwnMapData.creator.name,
             };
             dispatch(replaceOwnMatMapAction([userOwnMap]));
           } else {
@@ -156,9 +162,12 @@ const SplashScreen = () => {
             const defaultMatMap: MatMap = {
               id: uuidv4(),
               name: '기본 맛맵',
-              description: '진웅규의 첫 맛맵',
+              description: '유저의 첫 맛맵',
+              imageSrc: [
+                'https://storage.googleapis.com/kobon-01/seoul_hotple_logo.png',
+              ],
               // TODO: replace with user.name when onboarding is finished (and createUserAction is in place)
-              creatorName: '홍길동',
+              author: '사용자',
               followerList: [],
               publicStatus: false,
               areaCode: '',
@@ -187,13 +196,126 @@ const SplashScreen = () => {
           navigation.replace('TabNavContainer', {
             screen: 'MapMain',
           });
+
+          //유저 먹킷 리스트 불러오기
+          const fetchMuckitemQuery = `{
+            fetchAllMuckitem {
+              id
+              title
+              description
+              completeStatus
+            }
+          }`;
+          const userMuckitemsRes = await request(
+            fetchMuckitemQuery,
+            REQ_METHOD.QUERY,
+          );
+          const userMuckitemsData =
+            userMuckitemsRes?.data?.data?.fetchAllMuckitem;
+
+          if (userMuckitemsData) {
+            const serializedItemsList: MuckitItem[] = await Promise.all(
+              userMuckitemsData.map(async (item: any) => {
+                return {
+                  id: item.id,
+                  title: item.title,
+                  description: item.description,
+                  completeStatus: item.completeStatus,
+                } as MuckitItem;
+              }),
+            );
+            dispatch(replaceOwnMuckitemsAction(serializedItemsList));
+          }
+
+          const fetchAllMapsQuery = `{
+            fetchAllMaps {
+              id
+              name
+              description
+              createdAt
+              publicStatus
+              areaCode
+              creator {
+                name
+              }
+              images {
+                src
+              }
+              zipList {
+                id
+                name
+                address
+                images {
+                  src
+                }
+                reviewCount
+                reviewAvgRating
+                parentMap {
+                  id
+                }
+                category
+              }
+            }
+          }`;
+          const publicMapsRes = await request(
+            fetchAllMapsQuery,
+            REQ_METHOD.QUERY,
+          );
+          const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
+
+          if (publicMapsData) {
+            const maps: MatMap[] = await Promise.all(
+              publicMapsData.map(async (map: any) => {
+                const imgSrcArr = map.images.map((img: any) => img.src);
+                console.log('🎯☎️' + imgSrcArr);
+                const serializedZipList: MatZip[] = await Promise.all(
+                  map.zipList.map(async (zip: any) => {
+                    const imgSrcArr = zip.images.map((img: any) => img.src);
+                    let coordinate: Coordinate;
+                    try {
+                      coordinate = await addressToCoordinate(zip.address);
+                    } catch (error) {
+                      console.error(
+                        `Failed to get coordinates for address: ${zip.address}`,
+                        error,
+                      );
+                      coordinate = {latitude: 0, longitude: 0}; // Fallback
+                    }
+
+                    return {
+                      id: zip.id,
+                      name: zip.name,
+                      imageSrc: imgSrcArr,
+                      coordinate,
+                      address: zip.address,
+                      reviewCount: zip.reviewCount,
+                      reviewAvgRating: zip.reviewAvgRating,
+                      category: zip.category,
+                    } as MatZip;
+                  }),
+                );
+                return {
+                  id: map.id,
+                  name: map.name,
+                  description: map.description,
+                  author: map.creator?.name,
+                  publicStatus: map.publicStatus,
+                  areaCode: map.areaCode,
+                  zipList: serializedZipList,
+                  imageSrc: imgSrcArr,
+                } as MatMap;
+              }),
+            );
+            dispatch(replacePublicMapsAction(maps));
+          }
         }
       })
       .catch(e => {
-        console.log(e);
+        console.log(e.response ? e.response.data : e.message);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return <></>;
 };
 

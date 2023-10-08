@@ -19,6 +19,7 @@ export const request = async (
 ) => {
   try {
     const idToken = await getValidIdToken();
+    console.log(idToken);
     if (idToken) {
       await AsyncStorage.setItem(
         ASYNC_STORAGE_ENUM.ID_TOKEN,
@@ -43,7 +44,7 @@ export const request = async (
             headers,
           },
         );
-        console.log('ℹ️ Query success: ' + response);
+        console.log('ℹ️ Query success: ' + response.data.data);
         break;
       case REQ_METHOD.MUTATION:
         if (variables instanceof FormData) {

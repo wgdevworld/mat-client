@@ -7,6 +7,7 @@ export const initialState: {MatMap: MatMap} = {
     id: '',
     name: '',
     author: '',
+    description: '',
     numFollower: 0,
     publicStatus: false,
     areaCode: '',

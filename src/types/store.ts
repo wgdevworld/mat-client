@@ -10,7 +10,7 @@ export interface MatZip {
   category: string;
   reviewAvgRating?: number;
   reviewCount?: number;
-  //TODO: to MatZip page using zipId
+  description?: string;
 }
 
 //TODO: 스플래시에서 데이터 받아오면 옵셔널 뺴기
@@ -18,12 +18,20 @@ export interface MatMap {
   id: string;
   name: string;
   description: string;
-  creatorName: string;
+  author: string;
   publicStatus: boolean;
-  // images
+  imageSrc: string[];
   areaCode: string;
   zipList: MatZip[];
   followerList?: User[];
+  numFollower?: number;
+}
+
+export interface MuckitItem {
+  id: string;
+  title: string;
+  description: string;
+  completeStatus: boolean;
 }
 
 export interface User {

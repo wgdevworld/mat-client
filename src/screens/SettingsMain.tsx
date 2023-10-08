@@ -11,23 +11,33 @@ import {
   TouchableOpacity,
   Image,
   Switch,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
 import {ScreenParamList} from '../types/navigation';
-import {useAppSelector} from '../store/hooks';
+import assets from '../../assets';
+import colors from '../styles/colors'; 
 
 export default function Settings() {
-  const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isPush, setIsPush] = React.useState(true);
   const togglePush = () => setIsPush(prev => !prev);
   const [isLocPush, setIsLocPush] = React.useState(true);
   const toggleLocPush = () => setIsLocPush(prev => !prev);
+  const screenWidth = Dimensions.get('window').width;
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
-        <Text style={styles.heading}>설정</Text>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30}}>
+                <Ionicons 
+                  name="chevron-back-outline" 
+                  color="#0c0c0c" 
+                  size={30}
+                  style={{ marginLeft: 18}} />
+                <Text style={styles.heading}>설정</Text>
+            </View>
+          </View>
         <TouchableOpacity
           style={{paddingHorizontal: 24}}
           onPress={() => {
@@ -48,8 +58,8 @@ export default function Settings() {
             </TouchableOpacity>
             <View style={{flex: 1}} />
             <View style={styles.profile}>
-              <Text style={styles.profileName}>{user.name}</Text>
-              <Text style={styles.profileUserID}>{user.username}</Text>
+              <Text style={styles.profileName}>홍길동</Text>
+              <Text style={styles.profileUserID}>@matzip-user-01</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -103,7 +113,7 @@ export default function Settings() {
           </View>
           <View style={styles.row}>
             <Ionicons name="map-outline" size={18} />
-            <Text style={styles.rowText}>저장한 맛집들</Text>
+            <Text style={styles.rowText}>팔로우한 지도</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
@@ -114,7 +124,13 @@ export default function Settings() {
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>도움말</Text>
-          <View style={styles.row}>
+
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Help');
+            }}
+            style={styles.row}
+            >
             <Ionicons name="information-circle-outline" size={18} />
             <Text style={styles.rowText}>앱 사용법</Text>
             <View style={{flex: 1}} />
@@ -123,17 +139,22 @@ export default function Settings() {
               color="#0c0c0c"
               size={22}
             />
-          </View>
-          <View style={styles.row}>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('FAQ');
+            }}
+            style={styles.row}
+          >
             <Ionicons name="help-circle-outline" size={18} />
             <Text style={styles.rowText}>자주 물어보는 질문</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
               color="#0c0c0c"
-              size={22}
-            />
-          </View>
+              size={22}/>
+          </TouchableOpacity>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>지원</Text>
@@ -175,8 +196,9 @@ export default function Settings() {
           </View>
         </View>
         <View style={{paddingHorizontal: 60}}>
+          
           <TouchableOpacity style={styles.logout}>
-            <Text style={styles.logoutText}>로그아웃</Text>
+            <Text style={styles.logoutText}>탈퇴하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -199,9 +221,9 @@ const styles = StyleSheet.create({
   profileWrapper: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.coral1,
     borderRadius: 20,
-    marginBottom: 12,
+    marginBottom: 25,
     paddingHorizontal: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,6 +263,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
+  
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -254,7 +277,7 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
-    marginLeft: 10,
+    marginLeft: 5,
   },
   logout: {
     flexDirection: 'row',
@@ -266,8 +289,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   logoutText: {
-    fontSize: 17,
-    color: 'red',
+    fontSize: 15,
+    color: 'white',
     fontWeight: 'bold',
   },
 });

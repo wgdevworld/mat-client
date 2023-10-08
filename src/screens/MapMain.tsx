@@ -10,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -62,6 +61,9 @@ function App(): JSX.Element {
     })),
   );
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([]);
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
@@ -72,6 +74,40 @@ function App(): JSX.Element {
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
+
+  useEffect(() => {
+    console.log(currentLocation);
+  }, [currentLocation]);
+
+  useEffect(() => {
+    setCards(data);
+  }, [data]);
+
+  const fetchFollowingMaps = async () => {
+    try {
+      const query = ` {
+      fetchMapsFollowed {
+        id
+        name
+      }
+    }`;
+      const res = await request(query, REQ_METHOD.QUERY);
+      return res?.data.data.fetchMapsFollowed;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(async () => {
+    const followingMaps = await fetchFollowingMaps();
+    console.log(followingMaps);
+    const maps = followingMaps.map((obj: any) => ({
+      label: obj.name,
+      value: obj.id,
+    }));
+    console.log(maps);
+    setItems(maps);
+  }, []);
 
   useEffect(() => {
     const newRegion = {
@@ -415,6 +451,14 @@ function App(): JSX.Element {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+            />
             <BottomSheetFlatList
               data={curMatMap.zipList}
               keyExtractor={i => i.id}
@@ -448,6 +492,12 @@ function App(): JSX.Element {
                 </View>
               }
               stickyHeaderIndices={[0]}
+              // ListHeaderComponent={
+              //   <Text style={styles.flatListHeaderText}>
+              //     근처 나의 맛집들 🍶
+              //   </Text>
+              // }
+
               ListFooterComponent={<View style={{height: 200}} />}
             />
           </BottomSheet>
