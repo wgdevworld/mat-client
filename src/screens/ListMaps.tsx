@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,11 +12,9 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
-import {fetchAllMaps} from '../controls/MatMapControl';
-import {initPushNotification} from '../controls/NotificationControl';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '../store/hooks';
-import { MatMap } from '../types/store';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from '../store/hooks';
+import {MatMap} from '../types/store';
 
 export default function ListMaps() {
   const dispatch = useDispatch();

@@ -75,14 +75,6 @@ function App(): JSX.Element {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
 
-  useEffect(() => {
-    console.log(currentLocation);
-  }, [currentLocation]);
-
-  useEffect(() => {
-    setCards(data);
-  }, [data]);
-
   const fetchFollowingMaps = async () => {
     try {
       const query = ` {
@@ -98,6 +90,7 @@ function App(): JSX.Element {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(async () => {
     const followingMaps = await fetchFollowingMaps();
     console.log(followingMaps);

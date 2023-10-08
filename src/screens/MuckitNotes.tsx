@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -11,24 +11,32 @@ import {
   Platform,
   SafeAreaView,
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import colors from '../styles/colors';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '../store/hooks';
-import { MuckitItem } from '../types/store';
-import { REQ_METHOD, request } from '../controls/RequestControl';
-import { addMuckitemAction, updateMuckitemAction } from '../store/modules/userItems';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from '../store/hooks';
+import {MuckitItem} from '../types/store';
+import {REQ_METHOD, request} from '../controls/RequestControl';
+import {
+  addMuckitemAction,
+  updateMuckitemAction,
+} from '../store/modules/userItems';
 
 export default function MuckitNotes() {
   const dispatch = useDispatch();
-  const userOwnItems = useAppSelector(state => state.userMuckitems.ownMuckitems);
+  const userOwnItems = useAppSelector(
+    state => state.userMuckitems.ownMuckitems,
+  );
 
   const [items, setItems] = useState<MuckitItem[]>(userOwnItems);
+  useEffect(() => {
+    setItems(userOwnItems);
+  }, [userOwnItems]);
   const [newItemText, setNewItemText] = useState('');
 
   const handleCheckboxToggle = async (itemId: any) => {
     const variables = {
-      itemId: itemId
+      itemId: itemId,
     };
     const toggleStatusMutation = `
     mutation toggleMuckitemStatus($itemId: String!) {
@@ -39,11 +47,11 @@ export default function MuckitNotes() {
         completeStatus
       }
     }
-    `
+    `;
     const toggleStatusRes = await request(
       toggleStatusMutation,
       REQ_METHOD.MUTATION,
-      variables
+      variables,
     );
     const updatedItemData = toggleStatusRes?.data?.data?.toggleMuckitemStatus;
     console.log(updatedItemData);
@@ -51,12 +59,14 @@ export default function MuckitNotes() {
       id: updatedItemData.id,
       title: updatedItemData.title,
       description: updatedItemData.description,
-      completeStatus: updatedItemData.completeStatus
-    }
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === itemId ? { ...item, checked: updatedItemData.completeStatus } : item
-      )
+      completeStatus: updatedItemData.completeStatus,
+    };
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.id === itemId
+          ? {...item, checked: updatedItemData.completeStatus}
+          : item,
+      ),
     );
     dispatch(updateMuckitemAction(updatedItem));
   };
@@ -67,7 +77,7 @@ export default function MuckitNotes() {
         createItemInput: {
           title: newItemText.trim(),
           description: '',
-        }
+        },
       };
       const addItemMutation = `
       mutation createMuckitem($createItemInput: CreateItemInput!) {
@@ -77,36 +87,35 @@ export default function MuckitNotes() {
           description
           completeStatus
         }
-      }`
+      }`;
       const addItemRes = await request(
         addItemMutation,
         REQ_METHOD.MUTATION,
-        variables
-      )
+        variables,
+      );
       const newItemData = addItemRes?.data?.data?.createMuckitem;
-      console.log(newItemData)
+      console.log(newItemData);
       const newItem: MuckitItem = {
         id: newItemData.id,
         title: newItemData.title,
         description: newItemData.description,
-        completeStatus: newItemData.completeStatus
-      }
-      dispatch(addMuckitemAction(newItem))
-      setItems((prevItems) => [...prevItems, newItem]);
+        completeStatus: newItemData.completeStatus,
+      };
+      dispatch(addMuckitemAction(newItem));
+      setItems(prevItems => [...prevItems, newItem]);
       setNewItemText('');
       Keyboard.dismiss(); // Close the keyboard after adding
     }
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     return (
       <TouchableOpacity
         style={[
           styles.itemContainer,
           item.completeStatus && styles.checkedItem,
         ]}
-        onPress={() => handleCheckboxToggle(item.id)}
-      >
+        onPress={() => handleCheckboxToggle(item.id)}>
         <View>
           <Text style={styles.itemTitle}>{item.title}</Text>
         </View>
@@ -115,7 +124,7 @@ export default function MuckitNotes() {
     );
   };
 
-  const handleTextInputChange = (text) => {
+  const handleTextInputChange = text => {
     setNewItemText(text);
   };
 
@@ -124,19 +133,18 @@ export default function MuckitNotes() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView>
           <View style={styles.headingContainer}>
             <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
           </View>
-          <View style={{ paddingHorizontal: 24 }}>
+          <View style={{paddingHorizontal: 24}}>
             <FlatList
               data={items}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={item => item.id.toString()}
               renderItem={renderItem}
             />
             <TextInput
@@ -156,12 +164,12 @@ export default function MuckitNotes() {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingVertical: 24 },
+  container: {paddingVertical: 24},
   headingContainer: {
     borderBottomColor: 'black',
     borderBottomWidth: 1,
     marginBottom: 10,
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   heading: {
     fontSize: 30,

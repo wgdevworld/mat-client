@@ -10,7 +10,6 @@ import ZipCard from '../components/ZipCard';
 import {ScreenParamList} from '../types/navigation';
 import colors from '../styles/colors';
 
-
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
@@ -60,9 +59,9 @@ export default function ZipList() {
         <Text style={styles.heading}>{mapData.map.name} 🎯</Text>
         <View style={styles.description}>
           {/* TODO: 이거 이미지 로딩 안됌 */}
-          <Image source={{ uri: mapData.map.imageSrc[0] }}/>
+          <Image source={{uri: mapData.map.imageSrc[0]}} />
           <Text>{mapData.map.description}</Text>
-          </View>
+        </View>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={mapData.map.zipList}
@@ -78,7 +77,10 @@ export default function ZipList() {
                 distance={item.distance}
                 isVisited={item.isVisited}
                 category={item.category}
-                onPressZip={() => navigation.navigate('MatZip', {zip: item})}
+                onPressZip={() => {
+                  console.log(item.id);
+                  navigation.navigate('MatZipMain', {zipID: item.id});
+                }}
               />
             )}
           />
@@ -109,6 +111,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     borderRadius: 9,
     backgroundColor: colors.grey,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });

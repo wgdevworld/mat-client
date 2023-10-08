@@ -19,11 +19,9 @@ import {onDisplayNotification} from './controls/NotificationControl';
 import EmailRegisterMain from './screens/EmailRegisterMain';
 import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
-
-import {LogBox, View} from 'react-native';
-import colors from './styles/colors';
+import {LogBox} from 'react-native';
 import SplashScreen from './screens/SplashScreen';
-import AppleLoginPage from './screens/AppleLoginTest';
+
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
   'Non-serializable values were found in the navigation state',

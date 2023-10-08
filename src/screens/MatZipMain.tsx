@@ -21,6 +21,7 @@ import {ScreenParamList} from '../types/navigation';
 import {Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
+import {REQ_METHOD, request} from '../controls/RequestControl';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -76,6 +77,32 @@ export default function MatZipMain() {
   const zipData = useAppSelector(state =>
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(async () => {
+    console.log('zipId:' + zipId);
+    if (!zipData) {
+      const fetchReviewQuery = `{
+        fetchReviewsByZipId(zipId: "${zipId}") {
+          writer {
+            name
+          }
+          rating
+          content
+          createdAt
+          images {
+            src
+          }
+        }
+      }`;
+      const fetchedReviewRes = await request(
+        fetchReviewQuery,
+        REQ_METHOD.QUERY,
+      );
+      console.log(fetchedReviewRes);
+    }
+  });
+
   const images = zipData?.imageSrc;
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
