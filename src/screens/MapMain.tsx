@@ -33,8 +33,7 @@ import {useDispatch} from 'react-redux';
 import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
-import { useAppSelector } from '../store/hooks';
-import DropDownPicker from 'react-native-dropdown-picker';
+import Config from 'react-native-config';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -61,15 +60,10 @@ function App(): JSX.Element {
       value: item.id,
     })),
   );
-  const [dropDownValue, setDropDownValue] = useState(null);
-
-  const [markers, setMarkers] = useState<Place[]>([]);
-  // TODO: change Item to Matzip
-  const [cards, setCards] = useState<Item[]>(data);
+  const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
-
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
@@ -78,7 +72,10 @@ function App(): JSX.Element {
   });
 
   useEffect(() => {
+    setCurMatMap(userOwnMaps[0]);
+  }, [userOwnMaps]);
 
+  useEffect(() => {
     console.log(currentLocation);
   }, [currentLocation]);
 
@@ -103,17 +100,16 @@ function App(): JSX.Element {
 
   useEffect(async () => {
     const followingMaps = await fetchFollowingMaps();
-    console.log(followingMaps)
+    console.log(followingMaps);
     const maps = followingMaps.map((obj: any) => ({
       label: obj.name,
       value: obj.id,
     }));
-    console.log(maps)
-    setItems(maps)
+    console.log(maps);
+    setItems(maps);
   }, []);
 
   useEffect(() => {
-
     const newRegion = {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -124,7 +120,6 @@ function App(): JSX.Element {
   }, [currentLocation]);
 
   const onPressSearchResult = async (data: any, details: any) => {
-    console.log(data, details);
     const location: Coordinate = {
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng,
@@ -176,6 +171,7 @@ function App(): JSX.Element {
       );
       fetchedZipData = addZipRes?.data.data.addZip;
     }
+    console.log(fetchedZipData);
 
     const fetchReviewQuery = `{
       fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
@@ -191,6 +187,7 @@ function App(): JSX.Element {
       }
     }`;
     const fetchedReviewRes = await request(fetchReviewQuery, REQ_METHOD.QUERY);
+    console.log(fetchedReviewRes?.data);
     const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
 
     const selectedMatZip: MatZip = {
@@ -306,7 +303,7 @@ function App(): JSX.Element {
       <TouchableOpacity
         key={matZip.id}
         style={styles.itemContainer}
-        onPress={() => navigation.navigate('MatZipMain', {zip: matZip})}>
+        onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
         <View style={styles.itemImageContainer}>
           <Image
             source={
@@ -357,7 +354,7 @@ function App(): JSX.Element {
               placeholderTextColor: 'black',
             }}
             query={{
-              key: 'AIzaSyDMSKeetZyFab4VFCpDZZ-jft7ledGM1NI',
+              key: Config.MAPS_API,
               language: 'ko',
               components: 'country:kr',
             }}
@@ -454,7 +451,6 @@ function App(): JSX.Element {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
-            
             <DropDownPicker
               open={open}
               value={value}
@@ -468,7 +464,6 @@ function App(): JSX.Element {
               keyExtractor={i => i.id}
               renderItem={({item}) => renderItem(item)}
               contentContainerStyle={styles.contentContainer}
-
               ListHeaderComponent={
                 <View style={styles.bottomSheetHeader}>
                   <Text
@@ -497,7 +492,6 @@ function App(): JSX.Element {
                 </View>
               }
               stickyHeaderIndices={[0]}
-
               // ListHeaderComponent={
               //   <Text style={styles.flatListHeaderText}>
               //     근처 나의 맛집들 🍶

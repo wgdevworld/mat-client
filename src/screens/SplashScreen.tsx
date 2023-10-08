@@ -2,23 +2,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
-import {Coordinate, MatMap, MatZip, MuckitItem} from '../types/store';
+import {Coordinate, MatMap, MatZip, Review, MuckitItem} from '../types/store';
 import {replaceOwnMatMapAction} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
 import {addressToCoordinate} from '../tools/CommonFunc';
-import { replaceOwnMuckitemsAction } from '../store/modules/userItems';
-import { replacePublicMapsAction } from '../store/modules/publicMaps';
-
+import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
+import {replacePublicMapsAction} from '../store/modules/publicMaps';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN)
@@ -81,6 +79,47 @@ const SplashScreen = () => {
             const serializedZipList: MatZip[] = await Promise.all(
               userOwnMapData.zipList.map(async (zip: any) => {
                 const imgSrcArr = zip.images.map((img: any) => img.src);
+                const fetchReviewQuery = `{
+                  fetchReviewsByZipId(zipId: "${zip.id}") {
+                    writer {
+                      name
+                    }
+                    rating
+                    content
+                    createdAt
+                    images {
+                      src
+                    }
+                  }
+                }`;
+                const fetchedReviewRes = await request(
+                  fetchReviewQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const fetchedReviewData =
+                  fetchedReviewRes?.data.data.fetchReviewsByZipId;
+                const imageList = fetchedReviewData.reduce(
+                  (acc: any[], review: any) => {
+                    const reviewImages = review.images.map((image: any) => {
+                      return {
+                        src: image.src,
+                      };
+                    });
+                    return acc.concat(reviewImages);
+                  },
+                  [],
+                );
+                const filteredReviewList: Review[] = fetchedReviewData.map(
+                  (review: any) => {
+                    return {
+                      author: review.writer.name,
+                      rating: review.rating,
+                      content: review.content,
+                      date: new Date(review.createdAt),
+                      images: imageList,
+                    };
+                  },
+                );
                 let coordinate: Coordinate;
                 try {
                   coordinate = await addressToCoordinate(zip.address);
@@ -91,7 +130,6 @@ const SplashScreen = () => {
                   );
                   coordinate = {latitude: 0, longitude: 0}; // Fallback
                 }
-
                 return {
                   id: zip.id,
                   name: zip.name,
@@ -101,6 +139,7 @@ const SplashScreen = () => {
                   reviewCount: zip.reviewCount,
                   reviewAvgRating: zip.reviewAvgRating,
                   category: zip.category,
+                  reviews: filteredReviewList,
                 } as MatZip;
               }),
             );
@@ -124,7 +163,9 @@ const SplashScreen = () => {
               id: uuidv4(),
               name: '기본 맛맵',
               description: '유저의 첫 맛맵',
-              imageSrc: ['https://storage.googleapis.com/kobon-01/seoul_hotple_logo.png'],
+              imageSrc: [
+                'https://storage.googleapis.com/kobon-01/seoul_hotple_logo.png',
+              ],
               // TODO: replace with user.name when onboarding is finished (and createUserAction is in place)
               author: '사용자',
               followerList: [],
@@ -157,7 +198,7 @@ const SplashScreen = () => {
           });
 
           //유저 먹킷 리스트 불러오기
-          const fetchMuckitemQuery =  `{
+          const fetchMuckitemQuery = `{
             fetchAllMuckitem {
               id
               title
@@ -169,8 +210,9 @@ const SplashScreen = () => {
             fetchMuckitemQuery,
             REQ_METHOD.QUERY,
           );
-          const userMuckitemsData = userMuckitemsRes?.data?.data?.fetchAllMuckitem;
-          
+          const userMuckitemsData =
+            userMuckitemsRes?.data?.data?.fetchAllMuckitem;
+
           if (userMuckitemsData) {
             const serializedItemsList: MuckitItem[] = await Promise.all(
               userMuckitemsData.map(async (item: any) => {
@@ -178,14 +220,14 @@ const SplashScreen = () => {
                   id: item.id,
                   title: item.title,
                   description: item.description,
-                  completeStatus: item.completeStatus
+                  completeStatus: item.completeStatus,
                 } as MuckitItem;
               }),
             );
             dispatch(replaceOwnMuckitemsAction(serializedItemsList));
           }
 
-          const fetchAllMapsQuery =  `{
+          const fetchAllMapsQuery = `{
             fetchAllMaps {
               id
               name
@@ -223,10 +265,9 @@ const SplashScreen = () => {
 
           if (publicMapsData) {
             const maps: MatMap[] = await Promise.all(
-              
-              publicMapsData.map(async(map: any) => {
+              publicMapsData.map(async (map: any) => {
                 const imgSrcArr = map.images.map((img: any) => img.src);
-                console.log("🎯☎️"+imgSrcArr)
+                console.log('🎯☎️' + imgSrcArr);
                 const serializedZipList: MatZip[] = await Promise.all(
                   map.zipList.map(async (zip: any) => {
                     const imgSrcArr = zip.images.map((img: any) => img.src);
@@ -240,7 +281,7 @@ const SplashScreen = () => {
                       );
                       coordinate = {latitude: 0, longitude: 0}; // Fallback
                     }
-    
+
                     return {
                       id: zip.id,
                       name: zip.name,
@@ -261,20 +302,19 @@ const SplashScreen = () => {
                   publicStatus: map.publicStatus,
                   areaCode: map.areaCode,
                   zipList: serializedZipList,
-                  imageSrc: imgSrcArr
-                } as MatMap
-              })
-            )
+                  imageSrc: imgSrcArr,
+                } as MatMap;
+              }),
+            );
             dispatch(replacePublicMapsAction(maps));
           }
-      }
+        }
       })
       .catch(e => {
         console.log(e.response ? e.response.data : e.message);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   return <></>;
 };

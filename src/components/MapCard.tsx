@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
 import assets from '../../assets';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import colors from '../styles/colors';
-import { addUserFollower } from '../controls/MatMapControl';
+import {addUserFollower} from '../controls/MatMapControl';
 
 // TODO: refresh after scroll down from top
 
@@ -26,7 +26,7 @@ const MapCard: React.FC<MapCardProps> = ({
   onPressMap,
 }) => {
   const [addIcon, setAddIcon] = useState(true);
-  
+
   const images = [assets.images.default_map];
 
   return (
@@ -36,10 +36,14 @@ const MapCard: React.FC<MapCardProps> = ({
         <View style={styles.overlay}>
           <View>
             <Text style={styles.mapNameOverlay}>{mapName}</Text>
-            <Text style={styles.mapAuthorOverlay}>by: {author} | 팔로워 {followers} | 유튜브 </Text>
+            <Text style={styles.mapAuthorOverlay}>
+              by: {author} | 팔로워 {followers} | 유튜브{' '}
+            </Text>
           </View>
-          
-          <TouchableOpacity onPress={() => addUserFollower(id)} style={styles.addButton}>
+
+          <TouchableOpacity
+            onPress={() => addUserFollower(id)}
+            style={styles.addButton}>
             <Ionicons
               name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
               size={35}
@@ -47,14 +51,12 @@ const MapCard: React.FC<MapCardProps> = ({
             />
           </TouchableOpacity>
         </View>
-        
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-
   overlay: {
     flex: 1,
     flexDirection: 'row',
@@ -67,16 +69,16 @@ const styles = StyleSheet.create({
     right: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    marginBottom: 14
+    marginBottom: 14,
   },
   addButton: {
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   mapNameOverlay: {
     fontSize: 20,
     marginBottom: 5,
     color: 'black',
-    fontWeight: 600
+    fontWeight: '600',
   },
   mapAuthorOverlay: {
     fontSize: 12,

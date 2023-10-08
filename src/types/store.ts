@@ -10,6 +10,7 @@ export interface MatZip {
   category: string;
   reviewAvgRating?: number;
   reviewCount?: number;
+  description?: string;
 }
 
 //TODO: 스플래시에서 데이터 받아오면 옵셔널 뺴기
@@ -53,6 +54,7 @@ export interface Review {
   rating: number;
   content: string;
   date: Date;
+  images?: string[];
 }
 
 export interface MatZipPayload {
