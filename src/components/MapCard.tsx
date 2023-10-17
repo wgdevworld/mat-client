@@ -1,12 +1,9 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import ImageCarousel from '../components/ImageCarousel';
-import assets from '../../assets';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Button } from 'react-native-elements'; // Import the Button component
 import colors from '../styles/colors';
-import {addUserFollower} from '../controls/MatMapControl';
-
-// TODO: refresh after scroll down from top
+import { addUserFollower } from '../controls/MatMapControl';
 
 interface MapCardProps {
   id: string;
@@ -27,63 +24,86 @@ const MapCard: React.FC<MapCardProps> = ({
 }) => {
   const [addIcon, setAddIcon] = useState(true);
 
-  const images = [assets.images.default_map];
-
   return (
-    <View>
-      <ImageCarousel images={imgSrc} />
-      <TouchableOpacity onPress={onPressMap}>
-        <View style={styles.overlay}>
-          <View>
-            <Text style={styles.mapNameOverlay}>{mapName}</Text>
-            <Text style={styles.mapAuthorOverlay}>
-              by: {author} | 팔로워 {followers} | 유튜브{' '}
-            </Text>
-          </View>
-
-          <TouchableOpacity
+    <TouchableOpacity onPress={onPressMap}>
+      <View style={styles.cardContainer}>
+        <Image source={{ uri: imgSrc[0] }} style={styles.image} />
+        <View style={styles.cardContent}>
+          <Text style={styles.mapName}>{mapName}</Text>
+          <Text style={styles.mapAuthor}>by: {author}</Text>
+          <Text style={styles.mapFollowers}>팔로워 {followers} | 유튜브</Text>
+          <Button
+            icon={{
+              name: 'bell',
+              type: 'font-awesome',
+              color: 'white',
+              size: 15,
+            }}
+            title="알림 받기"
+            buttonStyle={styles.bellButton}
+            titleStyle={styles.buttonTitle} // Adjust the font size here
             onPress={() => addUserFollower(id)}
-            style={styles.addButton}>
-            <Ionicons
-              name={addIcon ? 'add-circle-outline' : 'checkmark-circle-outline'}
-              size={35}
-              color={colors.coral1}
-            />
-          </TouchableOpacity>
+          />
         </View>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
+  cardContainer: {
     flexDirection: 'row',
-    position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  cardContent: {
+    flex: 1,
+    borderColor: colors.grey,
+    borderWidth: 1,
     paddingHorizontal: 12,
-    paddingVertical: 15,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+    paddingBottom: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 14,
+    height: 150,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
   },
-  addButton: {
-    marginLeft: 'auto',
+  bellButton: {
+    backgroundColor: colors.coral1,
+    padding: 10,
+    height: 35,
+    width: 94,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 45,
+    marginLeft: 70,
+    borderRadius: 20
   },
-  mapNameOverlay: {
-    fontSize: 20,
+  buttonTitle: {
+    fontSize: 12,
+  },
+  mapName: {
+    fontSize: 18,
+    marginTop: 8,
     marginBottom: 5,
     color: 'black',
     fontWeight: '600',
   },
-  mapAuthorOverlay: {
-    fontSize: 12,
+  mapAuthor: {
+    fontSize: 10,
     marginBottom: 2,
     color: 'black',
+  },
+  mapFollowers: {
+    fontSize: 10,
+    color: 'black',
+  },
+  image: {
+    width: 150,
+    height: 150,
+    resizeMode: 'cover',
+    borderColor: colors.grey,
+    borderWidth: 1,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
 });
 

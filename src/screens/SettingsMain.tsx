@@ -30,11 +30,11 @@ export default function Settings() {
       <ScrollView contentContainerStyle={styles.containter}>
         <View style={{ flex: 1, justifyContent: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30}}>
-                <Ionicons 
+                {/* <Ionicons 
                   name="chevron-back-outline" 
                   color="#0c0c0c" 
                   size={30}
-                  style={{ marginLeft: 18}} />
+                  style={{ marginLeft: 18}} /> */}
                 <Text style={styles.heading}>설정</Text>
             </View>
           </View>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginBottom: 20,
+    marginBottom: 0,
     textAlign: 'left',
     paddingHorizontal: 24,
   },

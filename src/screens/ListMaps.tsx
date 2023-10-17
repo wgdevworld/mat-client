@@ -26,7 +26,7 @@ export default function ListMaps() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
-        <Text style={styles.heading}>📌 지도 모음집</Text>
+        <Text style={styles.heading}>지도 탐색 🚀 </Text>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
             data={maps}
