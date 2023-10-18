@@ -23,6 +23,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Review} from '../types/store';
 import {useDispatch} from 'react-redux';
 import {addReviewAction} from '../store/modules/userMaps';
+import {v4 as uuidv4} from 'uuid';
 
 const ReviewForm: React.FC<{
   zipId?: string;
@@ -83,7 +84,7 @@ const ReviewForm: React.FC<{
       formData.append(String(index), {
         uri: asset.uri,
         type: 'image/jpeg',
-        name: `image_${index}.jpeg`,
+        name: `${uuidv4()}.jpeg`,
       });
     });
 
@@ -131,6 +132,9 @@ const ReviewForm: React.FC<{
           content
           createdAt
           images {
+            parentReview {
+              id
+            }
             src
           }
         }
@@ -140,23 +144,23 @@ const ReviewForm: React.FC<{
         REQ_METHOD.QUERY,
       );
       const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
-      const imageList = fetchedReviewData.reduce((acc: any[], review: any) => {
+      const filteredReviewList = fetchedReviewData.map((review: any) => {
         const reviewImages = review.images.map((image: any) => {
           return {
+            id: image.id,
             src: image.src,
           };
         });
-        return acc.concat(reviewImages);
-      }, []);
-      const filteredReviewList = fetchedReviewData.map((review: any) => {
         return {
           author: review.writer.name,
           rating: review.rating,
           content: review.content,
           date: new Date(review.createdAt),
-          images: imageList,
+          images: reviewImages,
         };
       });
+
+      console.log(filteredReviewList);
       setReviews(filteredReviewList);
       dispatch(addReviewAction({zipId: zipId, review: filteredReviewList}));
       reviewInputRef.current?.clear();
@@ -269,7 +273,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.grey,
     borderRadius: 8,
     marginBottom: 20,
-    marginTop: 20,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,

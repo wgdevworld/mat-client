@@ -7,7 +7,7 @@ import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
-import {Coordinate, MatMap, MatZip, Review, MuckitItem} from '../types/store';
+import {Coordinate, MatMap, MatZip, MuckitItem} from '../types/store';
 import {replaceOwnMatMapAction} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
 import {addressToCoordinate} from '../tools/CommonFunc';
@@ -88,6 +88,7 @@ const SplashScreen = () => {
                     content
                     createdAt
                     images {
+                      id
                       src
                     }
                   }
@@ -98,25 +99,20 @@ const SplashScreen = () => {
                 );
                 const fetchedReviewData =
                   fetchedReviewRes?.data.data.fetchReviewsByZipId;
-                const imageList = fetchedReviewData.reduce(
-                  (acc: any[], review: any) => {
+                const filteredReviewList = fetchedReviewData.map(
+                  (review: any) => {
                     const reviewImages = review.images.map((image: any) => {
                       return {
+                        id: image.id,
                         src: image.src,
                       };
                     });
-                    return acc.concat(reviewImages);
-                  },
-                  [],
-                );
-                const filteredReviewList: Review[] = fetchedReviewData.map(
-                  (review: any) => {
                     return {
                       author: review.writer.name,
                       rating: review.rating,
                       content: review.content,
                       date: new Date(review.createdAt),
-                      images: imageList,
+                      images: reviewImages,
                     };
                   },
                 );

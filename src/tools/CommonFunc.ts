@@ -43,7 +43,9 @@ export function ratingAverage(array?: Review[]) {
   }
   const sum = array.reduce((acc, value) => acc + value.rating, 0);
   const average = sum / array.length;
-  return average;
+  const multiplier = Math.pow(10, 2);
+  const roundedAverage = Math.round(average * multiplier) / multiplier;
+  return roundedAverage;
 }
 
 export async function addressToCoordinate(
@@ -63,4 +65,10 @@ export async function addressToCoordinate(
     })
     .catch(error => console.log(error));
   return result;
+}
+
+export function trimCountry(address: string): string {
+  const country = address.split(' ')[0];
+  const newAddress = address.replace(country, '').trimStart();
+  return newAddress;
 }
