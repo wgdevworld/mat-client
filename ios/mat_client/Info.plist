@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.transistorsoft.fetch</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -74,6 +78,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>맛집 사진 업로드를 위해 카메라 권한이 필요합니다</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>서비스 동작을 위해 위치 정보가 필요합니다</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -81,8 +87,6 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>서비스 동작을 위해 위치 정보가 필요합니다</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>맛집 사진 업로드를 위해 카메라 권한이 필요합니다</string>
-	<key>NSCameraUsageDescription</key>
 	<string>맛집 사진 업로드를 위해 카메라 권한이 필요합니다</string>
 	<key>UIAppFonts</key>
 	<array>

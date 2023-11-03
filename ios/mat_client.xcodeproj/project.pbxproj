@@ -12,6 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		26258B392AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */; };
 		2643EFBC2A67C0DA00450F35 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */; };
 		26BABD532A517D76009784BC /* bridging_header.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BABD522A517D76009784BC /* bridging_header.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -38,6 +39,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = mat_client/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = mat_client/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = mat_client/main.m; sourceTree = "<group>"; };
+		26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2686185D2A52BE91004B5464 /* mat_client.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = mat_client.entitlements; path = mat_client/mat_client.entitlements; sourceTree = "<group>"; };
 		26BABD512A517D75009784BC /* mat_client-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mat_client-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 		13B07FAE1A68108700A75B9A /* mat_client */ = {
 			isa = PBXGroup;
 			children = (
+				26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */,
 				2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */,
 				2686185D2A52BE91004B5464 /* mat_client.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -440,6 +443,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				26BABD532A517D76009784BC /* bridging_header.swift in Sources */,
+				26258B392AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
