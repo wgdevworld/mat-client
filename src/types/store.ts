@@ -61,3 +61,8 @@ export interface MatZipPayload {
   id: string;
   matZip: MatZip;
 }
+
+export interface Event {
+  taskId: string;
+  timestamp: string;
+}

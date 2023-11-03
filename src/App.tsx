@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ScreenParamList} from './types/navigation';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -21,6 +21,10 @@ import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
 import {LogBox} from 'react-native';
 import SplashScreen from './screens/SplashScreen';
+import {Event} from './types/store';
+
+import BackgroundFetch from 'react-native-background-fetch';
+import {performYourBackgroundTask} from './controls/BackgroundTask';
 
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
@@ -30,6 +34,42 @@ LogBox.ignoreLogs([
 const Stack = createStackNavigator<ScreenParamList>();
 
 const App = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+
+  const addEvent = (taskId: string) => {
+    const newEvent = {
+      taskId: taskId,
+      timestamp: new Date().toISOString(),
+    };
+    setEvents(currentEvents => [...currentEvents, newEvent]);
+  };
+
+  const initBackgroundFetch = async () => {
+    const onEvent = async (taskId: string) => {
+      console.log('[BackgroundFetch] task: ', taskId);
+      // TODO: define background task
+      await performYourBackgroundTask(taskId);
+      await addEvent(taskId);
+      BackgroundFetch.finish(taskId);
+    };
+    const onTimeout = async (taskId: string) => {
+      console.warn('[BackgroundFetch] TIMEOUT task: ', taskId);
+      BackgroundFetch.finish(taskId);
+    };
+
+    const status = await BackgroundFetch.configure(
+      {minimumFetchInterval: 15},
+      onEvent,
+      onTimeout,
+    );
+    console.log('[BackgroundFetch] configure status: ', status);
+  };
+
+  useEffect(() => {
+    initBackgroundFetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       onDisplayNotification(
