@@ -50,7 +50,7 @@ function App(): JSX.Element {
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [buttonHeight, setButtonHeight] = useState(0);
-  const [buttonOpacity, setButtonOpacity] = useState(1);
+  const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
 
   // States used for DropDownPicker
@@ -217,7 +217,7 @@ function App(): JSX.Element {
     (index: any) => {
       const screenPercent = parseFloat(snapPoints[index]);
       setButtonHeight(screenHeight * screenPercent * 0.01);
-      index === 2 ? setButtonOpacity(0) : setButtonOpacity(1);
+      index === 0 && setButtonVisible(true);
     },
     [snapPoints],
   );
@@ -418,29 +418,29 @@ function App(): JSX.Element {
               </Marker>
             )}
           </MapView>
-          <TouchableOpacity
-            style={{
-              ...styles.mapBtn,
-              bottom: buttonHeight,
-              opacity: buttonOpacity,
-            }}
-            onPress={() => {
-              requestPermissionAndGetLocation(setCurrentLocation);
-            }}>
-            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-              <Ionicons
-                name="navigate-outline"
-                color={'white'}
-                size={25}
-                style={{paddingRight: 2}}
-              />
-            </View>
-          </TouchableOpacity>
+          {buttonVisible && (
+            <TouchableOpacity
+              style={{
+                ...styles.mapBtn,
+                bottom: buttonHeight,
+              }}
+              onPress={() => {
+                requestPermissionAndGetLocation(setCurrentLocation);
+              }}>
+              <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+                <Ionicons
+                  name="navigate-outline"
+                  color={'white'}
+                  size={25}
+                  style={{paddingRight: 2}}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={{
               ...styles.mapBtn,
               bottom: buttonHeight + 50,
-              opacity: buttonOpacity,
               display: marker ? 'flex' : 'none',
             }}
             onPress={onPressAddBtn}>
@@ -462,6 +462,9 @@ function App(): JSX.Element {
               keyExtractor={i => i.id}
               renderItem={({item}) => renderItem(item)}
               contentContainerStyle={styles.contentContainer}
+              onScrollBeginDrag={() => {
+                setButtonVisible(false);
+              }}
               ListHeaderComponent={
                 <View style={styles.bottomSheetHeader}>
                   <Text
