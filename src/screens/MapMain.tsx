@@ -35,6 +35,7 @@ import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
+import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -68,6 +69,18 @@ function App(): JSX.Element {
     latitude: 0,
     longitude: 0,
   });
+
+  const allSavedZips: MatZip[] = userOwnMaps.flatMap(
+    (allMaps: MatMap) => allMaps.zipList,
+  );
+
+  //TODO: think about if allSavedZips should be a dependency
+  // for this useEffect. This may trigger the background task
+  // to be run again if the user adds new MatZips.
+  useEffect(() => {
+    updateLocationAndSendNoti(allSavedZips);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     requestPermissionAndGetLocation(setCurrentLocation);
