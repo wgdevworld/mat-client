@@ -3,7 +3,7 @@ import {View, Image, StyleSheet} from 'react-native';
 import Swiper from 'react-native-swiper';
 
 interface ImageCarouselProps {
-  images?: string[]; // array of URIs
+  images?: string[];
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
@@ -17,7 +17,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
         loop>
         {images &&
           images.map((imageURI, index) => (
-            <View key={index} style={styles.slide}>
+            <View key={imageURI + index} style={styles.slide}>
               <Image source={{uri: imageURI}} style={styles.image} />
             </View>
           ))}

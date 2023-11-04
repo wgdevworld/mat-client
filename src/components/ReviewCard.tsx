@@ -21,10 +21,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
       </Text>
       <Text style={styles.contentText}>{review.content}</Text>
       {review.images && review.images.length > 0 && (
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          bounces={false}
+          key={review.date + review.content}>
           {review.images.map((image: any) => (
             <Image
-              key={image}
+              key={image.src + image.id}
               style={{
                 width: 100,
                 height: 100,

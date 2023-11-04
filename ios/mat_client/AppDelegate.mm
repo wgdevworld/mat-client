@@ -5,6 +5,7 @@
 #import <Firebase.h>
 #import <RNKakaoLogins.h>
 #import <React/RCTLinkingManager.h>
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 
 @implementation AppDelegate
@@ -12,6 +13,8 @@
 - (BOOL)application:(UIApplication *)application
 didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // [REQUIRED] Register BackgroundFetch
+    [[TSBackgroundFetch sharedInstance] didFinishLaunching];
     [FIRApp configure];
     [GMSServices provideAPIKey:@"AIzaSyDz9QSmJrH-ryPP9KJ6yGcWTpVCN83HqpA"];
   self.moduleName = @"mat_client";

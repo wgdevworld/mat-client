@@ -22,6 +22,7 @@ import {Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
+import {ratingAverage} from '../tools/CommonFunc';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -56,7 +57,7 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
     <Animated.View style={{height}}>
       <FlatList
         data={reviews}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.date.toISOString() + index}
         scrollEnabled={true}
         maxToRenderPerBatch={5}
         initialNumToRender={5}
@@ -78,30 +79,30 @@ export default function MatZipMain() {
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(async () => {
-    console.log('zipId:' + zipId);
-    if (!zipData) {
-      const fetchReviewQuery = `{
-        fetchReviewsByZipId(zipId: "${zipId}") {
-          writer {
-            name
-          }
-          rating
-          content
-          createdAt
-          images {
-            src
-          }
-        }
-      }`;
-      const fetchedReviewRes = await request(
-        fetchReviewQuery,
-        REQ_METHOD.QUERY,
-      );
-      console.log(fetchedReviewRes);
-    }
-  });
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // useEffect(async () => {
+  //   console.log('zipId:' + zipId);
+  //   if (!zipData) {
+  //     const fetchReviewQuery = `{
+  //       fetchReviewsByZipId(zipId: "${zipId}") {
+  //         writer {
+  //           name
+  //         }
+  //         rating
+  //         content
+  //         createdAt
+  //         images {
+  //           src
+  //         }
+  //       }
+  //     }`;
+  //     const fetchedReviewRes = await request(
+  //       fetchReviewQuery,
+  //       REQ_METHOD.QUERY,
+  //     );
+  //     console.log(fetchedReviewRes);
+  //   }
+  // });
 
   const images = zipData?.imageSrc;
   const handlePressReviewChevron = () => {
@@ -119,7 +120,7 @@ export default function MatZipMain() {
   const [reviews, setReviews] = useState<Review[]>(
     zipData?.reviews ? zipData.reviews : [],
   );
-  console.log(zipData);
+  console.log(zipData?.reviews);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.containter}>
@@ -149,13 +150,11 @@ export default function MatZipMain() {
                 backgroundColor: '#f2f2f2f2',
                 borderRadius: 8,
                 padding: 7,
-                height: 30,
-                width: 50,
               }}>
               <View style={styles.horizontal}>
-                <Ionicons name="star" color="orange" size={15} />
+                <Ionicons name="star" color={colors.coral1} size={15} />
                 <Text style={styles.matZipRatingText}>
-                  {zipData?.reviewAvgRating}
+                  {ratingAverage(zipData?.reviews)}
                 </Text>
               </View>
             </View>
@@ -166,30 +165,11 @@ export default function MatZipMain() {
             <Ionicons name="location-outline" color="black" size={18} />
             <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
           </View>
-          <View style={styles.horizontal}>
-            <Ionicons
-              name="information-circle-outline"
-              color="black"
-              size={18}
-            />
-            <Text style={styles.matZipInfoText}> 02-123-4567</Text>
-          </View>
           <Text style={styles.matZipDescriptionText}>
             {zipData?.description}
           </Text>
 
-          {/* <Text style={styles.matZipInfoText}>
-            리뷰수: {zipData.zip.numReview}
-          </Text>
-          <Text style={styles.matZipInfoText}>
-            방문여부: {zipData.zip.isVisited ? '방문 전' : '방문함'}
-          </Text>
-          <Text style={styles.matZipInfoText}>좋아요: {zipData.zip.}</Text>
-          <Text style={styles.matZipInfoText}>
-            카테고리: {zipData.zip.category}
-          </Text> */}
           {zipData && <ReviewForm zipId={zipData.id} setReviews={setReviews} />}
-          {/* if touched, icon chevron changes */}
           <TouchableOpacity
             style={styles.row}
             onPress={handlePressReviewChevron}>
@@ -222,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginTop: 15,
-    marginBottom: 5,
+    paddingBottom: 10,
     textAlign: 'left',
   },
   matZipListText: {
@@ -251,12 +231,11 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'left',
-    marginLeft: 5,
+    paddingHorizontal: 5,
   },
   horizontal: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 3,
     justifyContent: 'flex-start',
   },
   row: {

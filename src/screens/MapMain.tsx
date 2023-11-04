@@ -23,6 +23,7 @@ import {
   addressToCoordinate,
   calculateDistance,
   ratingAverage,
+  trimCountry,
 } from '../tools/CommonFunc';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -34,6 +35,7 @@ import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
+import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -49,7 +51,7 @@ function App(): JSX.Element {
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [buttonHeight, setButtonHeight] = useState(0);
-  const [buttonOpacity, setButtonOpacity] = useState(1);
+  const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
 
   // States used for DropDownPicker
@@ -61,9 +63,6 @@ function App(): JSX.Element {
     })),
   );
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([]);
 
   //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
@@ -71,36 +70,53 @@ function App(): JSX.Element {
     longitude: 0,
   });
 
+  const allSavedZips: MatZip[] = userOwnMaps.flatMap(
+    (allMaps: MatMap) => allMaps.zipList,
+  );
+
+  //TODO: think about if allSavedZips should be a dependency
+  // for this useEffect. This may trigger the background task
+  // to be run again if the user adds new MatZips.
+  useEffect(() => {
+    updateLocationAndSendNoti(allSavedZips);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    requestPermissionAndGetLocation(setCurrentLocation);
+  }, []);
+
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
 
-  const fetchFollowingMaps = async () => {
-    try {
-      const query = ` {
-      fetchMapsFollowed {
-        id
-        name
-      }
-    }`;
-      const res = await request(query, REQ_METHOD.QUERY);
-      return res?.data.data.fetchMapsFollowed;
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //TODO: 팔로잉 맵 목록 가져오기
+  // const fetchFollowingMaps = async () => {
+  //   try {
+  //     const query = ` {
+  //     fetchMapsFollowed {
+  //       id
+  //       name
+  //     }
+  //   }`;
+  //     const res = await request(query, REQ_METHOD.QUERY);
+  //     return res?.data.data.fetchMapsFollowed;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(async () => {
-    const followingMaps = await fetchFollowingMaps();
-    console.log(followingMaps);
-    const maps = followingMaps.map((obj: any) => ({
-      label: obj.name,
-      value: obj.id,
-    }));
-    console.log(maps);
-    setItems(maps);
-  }, []);
+  // useEffect(async () => {
+  //   const followingMaps = await fetchFollowingMaps();
+  //   console.log(followingMaps);
+  //   const maps = followingMaps.map((obj: any) => ({
+  //     label: obj.name,
+  //     value: obj.id,
+  //   }));
+  //   console.log(maps);
+  //   setItems(maps);
+  // }, []);
 
   useEffect(() => {
     const newRegion = {
@@ -175,12 +191,12 @@ function App(): JSX.Element {
         content
         createdAt
         images {
+          id
           src
         }
       }
     }`;
     const fetchedReviewRes = await request(fetchReviewQuery, REQ_METHOD.QUERY);
-    console.log(fetchedReviewRes?.data);
     const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
 
     const selectedMatZip: MatZip = {
@@ -214,7 +230,7 @@ function App(): JSX.Element {
     (index: any) => {
       const screenPercent = parseFloat(snapPoints[index]);
       setButtonHeight(screenHeight * screenPercent * 0.01);
-      index === 2 ? setButtonOpacity(0) : setButtonOpacity(1);
+      index === 0 && setButtonVisible(true);
     },
     [snapPoints],
   );
@@ -309,7 +325,12 @@ function App(): JSX.Element {
         </View>
         <View style={styles.itemInfoContainer}>
           <View style={styles.itemTitleStarsContainer}>
-            <Text style={styles.itemTitleText}>{matZip.name}</Text>
+            <Text
+              style={styles.itemTitleText}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {matZip.name}
+            </Text>
             {matZip.isVisited && (
               <Ionicons
                 name="checkmark-done-circle-outline"
@@ -327,7 +348,12 @@ function App(): JSX.Element {
               </Text>
             </View>
           </View>
-          <Text style={styles.itemSubtext}>{matZip.address}</Text>
+          <Text
+            style={styles.itemSubtext}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {trimCountry(matZip.address)}
+          </Text>
           <Text style={styles.itemSubtext}>
             나와의 거리 {calculateDistance(matZip.coordinate, currentLocation)}m
           </Text>
@@ -405,29 +431,29 @@ function App(): JSX.Element {
               </Marker>
             )}
           </MapView>
-          <TouchableOpacity
-            style={{
-              ...styles.mapBtn,
-              bottom: buttonHeight,
-              opacity: buttonOpacity,
-            }}
-            onPress={() => {
-              requestPermissionAndGetLocation(setCurrentLocation);
-            }}>
-            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-              <Ionicons
-                name="navigate-outline"
-                color={'white'}
-                size={25}
-                style={{paddingRight: 2}}
-              />
-            </View>
-          </TouchableOpacity>
+          {buttonVisible && (
+            <TouchableOpacity
+              style={{
+                ...styles.mapBtn,
+                bottom: buttonHeight,
+              }}
+              onPress={() => {
+                requestPermissionAndGetLocation(setCurrentLocation);
+              }}>
+              <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+                <Ionicons
+                  name="navigate-outline"
+                  color={'white'}
+                  size={25}
+                  style={{paddingRight: 2}}
+                />
+              </View>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={{
               ...styles.mapBtn,
               bottom: buttonHeight + 50,
-              opacity: buttonOpacity,
               display: marker ? 'flex' : 'none',
             }}
             onPress={onPressAddBtn}>
@@ -444,19 +470,14 @@ function App(): JSX.Element {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={items}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setItems}
-            />
             <BottomSheetFlatList
               data={curMatMap.zipList}
               keyExtractor={i => i.id}
               renderItem={({item}) => renderItem(item)}
               contentContainerStyle={styles.contentContainer}
+              onScrollBeginDrag={() => {
+                setButtonVisible(false);
+              }}
               ListHeaderComponent={
                 <View style={styles.bottomSheetHeader}>
                   <Text
@@ -510,6 +531,8 @@ const styles = StyleSheet.create({
   bottomSheetHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: colors.white,
+    paddingBottom: 10,
   },
   map: {
     position: 'absolute',
@@ -554,7 +577,6 @@ const styles = StyleSheet.create({
   searchTextInput: {
     position: 'absolute',
     textInputContainer: {
-      opacity: 0.7,
       borderRadius: 10,
     },
     textInput: {
@@ -605,7 +627,6 @@ const styles = StyleSheet.create({
   itemStarReviewContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 10,
   },
   itemInfoContainer: {
     flex: 1,
@@ -615,6 +636,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'black',
     paddingBottom: 5,
+    width: 150,
   },
   itemStarsText: {
     fontSize: 14,
