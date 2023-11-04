@@ -7,6 +7,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 
+// APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
+// 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
+// 15분마다 한번씩 돌아가게 <- 무조건 이게 아님
+// 모름 아무도 모름 이게 돌아가는 원리
+
+// 기적적으로 1트안에 된다
+// 만약에 안된다
+// 1.
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
@@ -41,26 +49,27 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         latitude: location.latitude,
         longitude: location.longitude,
       };
+      Alert.alert('Background location 업데이트 됨');
       BackgroundGeolocation.startTask(taskKey => {
+        Alert.alert('테스크 시작됨 됐음');
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
-          if (calculateDistance(zip.coordinate, curLocation) < 500) {
+          if (calculateDistance(zip.coordinate, curLocation) < 5000) {
             closeMatZips.push(zip.name);
           }
         });
         const numCloseMatZips = closeMatZips ? closeMatZips.length : 0;
-
         if (numCloseMatZips) {
-          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN).then(
+          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(
             async value => {
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
                   closeMatZips[1]
-                } 외 ${numCloseMatZips - 2} 개의 맛집이 있어요!`;
+                } 외 ${numCloseMatZips - 2}개의 맛집이 있어요!`;
               } else if (numCloseMatZips > 1) {
-                notificationMessage = `500m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]} 가 있어요!`;
+                notificationMessage = `500m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
               } else {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]} 가 있어요!`;
               }
@@ -76,6 +85,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
               };
 
               await request(notificationQuery, REQ_METHOD.MUTATION, variables);
+              Alert.alert('Notification query 보내짐');
             },
           );
         }
