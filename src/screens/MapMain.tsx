@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -36,6 +37,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
 import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
+import {throttle} from 'lodash';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -53,6 +55,17 @@ function App(): JSX.Element {
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
+  const [isSearchGoogle, setIsSearchGoogle] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchedMatZips, setSearchedMatZips] = useState<MatZip[]>();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSetSearchedMatZip = useCallback(
+    throttle(text => {
+      setSearchQuery(text);
+    }, 2000),
+    [],
+  );
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -127,6 +140,28 @@ function App(): JSX.Element {
     };
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
+
+  const searchMatDB = async () => {
+    const query = `{
+      fetchZipByName(searchKey: "${searchQuery}") {
+        id
+        name
+        address
+        reviewCount
+        reviewAvgRating
+      }
+    }`;
+    const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
+    const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
+    console.log(fetchedZipData);
+  };
+
+  useEffect(() => {
+    if (searchQuery !== '') {
+      searchMatDB();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
   const onPressSearchResult = async (data: any, details: any) => {
     const location: Coordinate = {
@@ -366,28 +401,37 @@ function App(): JSX.Element {
     <View style={{flex: 1}}>
       <GestureHandlerRootView style={{flex: 1}}>
         <View style={styles.searchTextInputContainer}>
-          <GooglePlacesAutocomplete
-            minLength={2}
-            placeholder="장소를 검색해보세요!"
-            textInputProps={{
-              placeholderTextColor: 'black',
-            }}
-            query={{
-              key: Config.MAPS_API,
-              language: 'ko',
-              components: 'country:kr',
-            }}
-            keyboardShouldPersistTaps={'handled'}
-            fetchDetails={true}
-            onPress={(data, details = null) => {
-              onPressSearchResult(data, details);
-            }}
-            onFail={error => console.error(error)}
-            onNotFound={() => console.error('검색 결과 없음')}
-            keepResultsAfterBlur={true}
-            enablePoweredByContainer={false}
-            styles={styles.searchTextInput}
-          />
+          {isSearchGoogle ? (
+            <GooglePlacesAutocomplete
+              minLength={2}
+              placeholder="장소를 검색해보세요!"
+              textInputProps={{
+                placeholderTextColor: 'black',
+              }}
+              query={{
+                key: Config.MAPS_API,
+                language: 'ko',
+                components: 'country:kr',
+              }}
+              keyboardShouldPersistTaps={'handled'}
+              fetchDetails={true}
+              onPress={(data, details = null) => {
+                onPressSearchResult(data, details);
+              }}
+              onFail={error => console.error(error)}
+              onNotFound={() => console.error('검색 결과 없음')}
+              keepResultsAfterBlur={true}
+              enablePoweredByContainer={false}
+              styles={styles.searchTextInput}
+            />
+          ) : (
+            <TextInput
+              style={styles.ourDBSearchBar}
+              placeholderTextColor={'black'}
+              placeholder="장소를 검색해보세요!"
+              onChangeText={newText => throttledSetSearchedMatZip(newText)}
+            />
+          )}
         </View>
         <View style={styles.container}>
           <MapView
@@ -506,12 +550,6 @@ function App(): JSX.Element {
                 </View>
               }
               stickyHeaderIndices={[0]}
-              // ListHeaderComponent={
-              //   <Text style={styles.flatListHeaderText}>
-              //     근처 나의 맛집들 🍶
-              //   </Text>
-              // }
-
               ListFooterComponent={<View style={{height: 200}} />}
             />
           </BottomSheet>
@@ -573,6 +611,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     paddingHorizontal: 10,
+    justifyContent: 'center',
   },
   searchTextInput: {
     position: 'absolute',
@@ -668,6 +707,16 @@ const styles = StyleSheet.create({
     width: '30%',
     alignSelf: 'center',
     marginRight: 16,
+  },
+  ourDBSearchBar: {
+    height: 44,
+    width: '100%',
+    borderRadius: 10,
+    backgroundColor: 'white',
+    fontSize: 15,
+    paddingLeft: 10,
+    color: 'black',
+    includeFontPadding: true,
   },
 });
 
