@@ -3,6 +3,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Dimensions,
+  FlatList,
   Image,
   StyleSheet,
   Text,
@@ -57,7 +58,8 @@ function App(): JSX.Element {
   const [marker, setMarker] = useState<MatZip | null>();
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchedMatZips, setSearchedMatZips] = useState<MatZip[]>();
+  const [searchedMatZips, setSearchedMatZips] =
+    useState<{zipId: number; name: string}[]>();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSetSearchedMatZip = useCallback(
@@ -146,14 +148,18 @@ function App(): JSX.Element {
       fetchZipByName(searchKey: "${searchQuery}") {
         id
         name
-        address
-        reviewCount
-        reviewAvgRating
       }
     }`;
     const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
     const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
-    console.log(fetchedZipData);
+    setSearchedMatZips(fetchedZipData);
+  };
+  const renderSearchedItem = item => {
+    return (
+      <TouchableOpacity style={styles.searchResultEntry}>
+        <Text>{item.item.name}</Text>
+      </TouchableOpacity>
+    );
   };
 
   useEffect(() => {
@@ -404,7 +410,7 @@ function App(): JSX.Element {
           {isSearchGoogle ? (
             <GooglePlacesAutocomplete
               minLength={2}
-              placeholder="장소를 검색해보세요!"
+              placeholder="구글 지도에서 장소를 검색해보세요!"
               textInputProps={{
                 placeholderTextColor: 'black',
               }}
@@ -416,6 +422,7 @@ function App(): JSX.Element {
               keyboardShouldPersistTaps={'handled'}
               fetchDetails={true}
               onPress={(data, details = null) => {
+                setIsSearchGoogle(false);
                 onPressSearchResult(data, details);
               }}
               onFail={error => console.error(error)}
@@ -425,12 +432,30 @@ function App(): JSX.Element {
               styles={styles.searchTextInput}
             />
           ) : (
-            <TextInput
-              style={styles.ourDBSearchBar}
-              placeholderTextColor={'black'}
-              placeholder="장소를 검색해보세요!"
-              onChangeText={newText => throttledSetSearchedMatZip(newText)}
-            />
+            <>
+              <TextInput
+                style={styles.ourDBSearchBar}
+                placeholderTextColor={'black'}
+                placeholder="장소를 검색해보세요!"
+                onChangeText={newText => throttledSetSearchedMatZip(newText)}
+              />
+              {searchedMatZips && (
+                <FlatList
+                  data={searchedMatZips}
+                  renderItem={renderSearchedItem}
+                  contentContainerStyle={styles.searchResultContainer}
+                  ListFooterComponent={
+                    <TouchableOpacity
+                      onPress={() => {
+                        setIsSearchGoogle(true);
+                      }}
+                      style={styles.searchResultEntry}>
+                      <Text>검색 결과가 없으세요?</Text>
+                    </TouchableOpacity>
+                  }
+                />
+              )}
+            </>
           )}
         </View>
         <View style={styles.container}>
@@ -608,7 +633,6 @@ const styles = StyleSheet.create({
     paddingTop: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
-    flexDirection: 'row',
     alignSelf: 'center',
     paddingHorizontal: 10,
     justifyContent: 'center',
@@ -717,6 +741,17 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: 'black',
     includeFontPadding: true,
+  },
+  searchResultContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    marginTop: 5,
+  },
+  searchResultEntry: {
+    padding: 12,
+    borderBottomColor: 'grey',
+    borderBottomWidth: 0.17,
+    alignContent: 'center',
   },
 });
 
