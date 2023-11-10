@@ -1,5 +1,5 @@
 # mat-client
-Muckit is a cross-platform application that allows users to save and review restaurants. The name comes from a combination of the Korean word for eat (pronounced "Muck") and a bucket list. Currently, the application is in Korean, but we will expand to other languages after sufficient user acquisition.
+Muckit is a cross-platform application that allows users to save and review restaurants. The name comes from a combination of the Korean word for eat (pronounced "Muck") and a bucket list. Currently, the application is in Korean, but we will expand to other languages after sufficient user acquisition. We are set to launch by the end of the year.
 
 ## Technical Features
 - Communication with GraphQL backend
