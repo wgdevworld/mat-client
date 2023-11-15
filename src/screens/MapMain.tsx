@@ -51,6 +51,7 @@ function App(): JSX.Element {
   );
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
+  const textInputRef = useRef(null);
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [buttonHeight, setButtonHeight] = useState(0);
@@ -59,15 +60,7 @@ function App(): JSX.Element {
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedMatZips, setSearchedMatZips] =
-    useState<{zipId: number; name: string}[]>();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledSetSearchedMatZip = useCallback(
-    throttle(text => {
-      setSearchQuery(text);
-    }, 2000),
-    [],
-  );
+    useState<{zipId: number; name: string; address: string}[]>();
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -143,53 +136,81 @@ function App(): JSX.Element {
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
 
-  const searchMatDB = async () => {
-    const query = `{
+  useEffect(() => {
+    throttle(async () => {
+      const query = `{
       fetchZipByName(searchKey: "${searchQuery}") {
         id
         name
+        address
       }
     }`;
-    const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
-    const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
-    setSearchedMatZips(fetchedZipData);
-  };
+      const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
+      const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
+      setSearchedMatZips(fetchedZipData);
+    }, 2000);
+  }, [searchQuery]);
+
   const renderSearchedItem = item => {
     return (
-      <TouchableOpacity style={styles.searchResultEntry}>
+      <TouchableOpacity
+        onPress={() => {
+          onPressSearchResult(item.item.id, item.item.address);
+        }}
+        style={styles.searchResultEntry}>
         <Text>{item.item.name}</Text>
       </TouchableOpacity>
     );
   };
 
-  useEffect(() => {
-    if (searchQuery !== '') {
-      searchMatDB();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
+  // useEffect(() => {
+  //   if (searchQuery !== '') {
+  //     searchMatDB();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [searchQuery]);
 
   const onPressSearchResult = async (data: any, details: any) => {
-    const location: Coordinate = {
-      latitude: details.geometry.location.lat,
-      longitude: details.geometry.location.lng,
-    };
+    let location: Coordinate;
     let fetchedZipData: any = null;
-    const fetchZipQuery = `{
-          fetchZipByGID(gid: "${data.place_id}") {
-            id
+    if (typeof details === 'string') {
+      location = await addressToCoordinate(details);
+      const fetchZipQuery = `{
+        fetchZip(id: "${data}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          parentMap {
             name
-            address
-            reviewCount
-            reviewAvgRating
-            parentMap {
-              name
-            }
-            category
           }
-        }`;
-    const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-    fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+          category
+        }
+      }`;
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
+    } else {
+      location = {
+        latitude: details.geometry.location.lat,
+        longitude: details.geometry.location.lng,
+      };
+      const fetchZipQuery = `{
+        fetchZipByGID(gid: "${data.place_id}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          parentMap {
+            name
+          }
+          category
+        }
+      }`;
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+    }
     //TODO: add functionality for custom Zips
     if (!fetchedZipData) {
       console.log('ℹ️ 맛집 생성중');
@@ -435,11 +456,16 @@ function App(): JSX.Element {
             <>
               <TextInput
                 style={styles.ourDBSearchBar}
+                ref={textInputRef}
+                value={searchQuery}
                 placeholderTextColor={'black'}
                 placeholder="장소를 검색해보세요!"
-                onChangeText={newText => throttledSetSearchedMatZip(newText)}
+                onChangeText={newText => setSearchQuery(newText)}
+                onPressOut={() => {
+                  setSearchQuery('');
+                }}
               />
-              {searchedMatZips && (
+              {searchedMatZips && searchQuery.length !== 0 && (
                 <FlatList
                   data={searchedMatZips}
                   renderItem={renderSearchedItem}
@@ -472,6 +498,14 @@ function App(): JSX.Element {
               longitudeDelta: 0.01,
             }}
             onPress={() => {
+              console.log('yee');
+              setIsSearchGoogle(false);
+              setSearchQuery('');
+              setSearchedMatZips([]);
+              if (textInputRef.current) {
+                //@ts-ignore
+                textInputRef.current.blur();
+              }
               setMarker(null);
             }}>
             {marker && (
