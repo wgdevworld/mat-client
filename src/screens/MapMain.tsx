@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
@@ -91,9 +90,9 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    requestPermissionAndGetLocation(setCurrentLocation);
-  }, []);
+  // useEffect(() => {
+  //   requestPermissionAndGetLocation(setCurrentLocation);
+  // }, []);
 
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
@@ -150,6 +149,7 @@ function App(): JSX.Element {
     return fetchedZipData;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSearch = useCallback(
     throttle(query => {
       performSearch(query)
@@ -167,11 +167,8 @@ function App(): JSX.Element {
     if (searchQuery.length > 0) {
       throttledSearch(searchQuery);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
-
-  useEffect(() => {
-    console.log(searchedMatZips);
-  }, [searchedMatZips]);
 
   const renderSearchedItem = item => {
     return (
@@ -184,13 +181,6 @@ function App(): JSX.Element {
       </TouchableOpacity>
     );
   };
-
-  // useEffect(() => {
-  //   if (searchQuery !== '') {
-  //     searchMatDB();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchQuery]);
 
   const onPressSearchResult = async (data: any, details: any) => {
     let location: Coordinate;
@@ -476,17 +466,37 @@ function App(): JSX.Element {
             />
           ) : (
             <>
-              <TextInput
-                style={styles.ourDBSearchBar}
-                ref={textInputRef}
-                value={searchQuery}
-                placeholderTextColor={'black'}
-                placeholder="장소를 검색해보세요!"
-                onChangeText={newText => setSearchQuery(newText)}
-                onPressOut={() => {
-                  setSearchQuery('');
-                }}
-              />
+              <View style={{flexDirection: 'row'}}>
+                <TextInput
+                  style={styles.ourDBSearchBar}
+                  ref={textInputRef}
+                  value={searchQuery}
+                  placeholderTextColor={'black'}
+                  placeholder="장소를 검색해보세요!"
+                  onChangeText={newText => setSearchQuery(newText)}
+                  onPressOut={() => {
+                    setSearchQuery('');
+                  }}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    style={{position: 'absolute', right: 5, top: 9}}
+                    onPress={() => {
+                      setSearchQuery('');
+                      setSearchedMatZips([]);
+                      if (textInputRef.current) {
+                        //@ts-ignore
+                        textInputRef.current.blur();
+                      }
+                    }}>
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={colors.coral1}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
               {searchedMatZips && searchQuery.length !== 0 && (
                 <FlatList
                   data={searchedMatZips}
@@ -508,6 +518,11 @@ function App(): JSX.Element {
         </View>
         <View style={styles.container}>
           <MapView
+            onMarkerPress={() => {
+              navigation.navigate('MatZipMain', {
+                zipID: marker?.id,
+              });
+            }}
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
@@ -521,13 +536,8 @@ function App(): JSX.Element {
             }}
             onPress={() => {
               setIsSearchGoogle(false);
-              setSearchQuery('');
-              setSearchedMatZips([]);
-              if (textInputRef.current) {
-                //@ts-ignore
-                textInputRef.current.blur();
-              }
-              setMarker(null);
+              // TODO: figure out when to make marker null
+              // setMarker(null);
             }}>
             {marker && (
               <Marker coordinate={marker.coordinate}>

@@ -32,7 +32,7 @@ export type RootStackParamList = {
     map: MatMap;
   };
   MatZipMain: {
-    zipID: string;
+    zipID: string | undefined;
   };
 };
 
