@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
@@ -136,20 +137,41 @@ function App(): JSX.Element {
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
 
-  useEffect(() => {
-    throttle(async () => {
-      const query = `{
-      fetchZipByName(searchKey: "${searchQuery}") {
+  const performSearch = async (input: string) => {
+    const query = `{
+      fetchZipByName(searchKey: "${input}") {
         id
         name
         address
       }
     }`;
-      const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
-      const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
-      setSearchedMatZips(fetchedZipData);
-    }, 2000);
+    const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
+    const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
+    return fetchedZipData;
+  };
+
+  const throttledSearch = useCallback(
+    throttle(query => {
+      performSearch(query)
+        .then(data => {
+          setSearchedMatZips(data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }, 2000),
+    [],
+  );
+
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      throttledSearch(searchQuery);
+    }
   }, [searchQuery]);
+
+  useEffect(() => {
+    console.log(searchedMatZips);
+  }, [searchedMatZips]);
 
   const renderSearchedItem = item => {
     return (
@@ -498,7 +520,6 @@ function App(): JSX.Element {
               longitudeDelta: 0.01,
             }}
             onPress={() => {
-              console.log('yee');
               setIsSearchGoogle(false);
               setSearchQuery('');
               setSearchedMatZips([]);
