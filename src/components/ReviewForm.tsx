@@ -27,7 +27,7 @@ import {v4 as uuidv4} from 'uuid';
 
 const ReviewForm: React.FC<{
   zipId?: string;
-  setReviews: Dispatch<SetStateAction<Review[]>>;
+  setReviews: Dispatch<SetStateAction<Review[] | undefined>>;
 }> = ({zipId, setReviews}) => {
   const dispatch = useDispatch();
   const reviewInputRef = useRef<TextInput>(null);
