@@ -8,7 +8,29 @@ export const REQ_METHOD = {
 };
 
 const getValidIdToken = async () => {
-  let idToken = await AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN);
+  let idToken;
+  let lastTokenDateString = await AsyncStorage.getItem(
+    ASYNC_STORAGE_ENUM.TOKEN_TIME,
+  );
+  let now = new Date();
+  let fiftyMinBefore = new Date(now.getTime() - 50 * 60 * 1000);
+  if (!lastTokenDateString) {
+    return;
+  }
+  let lastTokenDate = new Date(lastTokenDateString);
+  if (lastTokenDate.getTime() < fiftyMinBefore.getTime()) {
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString());
+    console.log('ℹ️ Token expired, refreshing...');
+    const query = `{
+      getAccessToken
+    }`;
+    const response = await request(query, REQ_METHOD.QUERY);
+    idToken = response?.data.data.getAccessToken;
+    console.log('ℹ️ Token refreshed:' + idToken);
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, idToken);
+  } else {
+    idToken = await AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN);
+  }
   return idToken;
 };
 
@@ -19,14 +41,7 @@ export const request = async (
 ) => {
   try {
     const idToken = await getValidIdToken();
-    console.log(idToken);
-    if (idToken) {
-      await AsyncStorage.setItem(
-        ASYNC_STORAGE_ENUM.ID_TOKEN,
-        idToken as string,
-      );
-      axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
-    }
+    axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
     let headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -72,7 +87,6 @@ export const request = async (
         console.log('ℹ️ Mutation success: ' + response);
         break;
     }
-
     return response;
   } catch (error: any) {
     console.log(

@@ -8,19 +8,15 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Image,
   Alert,
   Linking,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import axios from 'axios';
-import appleAuth, {
-  AppleButton,
-} from '@invertase/react-native-apple-authentication';
+import appleAuth from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import colors from '../styles/colors';
@@ -71,12 +67,12 @@ export default function Login() {
       if (route === 'kakao-login') {
         const accessToken = url.split('=')[1];
         console.log('ℹ️ access token via kakao login: ' + accessToken);
-        AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken).then(
-          () => {
-            console.log(AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN));
-            navigation.navigate('SplashScreen');
-          },
-        );
+        AsyncStorage.multiSet([
+          [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
+          [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
+        ]).then(() => {
+          navigation.navigate('SplashScreen');
+        });
         return;
       }
     };
@@ -166,10 +162,10 @@ export default function Login() {
           },
         )
         .then(async (result: {data: any}) => {
-          await AsyncStorage.setItem(
-            ASYNC_STORAGE_ENUM.ID_TOKEN,
-            result.data.data.loginApple,
-          );
+          await AsyncStorage.multiSet([
+            [ASYNC_STORAGE_ENUM.ID_TOKEN, result.data.data.loginApple],
+            [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
+          ]);
           navigation.navigate('SplashScreen');
         })
         .catch(e => console.log(e));
@@ -235,18 +231,22 @@ export default function Login() {
               navigation.navigate('EmailRegisterMain');
             }}
             style={styles.setAccountButtonEmail}>
-            <Text style={styles.setAccountButtonTextEmail}>이메일로 시작하기</Text>
+            <Text style={styles.setAccountButtonTextEmail}>
+              이메일로 시작하기
+            </Text>
           </TouchableOpacity>
-          
+
           {appleAuth.isSupported && (
             <TouchableOpacity
-            onPress={onAppleButtonPress}
-            style={styles.setAccountButton}>
-            <Text style={styles.setAccountButtonText}>Apple로 계속하기</Text>
-          </TouchableOpacity>
+              onPress={onAppleButtonPress}
+              style={styles.setAccountButton}>
+              <Text style={styles.setAccountButtonText}>Apple로 계속하기</Text>
+            </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={signInWithKakao} style={styles.setAccountButton}>
-          <Text style={styles.setAccountButtonText}>Kakao로 계속하기</Text>
+          <TouchableOpacity
+            onPress={signInWithKakao}
+            style={styles.setAccountButton}>
+            <Text style={styles.setAccountButtonText}>Kakao로 계속하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginTop: 20,
-    height: 47
+    height: 47,
   },
   loginButtonText: {
     color: 'white',
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
-    height: 46
+    height: 46,
   },
   setAccountButtonText: {
     color: 'white',
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
-    height: 45
+    height: 45,
   },
   setAccountButtonTextEmail: {
     color: 'black',
