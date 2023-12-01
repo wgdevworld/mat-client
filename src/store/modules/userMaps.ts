@@ -23,6 +23,14 @@ export const userMapsSlice = createSlice({
       state.followingMaps.push(...action.payload);
       return state;
     },
+    replaceFollowingMatMapAction: (state, action: PayloadAction<MatMap[]>) => {
+      state.followingMaps = action.payload;
+      return state;
+    },
+    addFollowingMatMapAction: (state, action: PayloadAction<MatMap>) => {
+      state.followingMaps.push(action.payload);
+      return state;
+    },
     addMatZipAction: (
       state,
       action: PayloadAction<{mapId?: string; zip: MatZip}>,
@@ -85,5 +93,7 @@ export const {
   addMatZipAction,
   updateDistanceForMatMapAction,
   addReviewAction,
+  replaceFollowingMatMapAction,
+  addFollowingMatMapAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;

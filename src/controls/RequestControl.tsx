@@ -9,15 +9,15 @@ export const REQ_METHOD = {
 
 const getValidIdToken = async () => {
   let idToken;
-  let lastTokenDateString = await AsyncStorage.getItem(
+  const lastTokenDateString = await AsyncStorage.getItem(
     ASYNC_STORAGE_ENUM.TOKEN_TIME,
   );
-  let now = new Date();
-  let fiftyMinBefore = new Date(now.getTime() - 50 * 60 * 1000);
+  const now = new Date();
+  const fiftyMinBefore = new Date(now.getTime() - 50 * 60 * 1000);
   if (!lastTokenDateString) {
     return;
   }
-  let lastTokenDate = new Date(lastTokenDateString);
+  const lastTokenDate = new Date(lastTokenDateString);
   if (lastTokenDate.getTime() < fiftyMinBefore.getTime()) {
     await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString());
     console.log('ℹ️ Token expired, refreshing...');
@@ -49,7 +49,6 @@ export const request = async (
     let response;
     switch (method) {
       case REQ_METHOD.QUERY:
-        // Handle QUERY (unchanged from your original version)
         response = await axios.post(
           'https://muckit-server.site/graphql',
           {

@@ -64,12 +64,30 @@ function App(): JSX.Element {
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
-  const [dropDownItems, setDropDownItems] = useState(
-    userOwnMaps.map(item => ({
+  const [dropDownItems, setDropDownItems] = useState([
+    ...userOwnMaps.map(item => ({
       label: item.name,
       value: item.id,
     })),
-  );
+    ...userFollowingMaps.map(item => ({
+      label: item.name,
+      value: item.id,
+    })),
+  ]);
+
+  useEffect(() => {
+    setDropDownItems([
+      ...userOwnMaps.map(item => ({
+        label: item.name,
+        value: item.id,
+      })),
+      ...userFollowingMaps.map(item => ({
+        label: item.name,
+        value: item.id,
+      })),
+    ]);
+  }, [userOwnMaps, userFollowingMaps]);
+
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   //TODO: 리덕스에다 저장
@@ -78,6 +96,7 @@ function App(): JSX.Element {
     longitude: 0,
   });
 
+  //TODO: add following maps as well
   const allSavedZips: MatZip[] = userOwnMaps.flatMap(
     (allMaps: MatMap) => allMaps.zipList,
   );
@@ -254,7 +273,6 @@ function App(): JSX.Element {
       );
       fetchedZipData = addZipRes?.data.data.addZip;
     }
-    console.log(fetchedZipData);
 
     const fetchReviewQuery = `{
       fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
@@ -315,7 +333,6 @@ function App(): JSX.Element {
     );
     newMatMap && setCurMatMap(newMatMap);
   };
-
   const onPressAddBtn = async () => {
     try {
       const variables = {

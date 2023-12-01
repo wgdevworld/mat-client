@@ -23,6 +23,7 @@ import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
+import Config from 'react-native-config';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -104,6 +105,32 @@ export default function MatZipMain() {
       const fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
 
       const location = await addressToCoordinate(fetchedZipData.address);
+
+      // Update zip as street view image if no default image
+      let defaultStreetViewImg;
+      console.log(fetchedZipData.images);
+      if (
+        fetchedZipData.images === undefined ||
+        fetchedZipData.images.length === 0
+      ) {
+        console.log('⛔️ no image');
+        const apiKey = Config.MAPS_API;
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        const updateZipQuery = `
+          mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+              updateZip(id: $id, zipInfo: $zipInfo) {
+                id
+              }
+          }
+         `;
+        const updateZipVariables = {
+          id: fetchedZipData.id,
+          zipInfo: {
+            imgSrc: [defaultStreetViewImg],
+          },
+        };
+        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      }
       const fetchReviewQuery = `{
         fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
           writer {
@@ -143,9 +170,11 @@ export default function MatZipMain() {
       const selectedMatZip: MatZip = {
         id: fetchedZipData.id,
         name: fetchedZipData.name,
-        imageSrc: fetchedZipData.images
-          ? fetchedZipData.images.map((image: any) => image.src)
-          : assets.images.placeholder,
+        imageSrc:
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length !== 0
+            ? fetchedZipData.images.map((image: any) => image.src)
+            : defaultStreetViewImg,
         coordinate: location,
         reviews: filteredReviewList,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
@@ -171,6 +200,7 @@ export default function MatZipMain() {
   }, [zipId, zipDataFromStore]);
 
   const images = zipData?.imageSrc;
+  console.log(images);
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
@@ -186,20 +216,18 @@ export default function MatZipMain() {
   const [reviews, setReviews] = useState<Review[] | undefined>(
     zipData?.reviews ? zipData?.reviews : [],
   );
-  useEffect(() => {
-    console.log(reviews);
-  }, [reviews]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView bounces={false} contentContainerStyle={styles.containter}>
-        {images?.length === 0 ? (
+        <ImageCarousel images={images} />
+        {/* {images?.length === 0 ? (
           <Image
             source={assets.images.placeholder}
             style={{width: '100%', height: 220}}
           />
         ) : (
           <ImageCarousel images={images} />
-        )}
+        )} */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
             <Text style={styles.zipNameText}>{zipData?.name}</Text>

@@ -8,11 +8,15 @@ import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
 import {Coordinate, MatMap, MatZip, MuckitItem} from '../types/store';
-import {replaceOwnMatMapAction} from '../store/modules/userMaps';
+import {
+  replaceFollowingMatMapAction,
+  replaceOwnMatMapAction,
+} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
 import {addressToCoordinate} from '../tools/CommonFunc';
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
+import {matMapSerializer} from '../serializer/MatMapSrlzr';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -24,7 +28,6 @@ const SplashScreen = () => {
         if (value == null) {
           navigation.replace('LoginMain');
         } else {
-          //TODO: zipList 까지 불러오기
           const fetchUserMapQuery = `{
             fetchUserMap {
               id
@@ -58,100 +61,10 @@ const SplashScreen = () => {
             fetchUserMapQuery,
             REQ_METHOD.QUERY,
           );
-          //TODO: zipList, followerList 까지 불러오기
-          // const fetchFollowingMapQuery = `{
-          //   fetchMapsFollowed {
-          //     id
-          //     name
-          //     description
-          //     publicStatus
-          //     areaCode
-          //   }
-          // }`;
-          // const userFollowingMapRes = await request(
-          //   fetchFollowingMapQuery,
-          //   REQ_METHOD.QUERY,
-          // );
-          // const userFollowingMapData = userFollowingMapRes?.data.data;
-          const userOwnMapData = userOwnMapRes?.data?.data?.fetchUserMap;
+          const userOwnMapData = userOwnMapRes?.data.data.fetchUserMap;
           if (userOwnMapData) {
-            const imgSrcArr = userOwnMapData.images.map((img: any) => img.src);
-            const serializedZipList: MatZip[] = await Promise.all(
-              userOwnMapData.zipList.map(async (zip: any) => {
-                const imgSrcArr = zip.images.map((img: any) => img.src);
-                const fetchReviewQuery = `{
-                  fetchReviewsByZipId(zipId: "${zip.id}") {
-                    writer {
-                      name
-                    }
-                    rating
-                    content
-                    createdAt
-                    images {
-                      id
-                      src
-                    }
-                  }
-                }`;
-                const fetchedReviewRes = await request(
-                  fetchReviewQuery,
-                  REQ_METHOD.QUERY,
-                );
-                const fetchedReviewData =
-                  fetchedReviewRes?.data.data.fetchReviewsByZipId;
-                const filteredReviewList = fetchedReviewData.map(
-                  (review: any) => {
-                    const reviewImages = review.images.map((image: any) => {
-                      return {
-                        id: image.id,
-                        src: image.src,
-                      };
-                    });
-                    return {
-                      author: review.writer.name,
-                      rating: review.rating,
-                      content: review.content,
-                      date: new Date(review.createdAt),
-                      images: reviewImages,
-                    };
-                  },
-                );
-                let coordinate: Coordinate;
-                try {
-                  coordinate = await addressToCoordinate(zip.address);
-                } catch (error) {
-                  console.error(
-                    `Failed to get coordinates for address: ${zip.address}`,
-                    error,
-                  );
-                  coordinate = {latitude: 0, longitude: 0}; // Fallback
-                }
-                return {
-                  id: zip.id,
-                  name: zip.name,
-                  imageSrc: imgSrcArr,
-                  coordinate,
-                  address: zip.address,
-                  reviewCount: zip.reviewCount,
-                  reviewAvgRating: zip.reviewAvgRating,
-                  category: zip.category,
-                  reviews: filteredReviewList,
-                } as MatZip;
-              }),
-            );
-
-            const userOwnMap: MatMap = {
-              id: userOwnMapData.id,
-              name: userOwnMapData.name,
-              description: userOwnMapData.description,
-              publicStatus: userOwnMapData.publicStatus,
-              areaCode: userOwnMapData.areaCode,
-              zipList: serializedZipList,
-              followerList: userOwnMapData.followerList,
-              imageSrc: imgSrcArr,
-              author: userOwnMapData.creator.name,
-            };
-            dispatch(replaceOwnMatMapAction([userOwnMap]));
+            const userOwnMap = await matMapSerializer([userOwnMapData]);
+            dispatch(replaceOwnMatMapAction(userOwnMap));
           } else {
             //if the user doesn't have a MatMap yet, create a default one for them
             console.log('ℹ️ no MatMap found, creating default one');
@@ -168,6 +81,7 @@ const SplashScreen = () => {
               publicStatus: false,
               areaCode: '',
               zipList: [],
+              numFollower: 0,
             };
             const variables = {
               mapInfo: {
@@ -188,6 +102,47 @@ const SplashScreen = () => {
 
             await request(createUserMapQuery, REQ_METHOD.MUTATION, variables);
             dispatch(replaceOwnMatMapAction([defaultMatMap]));
+          }
+          const fetchFollowingMapQuery = `{
+            fetchMapsFollowed {
+              id
+              name
+              description
+              createdAt
+              publicStatus
+              creator {
+                name
+              }
+              images {
+                src
+              }
+              zipList {
+                id
+                name
+                address
+                images {
+                  src
+                }
+                reviewCount
+                reviewAvgRating
+                parentMap {
+                  id
+                }
+                category
+              }
+            }
+          }`;
+          const userFollowingMapRes = await request(
+            fetchFollowingMapQuery,
+            REQ_METHOD.QUERY,
+          );
+          const userFollowingMapData =
+            userFollowingMapRes?.data.data.fetchMapsFollowed;
+          if (userFollowingMapData) {
+            const userFollowingMap = await matMapSerializer(
+              userFollowingMapData,
+            );
+            dispatch(replaceFollowingMatMapAction(userFollowingMap));
           }
           navigation.replace('TabNavContainer', {
             screen: 'MapMain',
@@ -260,49 +215,8 @@ const SplashScreen = () => {
           const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
 
           if (publicMapsData) {
-            const maps: MatMap[] = await Promise.all(
-              publicMapsData.map(async (map: any) => {
-                const imgSrcArr = map.images.map((img: any) => img.src);
-                console.log('🎯☎️' + imgSrcArr);
-                const serializedZipList: MatZip[] = await Promise.all(
-                  map.zipList.map(async (zip: any) => {
-                    const imgSrcArr = zip.images.map((img: any) => img.src);
-                    let coordinate: Coordinate;
-                    try {
-                      coordinate = await addressToCoordinate(zip.address);
-                    } catch (error) {
-                      console.error(
-                        `Failed to get coordinates for address: ${zip.address}`,
-                        error,
-                      );
-                      coordinate = {latitude: 0, longitude: 0}; // Fallback
-                    }
-
-                    return {
-                      id: zip.id,
-                      name: zip.name,
-                      imageSrc: imgSrcArr,
-                      coordinate,
-                      address: zip.address,
-                      reviewCount: zip.reviewCount,
-                      reviewAvgRating: zip.reviewAvgRating,
-                      category: zip.category,
-                    } as MatZip;
-                  }),
-                );
-                return {
-                  id: map.id,
-                  name: map.name,
-                  description: map.description,
-                  author: map.creator?.name,
-                  publicStatus: map.publicStatus,
-                  areaCode: map.areaCode,
-                  zipList: serializedZipList,
-                  imageSrc: imgSrcArr,
-                } as MatMap;
-              }),
-            );
-            dispatch(replacePublicMapsAction(maps));
+            const publicMaps: MatMap[] = await matMapSerializer(publicMapsData);
+            dispatch(replacePublicMapsAction(publicMaps));
           }
         }
       })
