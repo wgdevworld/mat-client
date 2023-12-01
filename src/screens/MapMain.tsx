@@ -33,12 +33,16 @@ import {ScreenParamList} from '../types/navigation';
 import {Coordinate, MatMap, MatZip} from '../types/store';
 import {useAppSelector} from '../store/hooks';
 import {useDispatch} from 'react-redux';
-import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
+import {
+  removeFromOwnMatMapAction,
+  replaceOwnMatMapZipListAction,
+} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
 import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
+import SwipeableRow from '../components/SwipeableRow';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -396,60 +400,82 @@ function App(): JSX.Element {
     }
   };
 
+  const onDeleteMatZip = async (id: string) => {
+    const removeFromMapQuery = `
+      mutation removeFromMap($mapId: String! $zipId:String!) {
+        removeFromMap(mapId: $mapId, zipId: $zipId) {
+          id
+        }
+      }
+      `;
+    const variables = {
+      mapId: curMatMap.id,
+      zipId: id,
+    };
+    await request(removeFromMapQuery, REQ_METHOD.MUTATION, variables);
+    dispatch(removeFromOwnMatMapAction(id));
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
     return (
-      <TouchableOpacity
-        key={matZip.id}
-        style={styles.itemContainer}
-        onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
-        <View style={styles.itemImageContainer}>
-          <Image
-            source={
-              matZip.imageSrc && matZip.imageSrc.length === 0
-                ? assets.images.placeholder
-                : {uri: matZip.imageSrc[0]}
-            }
-            style={styles.itemImage}
-          />
-        </View>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemTitleStarsContainer}>
+      <SwipeableRow
+        onSwipeableRightOpen={() => {
+          onDeleteMatZip(matZip.id);
+        }}>
+        <TouchableOpacity
+          key={matZip.id}
+          style={styles.itemContainer}
+          onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
+          <View style={styles.itemImageContainer}>
+            <Image
+              source={
+                matZip.imageSrc && matZip.imageSrc.length === 0
+                  ? assets.images.placeholder
+                  : {uri: matZip.imageSrc[0]}
+              }
+              style={styles.itemImage}
+            />
+          </View>
+          <View style={styles.itemInfoContainer}>
+            <View style={styles.itemTitleStarsContainer}>
+              <Text
+                style={styles.itemTitleText}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {matZip.name}
+              </Text>
+              {matZip.isVisited && (
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={20}
+                  color={colors.coral1}
+                />
+              )}
+              <View style={styles.itemStarReviewContainer}>
+                <Ionicons name="star" size={14} color={colors.coral1} />
+                <Text style={styles.itemStarsText}>
+                  {ratingAverage(matZip.reviews)}
+                </Text>
+                <Text style={styles.itemReviewText}>
+                  리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
+                </Text>
+              </View>
+            </View>
             <Text
-              style={styles.itemTitleText}
+              style={styles.itemSubtext}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {matZip.name}
+              {trimCountry(matZip.address)}
             </Text>
-            {matZip.isVisited && (
-              <Ionicons
-                name="checkmark-done-circle-outline"
-                size={20}
-                color={colors.coral1}
-              />
-            )}
-            <View style={styles.itemStarReviewContainer}>
-              <Ionicons name="star" size={14} color={colors.coral1} />
-              <Text style={styles.itemStarsText}>
-                {ratingAverage(matZip.reviews)}
-              </Text>
-              <Text style={styles.itemReviewText}>
-                리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
-              </Text>
-            </View>
+            <Text style={styles.itemSubtext}>
+              나와의 거리{' '}
+              {calculateDistance(matZip.coordinate, currentLocation)}m
+            </Text>
           </View>
-          <Text
-            style={styles.itemSubtext}
-            numberOfLines={1}
-            ellipsizeMode="tail">
-            {trimCountry(matZip.address)}
-          </Text>
-          <Text style={styles.itemSubtext}>
-            나와의 거리 {calculateDistance(matZip.coordinate, currentLocation)}m
-          </Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </SwipeableRow>
     );
   };
 
