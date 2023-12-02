@@ -5,12 +5,12 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  ScrollView,
   View,
   TouchableOpacity,
   FlatList,
   Animated,
   Image,
+  ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -18,11 +18,12 @@ import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
-import {Review} from '../types/store';
+import {MatZip, Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
-import {ratingAverage} from '../tools/CommonFunc';
+import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
+import Config from 'react-native-config';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -75,36 +76,131 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
   const zipId = route.params.zipID;
-  const zipData = useAppSelector(state =>
+
+  const zipDataFromStore = useAppSelector(state =>
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   );
+  const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
 
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // useEffect(async () => {
-  //   console.log('zipId:' + zipId);
-  //   if (!zipData) {
-  //     const fetchReviewQuery = `{
-  //       fetchReviewsByZipId(zipId: "${zipId}") {
-  //         writer {
-  //           name
-  //         }
-  //         rating
-  //         content
-  //         createdAt
-  //         images {
-  //           src
-  //         }
-  //       }
-  //     }`;
-  //     const fetchedReviewRes = await request(
-  //       fetchReviewQuery,
-  //       REQ_METHOD.QUERY,
-  //     );
-  //     console.log(fetchedReviewRes);
-  //   }
-  // });
+  const matZipFromZipId = async () => {
+    try {
+      const fetchZipQuery = `{
+        fetchZip(id: "${zipId}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          images {
+            id
+            src
+          }
+          parentMap {
+            name
+          }
+          category
+        }
+      }`;
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      const fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
+
+      const location = await addressToCoordinate(fetchedZipData.address);
+
+      // Update zip as street view image if no default image
+      let defaultStreetViewImg;
+      console.log(fetchedZipData.images);
+      if (
+        fetchedZipData.images === undefined ||
+        fetchedZipData.images.length === 0
+      ) {
+        console.log('⛔️ no image');
+        const apiKey = Config.MAPS_API;
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        const updateZipQuery = `
+          mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+              updateZip(id: $id, zipInfo: $zipInfo) {
+                id
+              }
+          }
+         `;
+        const updateZipVariables = {
+          id: fetchedZipData.id,
+          zipInfo: {
+            imgSrc: [defaultStreetViewImg],
+          },
+        };
+        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      }
+      const fetchReviewQuery = `{
+        fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+          writer {
+            name
+          }
+          rating
+          content
+          createdAt
+          images {
+            id
+            src
+          }
+        }
+      }`;
+      const fetchedReviewRes = await request(
+        fetchReviewQuery,
+        REQ_METHOD.QUERY,
+      );
+      const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
+
+      const filteredReviewList = fetchedReviewData.map((review: any) => {
+        const reviewImages = review.images.map((image: any) => {
+          return {
+            id: image.id,
+            src: image.src,
+          };
+        });
+        return {
+          author: review.writer.name,
+          rating: review.rating,
+          content: review.content,
+          date: new Date(review.createdAt),
+          images: reviewImages,
+        };
+      });
+
+      const selectedMatZip: MatZip = {
+        id: fetchedZipData.id,
+        name: fetchedZipData.name,
+        imageSrc:
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length !== 0
+            ? fetchedZipData.images.map((image: any) => image.src)
+            : defaultStreetViewImg,
+        coordinate: location,
+        reviews: filteredReviewList,
+        reviewAvgRating: fetchedZipData.reviewAvgRating,
+        reviewCount: fetchedZipData.reviewCount,
+        address: fetchedZipData.address,
+        category: fetchedZipData.category,
+      };
+      setZipData(selectedMatZip);
+      setReviews(filteredReviewList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (zipDataFromStore) {
+      setZipData(zipDataFromStore);
+      setReviews(zipDataFromStore.reviews);
+    } else {
+      matZipFromZipId();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zipId, zipDataFromStore]);
 
   const images = zipData?.imageSrc;
+  console.log(images);
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
@@ -117,21 +213,21 @@ export default function MatZipMain() {
     // save zip (add zip to user.savedZips)
     // use server API: communicate with backend
   };
-  const [reviews, setReviews] = useState<Review[]>(
-    zipData?.reviews ? zipData.reviews : [],
+  const [reviews, setReviews] = useState<Review[] | undefined>(
+    zipData?.reviews ? zipData?.reviews : [],
   );
-  console.log(zipData?.reviews);
-  return (
+  return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.containter}>
-        {images?.length === 0 ? (
+      <ScrollView bounces={false} contentContainerStyle={styles.containter}>
+        <ImageCarousel images={images} />
+        {/* {images?.length === 0 ? (
           <Image
             source={assets.images.placeholder}
             style={{width: '100%', height: 220}}
           />
         ) : (
           <ImageCarousel images={images} />
-        )}
+        )} */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
             <Text style={styles.zipNameText}>{zipData?.name}</Text>
@@ -154,7 +250,7 @@ export default function MatZipMain() {
               <View style={styles.horizontal}>
                 <Ionicons name="star" color={colors.coral1} size={15} />
                 <Text style={styles.matZipRatingText}>
-                  {ratingAverage(zipData?.reviews)}
+                  {ratingAverage(reviews)}
                 </Text>
               </View>
             </View>
@@ -173,7 +269,9 @@ export default function MatZipMain() {
           <TouchableOpacity
             style={styles.row}
             onPress={handlePressReviewChevron}>
-            <Text style={styles.rowText}>리뷰 {zipData?.reviewCount}개</Text>
+            <Text style={styles.rowText}>
+              리뷰 {reviews ? reviews?.length : 0}개
+            </Text>
             <View style={{flex: 1}} />
             <Ionicons
               name={
@@ -189,6 +287,8 @@ export default function MatZipMain() {
         </View>
       </ScrollView>
     </SafeAreaView>
+  ) : (
+    <View />
   );
 }
 

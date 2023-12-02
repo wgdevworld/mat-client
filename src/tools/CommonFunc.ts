@@ -55,15 +55,19 @@ export async function addressToCoordinate(
     latitude: 0,
     longitude: 0,
   };
-  await Geocoder.from(address)
-    .then(json => {
-      const location = json.results[0].geometry.location;
-      result = {
-        latitude: location.lat,
-        longitude: location.lng,
-      };
-    })
-    .catch(error => console.log(error));
+  try {
+    await Geocoder.from(address)
+      .then(json => {
+        const location = json.results[0].geometry.location;
+        result = {
+          latitude: location.lat,
+          longitude: location.lng,
+        };
+      })
+      .catch(error => console.log(error));
+  } catch (error) {
+    console.log(error);
+  }
   return result;
 }
 

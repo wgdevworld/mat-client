@@ -1,37 +1,32 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Button } from 'react-native-elements'; // Import the Button component
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {Button} from 'react-native-elements'; // Import the Button component
 import colors from '../styles/colors';
-import { addUserFollower } from '../controls/MatMapControl';
+import {addUserFollower} from '../controls/MatMapControl';
+import {useDispatch} from 'react-redux';
+import {addFollowingMatMapAction} from '../store/modules/userMaps';
+import {MatMap} from '../types/store';
 
 interface MapCardProps {
-  id: string;
-  mapName: string;
-  followers: number;
-  author: string;
-  imgSrc: string[];
+  map: MatMap;
   onPressMap: () => void;
 }
 
-const MapCard: React.FC<MapCardProps> = ({
-  id,
-  mapName,
-  followers,
-  author,
-  imgSrc,
-  onPressMap,
-}) => {
+const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
+  const dispatch = useDispatch();
   const [addIcon, setAddIcon] = useState(true);
 
   return (
     <TouchableOpacity onPress={onPressMap}>
       <View style={styles.cardContainer}>
-        <Image source={{ uri: imgSrc[0] }} style={styles.image} />
+        <Image source={{uri: map.imageSrc[0]}} style={styles.image} />
         <View style={styles.cardContent}>
-          <Text style={styles.mapName}>{mapName}</Text>
-          <Text style={styles.mapAuthor}>by: {author}</Text>
-          <Text style={styles.mapFollowers}>팔로워 {followers} | 유튜브</Text>
+          <Text style={styles.mapName}>{map.name}</Text>
+          <Text style={styles.mapAuthor}>by: {map.author}</Text>
+          <Text style={styles.mapFollowers}>
+            팔로워 {map.numFollower} | 유튜브
+          </Text>
           <Button
             icon={{
               name: 'bell',
@@ -42,7 +37,10 @@ const MapCard: React.FC<MapCardProps> = ({
             title="알림 받기"
             buttonStyle={styles.bellButton}
             titleStyle={styles.buttonTitle} // Adjust the font size here
-            onPress={() => addUserFollower(id)}
+            onPress={() => {
+              addUserFollower(map.id);
+              dispatch(addFollowingMatMapAction(map));
+            }}
           />
         </View>
       </View>
@@ -75,7 +73,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 45,
     marginLeft: 70,
-    borderRadius: 20
+    borderRadius: 20,
   },
   buttonTitle: {
     fontSize: 12,

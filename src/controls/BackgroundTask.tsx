@@ -55,8 +55,14 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
-          if (calculateDistance(zip.coordinate, curLocation) < 5000) {
+          if (
+            (calculateDistance(zip.coordinate, curLocation) < 5000 &&
+              zip.notificationSent === false) ||
+            zip.notificationSent === undefined
+          ) {
             closeMatZips.push(zip.name);
+            //TODO: make this persistent
+            zip.notificationSent = true;
           }
         });
         const numCloseMatZips = closeMatZips ? closeMatZips.length : 0;
@@ -156,17 +162,17 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
     });
 
     BackgroundGeolocation.checkStatus(status => {
-      console.log(
-        '[INFO] BackgroundGeolocation service is running',
-        status.isRunning,
-      );
-      console.log(
-        '[INFO] BackgroundGeolocation services enabled',
-        status.locationServicesEnabled,
-      );
-      console.log(
-        '[INFO] BackgroundGeolocation auth status: ' + status.authorization,
-      );
+      // console.log(
+      //   '[INFO] BackgroundGeolocation service is running',
+      //   status.isRunning,
+      // );
+      // console.log(
+      //   '[INFO] BackgroundGeolocation services enabled',
+      //   status.locationServicesEnabled,
+      // );
+      // console.log(
+      //   '[INFO] BackgroundGeolocation auth status: ' + status.authorization,
+      // );
 
       // you don't need to check status before start (this is just the example)
       if (!status.isRunning) {

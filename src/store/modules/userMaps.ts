@@ -19,8 +19,27 @@ export const userMapsSlice = createSlice({
       state.ownMaps.push(...action.payload);
       return state;
     },
+    removeFromOwnMatMapAction: (state, action: PayloadAction<string>) => {
+      const targetZip = state.ownMaps[0].zipList.find(
+        zip => zip.id === action.payload,
+      );
+      if (targetZip) {
+        state.ownMaps[0].zipList = state.ownMaps[0].zipList.filter(
+          map => map.id !== action.payload,
+        );
+      }
+      return state;
+    },
     followMatMapAction: (state, action: PayloadAction<MatMap[]>) => {
       state.followingMaps.push(...action.payload);
+      return state;
+    },
+    replaceFollowingMatMapAction: (state, action: PayloadAction<MatMap[]>) => {
+      state.followingMaps = action.payload;
+      return state;
+    },
+    addFollowingMatMapAction: (state, action: PayloadAction<MatMap>) => {
+      state.followingMaps.push(action.payload);
       return state;
     },
     addMatZipAction: (
@@ -85,5 +104,8 @@ export const {
   addMatZipAction,
   updateDistanceForMatMapAction,
   addReviewAction,
+  replaceFollowingMatMapAction,
+  addFollowingMatMapAction,
+  removeFromOwnMatMapAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;

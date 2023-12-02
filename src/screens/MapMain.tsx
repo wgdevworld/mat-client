@@ -3,9 +3,11 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Dimensions,
+  FlatList,
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -31,11 +33,16 @@ import {ScreenParamList} from '../types/navigation';
 import {Coordinate, MatMap, MatZip} from '../types/store';
 import {useAppSelector} from '../store/hooks';
 import {useDispatch} from 'react-redux';
-import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
+import {
+  removeFromOwnMatMapAction,
+  replaceOwnMatMapZipListAction,
+} from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
 import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
+import {throttle} from 'lodash';
+import SwipeableRow from '../components/SwipeableRow';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -48,20 +55,43 @@ function App(): JSX.Element {
   );
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
+  const textInputRef = useRef(null);
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [buttonHeight, setButtonHeight] = useState(0);
   const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
+  const [isSearchGoogle, setIsSearchGoogle] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchedMatZips, setSearchedMatZips] =
+    useState<{zipId: number; name: string; address: string}[]>();
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
-  const [dropDownItems, setDropDownItems] = useState(
-    userOwnMaps.map(item => ({
+  const [dropDownItems, setDropDownItems] = useState([
+    ...userOwnMaps.map(item => ({
       label: item.name,
       value: item.id,
     })),
-  );
+    ...userFollowingMaps.map(item => ({
+      label: item.name,
+      value: item.id,
+    })),
+  ]);
+
+  useEffect(() => {
+    setDropDownItems([
+      ...userOwnMaps.map(item => ({
+        label: item.name,
+        value: item.id,
+      })),
+      ...userFollowingMaps.map(item => ({
+        label: item.name,
+        value: item.id,
+      })),
+    ]);
+  }, [userOwnMaps, userFollowingMaps]);
+
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   //TODO: 리덕스에다 저장
@@ -70,6 +100,7 @@ function App(): JSX.Element {
     longitude: 0,
   });
 
+  //TODO: add following maps as well
   const allSavedZips: MatZip[] = userOwnMaps.flatMap(
     (allMaps: MatMap) => allMaps.zipList,
   );
@@ -82,9 +113,9 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    requestPermissionAndGetLocation(setCurrentLocation);
-  }, []);
+  // useEffect(() => {
+  //   requestPermissionAndGetLocation(setCurrentLocation);
+  // }, []);
 
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
@@ -128,27 +159,93 @@ function App(): JSX.Element {
     mapRef.current?.animateToRegion(newRegion, 1000);
   }, [currentLocation]);
 
+  const performSearch = async (input: string) => {
+    const query = `{
+      fetchZipByName(searchKey: "${input}") {
+        id
+        name
+        address
+      }
+    }`;
+    const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
+    const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
+    return fetchedZipData;
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSearch = useCallback(
+    throttle(query => {
+      performSearch(query)
+        .then(data => {
+          setSearchedMatZips(data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }, 2000),
+    [],
+  );
+
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      throttledSearch(searchQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  const renderSearchedItem = item => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          onPressSearchResult(item.item.id, item.item.address);
+        }}
+        style={styles.searchResultEntry}>
+        <Text>{item.item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const onPressSearchResult = async (data: any, details: any) => {
-    const location: Coordinate = {
-      latitude: details.geometry.location.lat,
-      longitude: details.geometry.location.lng,
-    };
+    let location: Coordinate;
     let fetchedZipData: any = null;
-    const fetchZipQuery = `{
-          fetchZipByGID(gid: "${data.place_id}") {
-            id
+    if (typeof details === 'string') {
+      location = await addressToCoordinate(details);
+      const fetchZipQuery = `{
+        fetchZip(id: "${data}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          parentMap {
             name
-            address
-            reviewCount
-            reviewAvgRating
-            parentMap {
-              name
-            }
-            category
           }
-        }`;
-    const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-    fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+          category
+        }
+      }`;
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
+    } else {
+      location = {
+        latitude: details.geometry.location.lat,
+        longitude: details.geometry.location.lng,
+      };
+      const fetchZipQuery = `{
+        fetchZipByGID(gid: "${data.place_id}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          parentMap {
+            name
+          }
+          category
+        }
+      }`;
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+    }
     //TODO: add functionality for custom Zips
     if (!fetchedZipData) {
       console.log('ℹ️ 맛집 생성중');
@@ -180,7 +277,6 @@ function App(): JSX.Element {
       );
       fetchedZipData = addZipRes?.data.data.addZip;
     }
-    console.log(fetchedZipData);
 
     const fetchReviewQuery = `{
       fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
@@ -241,7 +337,6 @@ function App(): JSX.Element {
     );
     newMatMap && setCurMatMap(newMatMap);
   };
-
   const onPressAddBtn = async () => {
     try {
       const variables = {
@@ -305,60 +400,82 @@ function App(): JSX.Element {
     }
   };
 
+  const onDeleteMatZip = async (id: string) => {
+    const removeFromMapQuery = `
+      mutation removeFromMap($mapId: String! $zipId:String!) {
+        removeFromMap(mapId: $mapId, zipId: $zipId) {
+          id
+        }
+      }
+      `;
+    const variables = {
+      mapId: curMatMap.id,
+      zipId: id,
+    };
+    await request(removeFromMapQuery, REQ_METHOD.MUTATION, variables);
+    dispatch(removeFromOwnMatMapAction(id));
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
     return (
-      <TouchableOpacity
-        key={matZip.id}
-        style={styles.itemContainer}
-        onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
-        <View style={styles.itemImageContainer}>
-          <Image
-            source={
-              matZip.imageSrc && matZip.imageSrc.length === 0
-                ? assets.images.placeholder
-                : {uri: matZip.imageSrc[0]}
-            }
-            style={styles.itemImage}
-          />
-        </View>
-        <View style={styles.itemInfoContainer}>
-          <View style={styles.itemTitleStarsContainer}>
+      <SwipeableRow
+        onSwipeableRightOpen={() => {
+          onDeleteMatZip(matZip.id);
+        }}>
+        <TouchableOpacity
+          key={matZip.id}
+          style={styles.itemContainer}
+          onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
+          <View style={styles.itemImageContainer}>
+            <Image
+              source={
+                matZip.imageSrc && matZip.imageSrc.length === 0
+                  ? assets.images.placeholder
+                  : {uri: matZip.imageSrc[0]}
+              }
+              style={styles.itemImage}
+            />
+          </View>
+          <View style={styles.itemInfoContainer}>
+            <View style={styles.itemTitleStarsContainer}>
+              <Text
+                style={styles.itemTitleText}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {matZip.name}
+              </Text>
+              {matZip.isVisited && (
+                <Ionicons
+                  name="checkmark-done-circle-outline"
+                  size={20}
+                  color={colors.coral1}
+                />
+              )}
+              <View style={styles.itemStarReviewContainer}>
+                <Ionicons name="star" size={14} color={colors.coral1} />
+                <Text style={styles.itemStarsText}>
+                  {ratingAverage(matZip.reviews)}
+                </Text>
+                <Text style={styles.itemReviewText}>
+                  리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
+                </Text>
+              </View>
+            </View>
             <Text
-              style={styles.itemTitleText}
+              style={styles.itemSubtext}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {matZip.name}
+              {trimCountry(matZip.address)}
             </Text>
-            {matZip.isVisited && (
-              <Ionicons
-                name="checkmark-done-circle-outline"
-                size={20}
-                color={colors.coral1}
-              />
-            )}
-            <View style={styles.itemStarReviewContainer}>
-              <Ionicons name="star" size={14} color={colors.coral1} />
-              <Text style={styles.itemStarsText}>
-                {ratingAverage(matZip.reviews)}
-              </Text>
-              <Text style={styles.itemReviewText}>
-                리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
-              </Text>
-            </View>
+            <Text style={styles.itemSubtext}>
+              나와의 거리{' '}
+              {calculateDistance(matZip.coordinate, currentLocation)}m
+            </Text>
           </View>
-          <Text
-            style={styles.itemSubtext}
-            numberOfLines={1}
-            ellipsizeMode="tail">
-            {trimCountry(matZip.address)}
-          </Text>
-          <Text style={styles.itemSubtext}>
-            나와의 거리 {calculateDistance(matZip.coordinate, currentLocation)}m
-          </Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </SwipeableRow>
     );
   };
 
@@ -366,31 +483,89 @@ function App(): JSX.Element {
     <View style={{flex: 1}}>
       <GestureHandlerRootView style={{flex: 1}}>
         <View style={styles.searchTextInputContainer}>
-          <GooglePlacesAutocomplete
-            minLength={2}
-            placeholder="장소를 검색해보세요!"
-            textInputProps={{
-              placeholderTextColor: 'black',
-            }}
-            query={{
-              key: Config.MAPS_API,
-              language: 'ko',
-              components: 'country:kr',
-            }}
-            keyboardShouldPersistTaps={'handled'}
-            fetchDetails={true}
-            onPress={(data, details = null) => {
-              onPressSearchResult(data, details);
-            }}
-            onFail={error => console.error(error)}
-            onNotFound={() => console.error('검색 결과 없음')}
-            keepResultsAfterBlur={true}
-            enablePoweredByContainer={false}
-            styles={styles.searchTextInput}
-          />
+          {isSearchGoogle ? (
+            <GooglePlacesAutocomplete
+              minLength={2}
+              placeholder="구글 지도에서 장소를 검색해보세요!"
+              textInputProps={{
+                placeholderTextColor: 'black',
+              }}
+              query={{
+                key: Config.MAPS_API,
+                language: 'ko',
+                components: 'country:kr',
+              }}
+              keyboardShouldPersistTaps={'handled'}
+              fetchDetails={true}
+              onPress={(data, details = null) => {
+                setIsSearchGoogle(false);
+                onPressSearchResult(data, details);
+              }}
+              onFail={error => console.error(error)}
+              onNotFound={() => console.error('검색 결과 없음')}
+              keepResultsAfterBlur={true}
+              enablePoweredByContainer={false}
+              styles={styles.searchTextInput}
+            />
+          ) : (
+            <>
+              <View style={{flexDirection: 'row'}}>
+                <TextInput
+                  style={styles.ourDBSearchBar}
+                  ref={textInputRef}
+                  value={searchQuery}
+                  placeholderTextColor={'black'}
+                  placeholder="장소를 검색해보세요!"
+                  onChangeText={newText => setSearchQuery(newText)}
+                  onPressOut={() => {
+                    setSearchQuery('');
+                  }}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    style={{position: 'absolute', right: 5, top: 9}}
+                    onPress={() => {
+                      setSearchQuery('');
+                      setSearchedMatZips([]);
+                      if (textInputRef.current) {
+                        //@ts-ignore
+                        textInputRef.current.blur();
+                      }
+                    }}>
+                    <Ionicons
+                      name="close-circle"
+                      size={24}
+                      color={colors.coral1}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+              {searchedMatZips && searchQuery.length !== 0 && (
+                <FlatList
+                  data={searchedMatZips}
+                  renderItem={renderSearchedItem}
+                  contentContainerStyle={styles.searchResultContainer}
+                  ListFooterComponent={
+                    <TouchableOpacity
+                      onPress={() => {
+                        setIsSearchGoogle(true);
+                      }}
+                      style={styles.searchResultEntry}>
+                      <Text>검색 결과가 없으세요?</Text>
+                    </TouchableOpacity>
+                  }
+                />
+              )}
+            </>
+          )}
         </View>
         <View style={styles.container}>
           <MapView
+            onMarkerPress={() => {
+              navigation.navigate('MatZipMain', {
+                zipID: marker?.id,
+              });
+            }}
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
@@ -403,7 +578,9 @@ function App(): JSX.Element {
               longitudeDelta: 0.01,
             }}
             onPress={() => {
-              setMarker(null);
+              setIsSearchGoogle(false);
+              // TODO: figure out when to make marker null
+              // setMarker(null);
             }}>
             {marker && (
               <Marker coordinate={marker.coordinate}>
@@ -506,12 +683,6 @@ function App(): JSX.Element {
                 </View>
               }
               stickyHeaderIndices={[0]}
-              // ListHeaderComponent={
-              //   <Text style={styles.flatListHeaderText}>
-              //     근처 나의 맛집들 🍶
-              //   </Text>
-              // }
-
               ListFooterComponent={<View style={{height: 200}} />}
             />
           </BottomSheet>
@@ -570,9 +741,9 @@ const styles = StyleSheet.create({
     paddingTop: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
-    flexDirection: 'row',
     alignSelf: 'center',
     paddingHorizontal: 10,
+    justifyContent: 'center',
   },
   searchTextInput: {
     position: 'absolute',
@@ -668,6 +839,27 @@ const styles = StyleSheet.create({
     width: '30%',
     alignSelf: 'center',
     marginRight: 16,
+  },
+  ourDBSearchBar: {
+    height: 44,
+    width: '100%',
+    borderRadius: 10,
+    backgroundColor: 'white',
+    fontSize: 15,
+    paddingLeft: 10,
+    color: 'black',
+    includeFontPadding: true,
+  },
+  searchResultContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    marginTop: 5,
+  },
+  searchResultEntry: {
+    padding: 12,
+    borderBottomColor: 'grey',
+    borderBottomWidth: 0.17,
+    alignContent: 'center',
   },
 });
 

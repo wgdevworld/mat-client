@@ -11,6 +11,7 @@ export interface MatZip {
   reviewAvgRating?: number;
   reviewCount?: number;
   description?: string;
+  notificationSent?: boolean;
 }
 
 //TODO: 스플래시에서 데이터 받아오면 옵셔널 뺴기
