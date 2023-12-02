@@ -6,6 +6,7 @@ import {
   FlatList,
   Image,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -63,8 +64,12 @@ function App(): JSX.Element {
   const [marker, setMarker] = useState<MatZip | null>();
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMarkerSavedMatZip, setIsMarkerSavedMatZip] = useState(false);
   const [searchedMatZips, setSearchedMatZips] =
     useState<{zipId: number; name: string; address: string}[]>();
+  const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
+    curMatMap.zipList,
+  );
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -121,6 +126,20 @@ function App(): JSX.Element {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
 
+  useEffect(() => {
+    setOrderedMatZips(curMatMap.zipList);
+  }, [curMatMap]);
+
+  useEffect(() => {
+    setOrderedMatZips(prev =>
+      prev.sort(
+        (a, b) =>
+          calculateDistance(a.coordinate, currentLocation) -
+          calculateDistance(b.coordinate, currentLocation),
+      ),
+    );
+  }, [currentLocation]);
+
   //TODO: 팔로잉 맵 목록 가져오기
   // const fetchFollowingMaps = async () => {
   //   try {
@@ -156,7 +175,7 @@ function App(): JSX.Element {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-    mapRef.current?.animateToRegion(newRegion, 1000);
+    mapRef.current?.animateToRegion(newRegion, 300);
   }, [currentLocation]);
 
   const performSearch = async (input: string) => {
@@ -309,6 +328,7 @@ function App(): JSX.Element {
       category: fetchedZipData.category,
     };
     setMarker(selectedMatZip);
+    setIsMarkerSavedMatZip(false);
     mapRef.current?.animateToRegion(
       {
         latitude: location.latitude,
@@ -316,7 +336,7 @@ function App(): JSX.Element {
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       },
-      1000,
+      0,
     );
   };
 
@@ -336,6 +356,7 @@ function App(): JSX.Element {
       item => item.id === givenId,
     );
     newMatMap && setCurMatMap(newMatMap);
+    setMarker(null);
   };
   const onPressAddBtn = async () => {
     try {
@@ -561,11 +582,6 @@ function App(): JSX.Element {
         </View>
         <View style={styles.container}>
           <MapView
-            onMarkerPress={() => {
-              navigation.navigate('MatZipMain', {
-                zipID: marker?.id,
-              });
-            }}
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
@@ -583,13 +599,44 @@ function App(): JSX.Element {
               // setMarker(null);
             }}>
             {marker && (
-              <Marker coordinate={marker.coordinate}>
-                <View style={styles.markerContentContainer}>
-                  <PlaceInfoMapCard marker={marker} />
-                  <Ionicons name="location" size={35} color={colors.coral1} />
-                </View>
-              </Marker>
+              <>
+                <Marker
+                  key={`key_${marker.coordinate.latitude}_${marker.coordinate.longitude}`}
+                  onPress={() => {
+                    navigation.navigate('MatZipMain', {
+                      zipID: marker?.id,
+                    });
+                  }}
+                  coordinate={marker.coordinate}>
+                  <View style={styles.markerContentContainer}>
+                    <PlaceInfoMapCard marker={marker} />
+                    <Ionicons name="location" size={26} color={colors.coral1} />
+                  </View>
+                </Marker>
+              </>
             )}
+
+            {curMatMap &&
+              curMatMap.zipList.map(zip => {
+                return (
+                  <Marker
+                    key={zip.id}
+                    coordinate={zip.coordinate}
+                    id={zip.id}
+                    onPress={() => {
+                      setMarker(zip);
+                      setIsMarkerSavedMatZip(true);
+                    }}>
+                    <View style={styles.markerContentContainer}>
+                      <Ionicons
+                        name="location"
+                        size={26}
+                        color={colors.coral1}
+                      />
+                    </View>
+                  </Marker>
+                );
+              })}
 
             {currentLocation && (
               <Marker
@@ -609,52 +656,58 @@ function App(): JSX.Element {
             )}
           </MapView>
           {buttonVisible && (
-            <TouchableOpacity
-              style={{
-                ...styles.mapBtn,
-                bottom: buttonHeight,
-              }}
-              onPress={() => {
-                requestPermissionAndGetLocation(setCurrentLocation);
-              }}>
-              <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-                <Ionicons
-                  name="navigate-outline"
-                  color={'white'}
-                  size={25}
-                  style={{paddingRight: 2}}
-                />
-              </View>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                style={{
+                  ...styles.mapBtn,
+                  bottom: buttonHeight,
+                }}
+                onPress={() => {
+                  requestPermissionAndGetLocation(setCurrentLocation);
+                }}>
+                <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+                  <Ionicons
+                    name="navigate-outline"
+                    color={'white'}
+                    size={25}
+                    style={{paddingRight: 2}}
+                  />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  ...styles.mapBtn,
+                  bottom: buttonHeight + 50,
+                  display: marker && !isMarkerSavedMatZip ? 'flex' : 'none',
+                }}
+                onPress={onPressAddBtn}>
+                <View style={styles.mapBtnContainer}>
+                  <Ionicons
+                    name="add-outline"
+                    color={'white'}
+                    size={35}
+                    style={{paddingLeft: 2}}
+                  />
+                </View>
+              </TouchableOpacity>
+            </>
           )}
-          <TouchableOpacity
-            style={{
-              ...styles.mapBtn,
-              bottom: buttonHeight + 50,
-              display: marker ? 'flex' : 'none',
-            }}
-            onPress={onPressAddBtn}>
-            <View style={styles.mapBtnContainer}>
-              <Ionicons
-                name="add-outline"
-                color={'white'}
-                size={35}
-                style={{paddingLeft: 2}}
-              />
-            </View>
-          </TouchableOpacity>
+
           <BottomSheet
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
             <BottomSheetFlatList
-              data={curMatMap.zipList}
+              data={orderedMatZips}
               keyExtractor={i => i.id}
               renderItem={({item}) => renderItem(item)}
               contentContainerStyle={styles.contentContainer}
               onScrollBeginDrag={() => {
                 setButtonVisible(false);
               }}
+              // onScrollEndDrag={() => {
+              //   setButtonVisible(true);
+              // }}
               ListHeaderComponent={
                 <View style={styles.bottomSheetHeader}>
                   <Text
@@ -684,6 +737,7 @@ function App(): JSX.Element {
               }
               stickyHeaderIndices={[0]}
               ListFooterComponent={<View style={{height: 200}} />}
+              extraData={currentLocation}
             />
           </BottomSheet>
         </View>
