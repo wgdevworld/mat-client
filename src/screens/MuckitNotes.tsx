@@ -19,8 +19,10 @@ import {MuckitItem} from '../types/store';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {
   addMuckitemAction,
+  deleteMuckitemAction,
   updateMuckitemAction,
 } from '../store/modules/userItems';
+import SwipeableRow from '../components/SwipeableRow';
 
 export default function MuckitNotes() {
   const dispatch = useDispatch();
@@ -71,6 +73,19 @@ export default function MuckitNotes() {
     dispatch(updateMuckitemAction(updatedItem));
   };
 
+  const onDeleteMuckitem = async (itemId: string) => {
+    const variables = {
+      itemId: itemId,
+    };
+    const deleteItemMutation = `
+      mutation deleteMuckitem($itemId: String!) {
+        deleteMuckitem(itemId: $itemId)
+      }
+    `;
+    await request(deleteItemMutation, REQ_METHOD.MUTATION, variables);
+    dispatch(deleteMuckitemAction(itemId));
+  };
+
   const handleAddItem = async () => {
     if (newItemText.trim() !== '') {
       const variables = {
@@ -110,17 +125,22 @@ export default function MuckitNotes() {
 
   const renderItem = ({item}) => {
     return (
-      <TouchableOpacity
-        style={[
-          styles.itemContainer,
-          item.completeStatus && styles.checkedItem,
-        ]}
-        onPress={() => handleCheckboxToggle(item.id)}>
-        <View>
-          <Text style={styles.itemTitle}>{item.title}</Text>
-        </View>
-        <View style={styles.checkbox} />
-      </TouchableOpacity>
+      <SwipeableRow
+        onSwipeableRightOpen={() => {
+          onDeleteMuckitem(item.id);
+        }}>
+        <TouchableOpacity
+          style={[
+            styles.itemContainer,
+            item.completeStatus && styles.checkedItem,
+          ]}
+          onPress={() => handleCheckboxToggle(item.id)}>
+          <View>
+            <Text style={styles.itemTitle}>{item.title}</Text>
+          </View>
+          <View style={styles.checkbox} />
+        </TouchableOpacity>
+      </SwipeableRow>
     );
   };
 

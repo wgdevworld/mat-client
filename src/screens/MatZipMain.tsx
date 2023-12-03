@@ -9,11 +9,9 @@ import {
   TouchableOpacity,
   FlatList,
   Animated,
-  Image,
   ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
@@ -30,6 +28,20 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   reviews,
 }) => {
   const [height] = useState(new Animated.Value(0));
+
+  const [orderedReviews, setOrderedReviews] = useState<Review[] | undefined>(
+    reviews,
+  );
+
+  useEffect(() => {
+    if (reviews) {
+      setOrderedReviews(
+        reviews.sort((a, b) => {
+          return b.date.getTime() - a.date.getTime();
+        }),
+      );
+    }
+  }, [reviews]);
 
   useEffect(() => {
     Animated.timing(height, {
@@ -57,7 +69,7 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   return (
     <Animated.View style={{height}}>
       <FlatList
-        data={reviews}
+        data={orderedReviews}
         keyExtractor={(item, index) => item.date.toISOString() + index}
         scrollEnabled={true}
         maxToRenderPerBatch={5}
@@ -200,7 +212,6 @@ export default function MatZipMain() {
   }, [zipId, zipDataFromStore]);
 
   const images = zipData?.imageSrc;
-  console.log(images);
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
@@ -230,8 +241,12 @@ export default function MatZipMain() {
         )} */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
-            <Text style={styles.zipNameText}>{zipData?.name}</Text>
-
+            <Text
+              style={styles.zipNameText}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {zipData?.name}
+            </Text>
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
               <Ionicons
                 name="bookmark-outline"
@@ -304,6 +319,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingBottom: 10,
     textAlign: 'left',
+    width: 250,
   },
   matZipListText: {
     fontSize: 13,

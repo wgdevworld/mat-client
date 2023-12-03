@@ -6,7 +6,6 @@ import {
   FlatList,
   Image,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -131,42 +130,16 @@ function App(): JSX.Element {
   }, [curMatMap]);
 
   useEffect(() => {
-    setOrderedMatZips(prev =>
-      prev.sort(
+    setOrderedMatZips(prev => {
+      const sortedArray = [...prev].sort(
         (a, b) =>
           calculateDistance(a.coordinate, currentLocation) -
           calculateDistance(b.coordinate, currentLocation),
-      ),
-    );
+      );
+
+      return sortedArray;
+    });
   }, [currentLocation]);
-
-  //TODO: 팔로잉 맵 목록 가져오기
-  // const fetchFollowingMaps = async () => {
-  //   try {
-  //     const query = ` {
-  //     fetchMapsFollowed {
-  //       id
-  //       name
-  //     }
-  //   }`;
-  //     const res = await request(query, REQ_METHOD.QUERY);
-  //     return res?.data.data.fetchMapsFollowed;
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // useEffect(async () => {
-  //   const followingMaps = await fetchFollowingMaps();
-  //   console.log(followingMaps);
-  //   const maps = followingMaps.map((obj: any) => ({
-  //     label: obj.name,
-  //     value: obj.id,
-  //   }));
-  //   console.log(maps);
-  //   setItems(maps);
-  // }, []);
 
   useEffect(() => {
     const newRegion = {
@@ -240,6 +213,10 @@ function App(): JSX.Element {
             name
           }
           category
+          images {
+            id
+            src
+          }
         }
       }`;
       const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
@@ -260,6 +237,10 @@ function App(): JSX.Element {
             name
           }
           category
+          images {
+            id
+            src
+          }
         }
       }`;
       const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
@@ -268,13 +249,15 @@ function App(): JSX.Element {
     //TODO: add functionality for custom Zips
     if (!fetchedZipData) {
       console.log('ℹ️ 맛집 생성중');
+      const apiKey = Config.MAPS_API;
+      const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
       const variables = {
         zipInfo: {
           name: details.name,
           number: data.place_id,
           description: data.description,
           address: details.formatted_address,
-          imgSrc: [],
+          imgSrc: [defaultStreetViewImg],
           category: data.types[0] ? data.types[0] : '식당',
         },
       };
@@ -287,6 +270,10 @@ function App(): JSX.Element {
             reviewCount
             reviewAvgRating
             category
+            images {
+              id
+              src
+            }
           }
       }`;
       const addZipRes = await request(
@@ -374,6 +361,7 @@ function App(): JSX.Element {
         reviewAvgRating
         category
         images {
+          id
           src
         }
       }
@@ -387,9 +375,11 @@ function App(): JSX.Element {
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
           let imgSrcArr = [];
-          if (zip.images !== null) {
+          console.log(zip.images);
+          if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
+            console.log('uh oh');
             imgSrcArr = [];
           }
           let coordinate: Coordinate;

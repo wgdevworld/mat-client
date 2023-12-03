@@ -7,13 +7,12 @@ import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {useDispatch} from 'react-redux';
-import {Coordinate, MatMap, MatZip, MuckitItem} from '../types/store';
+import {MatMap, MuckitItem} from '../types/store';
 import {
   replaceFollowingMatMapAction,
   replaceOwnMatMapAction,
 } from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
-import {addressToCoordinate} from '../tools/CommonFunc';
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
@@ -138,6 +137,7 @@ const SplashScreen = () => {
           );
           const userFollowingMapData =
             userFollowingMapRes?.data.data.fetchMapsFollowed;
+          console.log(userFollowingMapData[0].zipList);
           if (userFollowingMapData) {
             const userFollowingMap = await matMapSerializer(
               userFollowingMapData,
