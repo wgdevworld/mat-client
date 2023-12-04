@@ -70,7 +70,8 @@ export const matMapSerializer = async (matMaps: any[]) => {
         }),
       );
 
-      const userOwnMap: MatMap = {
+      console.log(data.creator);
+      const serializedMatMap: MatMap = {
         id: data.id,
         name: data.name,
         description: data.description,
@@ -80,10 +81,11 @@ export const matMapSerializer = async (matMaps: any[]) => {
         followerList: data.followerList,
         imageSrc: imgSrcArr,
         author: data.creator.name,
+        authorId: data.creator.id,
         //TODO: add back in after backend fix of followList
         // numFollower: data.followerList.length,
       };
-      return userOwnMap;
+      return serializedMatMap;
     }),
   );
 };

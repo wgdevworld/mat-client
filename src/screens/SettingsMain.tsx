@@ -19,19 +19,13 @@ import colors from '../styles/colors';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Linking, Platform} from 'react-native';
+import {useAppSelector} from '../store/hooks';
 
 export default function Settings() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const user = useAppSelector(state => state.user);
   const deleteUser = async () => {
-    const fetchLoggedInQuery = `{
-      fetchLoggedIn {
-        id
-      }
-    }
-    `;
-    const curUserRes = await request(fetchLoggedInQuery, REQ_METHOD.QUERY);
-
-    const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
+    const curUserId = user.id;
     const deleteUserQuery = `
     mutation deleteUser($userId: String!) {
       deleteUser(userId: $userId)

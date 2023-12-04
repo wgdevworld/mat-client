@@ -20,6 +20,7 @@ export interface MatMap {
   name: string;
   description: string;
   author: string;
+  authorId: string;
   publicStatus: boolean;
   imageSrc: string[];
   areaCode: string;

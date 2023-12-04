@@ -16,6 +16,7 @@ import {v4 as uuidv4} from 'uuid';
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
+import {updateUserIdAction} from '../store/modules/user';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,18 @@ const SplashScreen = () => {
         if (value == null) {
           navigation.replace('LoginMain');
         } else {
+          const fetchLoggedInQuery = `{
+            fetchLoggedIn {
+              id
+            }
+          }
+          `;
+          const curUserRes = await request(
+            fetchLoggedInQuery,
+            REQ_METHOD.QUERY,
+          );
+          const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
+          dispatch(updateUserIdAction(curUserId));
           const fetchUserMapQuery = `{
             fetchUserMap {
               id
@@ -35,6 +48,7 @@ const SplashScreen = () => {
               createdAt
               publicStatus
               creator {
+                id
                 name
               }
               images {
@@ -76,6 +90,7 @@ const SplashScreen = () => {
               ],
               // TODO: replace with user.name when onboarding is finished (and createUserAction is in place)
               author: '사용자',
+              authorId: curUserId,
               followerList: [],
               publicStatus: false,
               areaCode: '',
@@ -110,6 +125,7 @@ const SplashScreen = () => {
               createdAt
               publicStatus
               creator {
+                id
                 name
               }
               images {
@@ -187,6 +203,7 @@ const SplashScreen = () => {
               publicStatus
               areaCode
               creator {
+                id
                 name
               }
               images {
@@ -213,7 +230,6 @@ const SplashScreen = () => {
             REQ_METHOD.QUERY,
           );
           const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
-
           if (publicMapsData) {
             const publicMaps: MatMap[] = await matMapSerializer(publicMapsData);
             dispatch(replacePublicMapsAction(publicMaps));

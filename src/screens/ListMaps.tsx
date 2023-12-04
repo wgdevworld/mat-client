@@ -35,11 +35,6 @@ export default function ListMaps() {
             renderItem={({item}) => (
               <MapCard
                 map={item}
-                id={item.id}
-                mapName={item.name}
-                followers={1}
-                author={item.author}
-                imgSrc={item.imageSrc}
                 onPressMap={() => navigation.navigate('ZipList', {map: item})}
               />
             )}

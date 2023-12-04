@@ -729,18 +729,51 @@ function App(): JSX.Element {
             ref={sheetRef}
             snapPoints={snapPoints}
             onChange={handleSheetChange}>
-            <BottomSheetFlatList
-              data={orderedMatZips}
-              keyExtractor={i => i.id}
-              renderItem={({item}) => renderItem(item)}
-              contentContainerStyle={styles.contentContainer}
-              onScrollBeginDrag={() => {
-                setButtonVisible(false);
-              }}
-              // onScrollEndDrag={() => {
-              //   setButtonVisible(true);
-              // }}
-              ListHeaderComponent={
+            {orderedMatZips && orderedMatZips.length !== 0 ? (
+              <BottomSheetFlatList
+                data={orderedMatZips}
+                keyExtractor={i => i.id}
+                renderItem={({item}) => renderItem(item)}
+                contentContainerStyle={styles.contentContainer}
+                onScrollBeginDrag={() => {
+                  setButtonVisible(false);
+                }}
+                // onScrollEndDrag={() => {
+                //   setButtonVisible(true);
+                // }}
+                ListHeaderComponent={
+                  <View style={styles.bottomSheetHeader}>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        alignSelf: 'center',
+                        marginLeft: 16,
+                        color: colors.coral1,
+                      }}>
+                      근처 나의 맛집들 📍
+                    </Text>
+                    <DropDownPicker
+                      containerStyle={styles.dropDownPickerContainer}
+                      placeholder="맛맵 선택"
+                      open={dropDownOpen}
+                      setOpen={setDropDownOpen}
+                      value={dropDownValue}
+                      setValue={setDropDownValue}
+                      onChangeValue={item => {
+                        item && findAndSetCurMatMapByID(item);
+                      }}
+                      items={dropDownItems}
+                      setItems={setDropDownItems}
+                      itemKey="value"
+                    />
+                  </View>
+                }
+                stickyHeaderIndices={[0]}
+                ListFooterComponent={<View style={{height: 200}} />}
+                extraData={currentLocation}
+              />
+            ) : (
+              <>
                 <View style={styles.bottomSheetHeader}>
                   <Text
                     style={{
@@ -753,6 +786,8 @@ function App(): JSX.Element {
                   </Text>
                   <DropDownPicker
                     containerStyle={styles.dropDownPickerContainer}
+                    dropDownContainerStyle={{height: 150}}
+
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
                     setOpen={setDropDownOpen}
@@ -766,11 +801,31 @@ function App(): JSX.Element {
                     itemKey="value"
                   />
                 </View>
-              }
-              stickyHeaderIndices={[0]}
-              ListFooterComponent={<View style={{height: 200}} />}
-              extraData={currentLocation}
-            />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    paddingHorizontal: 20,
+                    justifyContent: 'center',
+                    paddingTop: 10,
+                  }}>
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={26}
+                    color={colors.coral1}
+                    style={{alignSelf: 'center'}}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12.5,
+                      alignSelf: 'center',
+                      color: colors.coral1,
+                      paddingLeft: 3,
+                    }}>
+                    {'저장하고 싶은 맛집을 \n검색해서 추가하세요!'}
+                  </Text>
+                </View>
+              </>
+            )}
           </BottomSheet>
         </View>
       </GestureHandlerRootView>
@@ -922,7 +977,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   dropDownPickerContainer: {
-    width: '30%',
+    width: '28%',
     alignSelf: 'center',
     marginRight: 16,
   },
