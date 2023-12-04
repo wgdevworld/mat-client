@@ -22,7 +22,6 @@ export function requestPermissionAndGetLocation(
       Geolocation.getCurrentPosition(
         position => {
           const {latitude, longitude} = position.coords;
-          console.log(latitude);
           setCurrentLocation(prevState => ({
             ...prevState,
             latitude: latitude,

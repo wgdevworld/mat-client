@@ -22,6 +22,8 @@ import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
 import Config from 'react-native-config';
+import {useDispatch} from 'react-redux';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -88,6 +90,8 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
   const zipId = route.params.zipID;
+
+  const dispatch = useDispatch();
 
   const zipDataFromStore = useAppSelector(state =>
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
@@ -198,11 +202,14 @@ export default function MatZipMain() {
       setReviews(filteredReviewList);
     } catch (error) {
       console.log(error);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
     }
   };
 
   useEffect(() => {
     if (zipDataFromStore) {
+      dispatch(updateIsLoadingAction(false));
       setZipData(zipDataFromStore);
       setReviews(zipDataFromStore.reviews);
     } else {

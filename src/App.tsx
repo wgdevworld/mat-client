@@ -21,6 +21,7 @@ import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
 import {LogBox} from 'react-native';
 import SplashScreen from './screens/SplashScreen';
+import GlobalLoading from './components/GlobalLoading';
 
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
@@ -46,7 +47,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'LoginMain'}>
+            <Stack.Navigator initialRouteName={'SplashScreen'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
@@ -137,6 +138,7 @@ const App = () => {
                 }}
               />
             </Stack.Navigator>
+            <GlobalLoading />
           </NavigationContainer>
         </SafeAreaProvider>
       </PersistGate>

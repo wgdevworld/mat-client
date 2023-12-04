@@ -7,6 +7,7 @@ import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
 import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {MatMap} from '../types/store';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
 
 interface MapCardProps {
   map: MatMap;
@@ -38,8 +39,10 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
             buttonStyle={styles.bellButton}
             titleStyle={styles.buttonTitle} // Adjust the font size here
             onPress={() => {
+              dispatch(updateIsLoadingAction(true));
               addUserFollower(map.id);
               dispatch(addFollowingMatMapAction(map));
+              dispatch(updateIsLoadingAction(false));
             }}
           />
         </View>

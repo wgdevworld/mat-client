@@ -67,3 +67,7 @@ export interface Event {
   taskId: string;
   timestamp: string;
 }
+
+export interface GlobalComponent {
+  isLoading: boolean;
+}
