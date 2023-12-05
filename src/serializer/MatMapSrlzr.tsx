@@ -70,7 +70,6 @@ export const matMapSerializer = async (matMaps: any[]) => {
         }),
       );
 
-      console.log(data.creator);
       const serializedMatMap: MatMap = {
         id: data.id,
         name: data.name,

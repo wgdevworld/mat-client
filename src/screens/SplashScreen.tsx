@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -17,6 +17,16 @@ import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {updateUserIdAction} from '../store/modules/user';
+import {
+  Animated,
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import assets from '../../assets';
+import colors from '../styles/colors';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -242,7 +252,57 @@ const SplashScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <></>;
+  const fadeAnim = useRef(new Animated.Value(0.5)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.5,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, [fadeAnim]);
+
+  return (
+    <>
+      <View style={styles.container}>
+        <ImageBackground
+          source={assets.images.splash_background}
+          resizeMode="cover"
+          style={styles.backgroundImage}
+        />
+      </View>
+      <Animated.Text style={[styles.loadingText, {opacity: fadeAnim}]}>
+        데이터 불러오는중...
+      </Animated.Text>
+    </>
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    zIndex: 0,
+    flex: 1,
+  },
+  backgroundImage: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+  },
+  loadingText: {
+    position: 'absolute',
+    bottom: Dimensions.get('window').height / 2 - 350,
+    alignSelf: 'center',
+    color: colors.white,
+    fontWeight: '500',
+  },
+});
 
 export default SplashScreen;
