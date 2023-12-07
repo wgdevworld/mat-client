@@ -22,12 +22,14 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Review} from '../types/store';
 import {useDispatch} from 'react-redux';
-import {addReviewAction} from '../store/modules/userMaps';
 import {v4 as uuidv4} from 'uuid';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {incrementReviewCountAndAverageAction} from '../store/modules/userMaps';
+import {ratingAverage} from '../tools/CommonFunc';
 
 const ReviewForm: React.FC<{
-  zipId?: string;
-  setReviews: Dispatch<SetStateAction<Review[] | undefined>>;
+  zipId: string;
+  setReviews: Dispatch<SetStateAction<Review[]>>;
 }> = ({zipId, setReviews}) => {
   const dispatch = useDispatch();
   const reviewInputRef = useRef<TextInput>(null);
@@ -94,6 +96,7 @@ const ReviewForm: React.FC<{
 
   const handlePressSubmit = async () => {
     try {
+      dispatch(updateIsLoadingAction(true));
       let reviewPhotos;
       if (imgLibraryResponse) {
         const imgSrcString = await uploadImageToServer(imgLibraryResponse);
@@ -162,10 +165,17 @@ const ReviewForm: React.FC<{
 
       console.log(filteredReviewList);
       setReviews(filteredReviewList);
-      dispatch(addReviewAction({zipId: zipId, review: filteredReviewList}));
+      dispatch(
+        incrementReviewCountAndAverageAction([
+          zipId,
+          ratingAverage(filteredReviewList),
+        ]),
+      );
       reviewInputRef.current?.clear();
     } catch (e) {
       console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
     }
   };
 

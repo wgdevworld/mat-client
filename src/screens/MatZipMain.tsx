@@ -147,8 +147,37 @@ export default function MatZipMain() {
         };
         await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
       }
+
+      const selectedMatZip: MatZip = {
+        id: fetchedZipData.id,
+        name: fetchedZipData.name,
+        imageSrc:
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length !== 0
+            ? fetchedZipData.images.map((image: any) => image.src)
+            : defaultStreetViewImg,
+        coordinate: location,
+        reviewAvgRating: fetchedZipData.reviewAvgRating,
+        reviewCount: fetchedZipData.reviewCount,
+        address: fetchedZipData.address,
+        category: fetchedZipData.category,
+      };
+      setZipData(selectedMatZip);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(updateIsLoadingAction(true));
+    if (zipDataFromStore) {
+      setZipData(zipDataFromStore);
+    } else {
+      matZipFromZipId();
+    }
+    const fetchReview = async () => {
       const fetchReviewQuery = `{
-        fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+        fetchReviewsByZipId(zipId: "${zipId}") {
           writer {
             name
           }
@@ -166,7 +195,6 @@ export default function MatZipMain() {
         REQ_METHOD.QUERY,
       );
       const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
-
       const filteredReviewList = fetchedReviewData.map((review: any) => {
         const reviewImages = review.images.map((image: any) => {
           return {
@@ -182,39 +210,10 @@ export default function MatZipMain() {
           images: reviewImages,
         };
       });
-
-      const selectedMatZip: MatZip = {
-        id: fetchedZipData.id,
-        name: fetchedZipData.name,
-        imageSrc:
-          fetchedZipData.images === undefined ||
-          fetchedZipData.images.length !== 0
-            ? fetchedZipData.images.map((image: any) => image.src)
-            : defaultStreetViewImg,
-        coordinate: location,
-        reviews: filteredReviewList,
-        reviewAvgRating: fetchedZipData.reviewAvgRating,
-        reviewCount: fetchedZipData.reviewCount,
-        address: fetchedZipData.address,
-        category: fetchedZipData.category,
-      };
-      setZipData(selectedMatZip);
       setReviews(filteredReviewList);
-    } catch (error) {
-      console.log(error);
-    } finally {
       dispatch(updateIsLoadingAction(false));
-    }
-  };
-
-  useEffect(() => {
-    if (zipDataFromStore) {
-      dispatch(updateIsLoadingAction(false));
-      setZipData(zipDataFromStore);
-      setReviews(zipDataFromStore.reviews);
-    } else {
-      matZipFromZipId();
-    }
+    };
+    fetchReview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zipId, zipDataFromStore]);
 
@@ -231,9 +230,7 @@ export default function MatZipMain() {
     // save zip (add zip to user.savedZips)
     // use server API: communicate with backend
   };
-  const [reviews, setReviews] = useState<Review[] | undefined>(
-    zipData?.reviews ? zipData?.reviews : [],
-  );
+  const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView bounces={false} contentContainerStyle={styles.containter}>

@@ -1,15 +1,14 @@
 export interface MatZip {
   id: string;
   name: string;
-  reviews?: Review[];
   imageSrc: string[];
   coordinate: Coordinate;
   address: string;
   distance?: number;
   isVisited?: boolean;
   category: string;
-  reviewAvgRating?: number;
-  reviewCount?: number;
+  reviewAvgRating: number;
+  reviewCount: number;
   description?: string;
   notificationSent?: boolean;
 }

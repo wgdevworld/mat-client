@@ -24,7 +24,6 @@ import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
 import {
   addressToCoordinate,
   calculateDistance,
-  ratingAverage,
   trimCountry,
 } from '../tools/CommonFunc';
 import {useNavigation} from '@react-navigation/native';
@@ -352,25 +351,25 @@ function App(): JSX.Element {
         };
       }
 
-      const fetchReviewQuery = `{
-      fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
-        writer {
-          name
-        }
-        rating
-        content
-        createdAt
-        images {
-          id
-          src
-        }
-      }
-    }`;
-      const fetchedReviewRes = await request(
-        fetchReviewQuery,
-        REQ_METHOD.QUERY,
-      );
-      const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
+      //   const fetchReviewQuery = `{
+      //   fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+      //     writer {
+      //       name
+      //     }
+      //     rating
+      //     content
+      //     createdAt
+      //     images {
+      //       id
+      //       src
+      //     }
+      //   }
+      // }`;
+      //   const fetchedReviewRes = await request(
+      //     fetchReviewQuery,
+      //     REQ_METHOD.QUERY,
+      //   );
+      //   const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
 
       const selectedMatZip: MatZip = {
         id: fetchedZipData.id,
@@ -380,7 +379,6 @@ function App(): JSX.Element {
             ? defaultStreetViewImg
             : fetchedZipData.images[0].src,
         coordinate: location,
-        reviews: fetchedReviewData ? fetchedReviewData : [],
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
         address: fetchedZipData.address,
@@ -542,10 +540,10 @@ function App(): JSX.Element {
               <View style={styles.itemStarReviewContainer}>
                 <Ionicons name="star" size={14} color={colors.coral1} />
                 <Text style={styles.itemStarsText}>
-                  {ratingAverage(matZip.reviews)}
+                  {matZip.reviewAvgRating}
                 </Text>
                 <Text style={styles.itemReviewText}>
-                  리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
+                  리뷰 {matZip.reviewCount}개
                 </Text>
               </View>
             </View>

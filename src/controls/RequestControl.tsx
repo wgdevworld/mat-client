@@ -49,7 +49,8 @@ const getValidIdToken = async () => {
   if (!lastTokenDate || lastTokenDate.getTime() < fiftyMinBeforeNow.getTime()) {
     console.log('ℹ️ Token expired, refreshing...');
     await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString());
-    return await getNewToken();
+    const newIdToken = await getNewToken();
+    return newIdToken;
   } else {
     return await AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN);
   }

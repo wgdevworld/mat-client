@@ -51,6 +51,10 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
+                const lastTokenDate = await AsyncStorage.getItem(
+                  ASYNC_STORAGE_ENUM.TOKEN_TIME,
+                );
+                console.log(lastTokenDate);
                 console.log(curUserRes?.data.data.fetchLoggedIn);
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
@@ -86,6 +90,8 @@ const SplashScreen = () => {
                         id
                       }
                       category
+                      latitude
+                      longitude
                     }
                   }
                 }`;
@@ -169,6 +175,8 @@ const SplashScreen = () => {
                         id
                       }
                       category
+                      latitude
+                      longitude
                     }
                   }
                 }`;
@@ -247,6 +255,8 @@ const SplashScreen = () => {
                         id
                       }
                       category
+                      latitude
+                      longitude
                     }
                   }
                 }`;

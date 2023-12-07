@@ -1,6 +1,6 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-import {Coordinate, MatMap, MatZip, Review} from '../../types/store';
-import {calculateDistance, ratingAverage} from '../../tools/CommonFunc';
+import {Coordinate, MatMap, MatZip} from '../../types/store';
+import {calculateDistance} from '../../tools/CommonFunc';
 
 export const initialState: {ownMaps: MatMap[]; followingMaps: MatMap[]} = {
   ownMaps: [],
@@ -74,23 +74,29 @@ export const userMapsSlice = createSlice({
       state.ownMaps[0].zipList = action.payload;
       return state;
     },
-    addReviewAction: (
+    incrementReviewCountAndAverageAction: (
       state,
-      action: PayloadAction<{review: Review[]; zipId?: string}>,
+      action: PayloadAction<[string, number]>,
     ) => {
-      if (!action.payload.zipId) {
-        return;
-      }
-      const targetZip = state.ownMaps[0].zipList.find(
-        (zip: MatZip) => zip.id === action.payload.zipId,
+      const [zipId, reviewAvgRating] = action.payload;
+      const targetZipFromOwnMap = state.ownMaps[0]?.zipList.find(
+        (zip: MatZip) => zip.id === zipId,
       );
-      if (targetZip) {
-        console.log('ℹ️ updating review list');
-        targetZip.reviews = action.payload.review;
-        console.log(targetZip.reviews.length);
-        targetZip.reviewCount = targetZip.reviews.length;
-        targetZip.reviewAvgRating = ratingAverage(targetZip.reviews);
+      if (targetZipFromOwnMap) {
+        console.log('incrementing for own map');
+        targetZipFromOwnMap.reviewCount += 1;
+        targetZipFromOwnMap.reviewAvgRating = reviewAvgRating;
       }
+      state.followingMaps.forEach(map => {
+        const targetZipFromFollowingMap = map.zipList.find(
+          (zip: MatZip) => zip.id === zipId,
+        );
+        if (targetZipFromFollowingMap) {
+          console.log('incrementing for following map');
+          targetZipFromFollowingMap.reviewCount += 1;
+          targetZipFromFollowingMap.reviewAvgRating = reviewAvgRating;
+        }
+      });
       return state;
     },
   },
@@ -103,9 +109,9 @@ export const {
   followMatMapAction,
   addMatZipAction,
   updateDistanceForMatMapAction,
-  addReviewAction,
   replaceFollowingMatMapAction,
   addFollowingMatMapAction,
   removeFromOwnMatMapAction,
+  incrementReviewCountAndAverageAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;
