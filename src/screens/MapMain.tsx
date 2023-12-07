@@ -136,7 +136,7 @@ function App(): JSX.Element {
 
       return sortedArray;
     });
-  }, [currentLocation]);
+  }, [currentLocation, curMatMap]);
 
   useEffect(() => {
     const newRegion = {
@@ -197,10 +197,10 @@ function App(): JSX.Element {
   const onPressSearchResult = async (data: any, details: any) => {
     dispatch(updateIsLoadingAction(true));
     try {
-      let location: Coordinate;
       let fetchedZipData: any = null;
+      // if searched with our DB
       if (typeof details === 'string') {
-        location = await addressToCoordinate(details);
+        // location = await addressToCoordinate(details);
         const fetchZipQuery = `{
         fetchZip(id: "${data}") {
           id
@@ -216,15 +216,18 @@ function App(): JSX.Element {
             id
             src
           }
+          latitude
+          longitude
         }
       }`;
         const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
         fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
       } else {
-        location = {
-          latitude: details.geometry.location.lat,
-          longitude: details.geometry.location.lng,
-        };
+        // if searched with Google Maps API
+        // location = {
+        //   latitude: details.geometry.location.lat,
+        //   longitude: details.geometry.location.lng,
+        // };
         const fetchZipQuery = `{
         fetchZipByGID(gid: "${data.place_id}") {
           id
@@ -240,12 +243,13 @@ function App(): JSX.Element {
             id
             src
           }
+          latitude
+          longitude
         }
       }`;
         const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
         fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
       }
-      //TODO: add functionality for custom Zips
       if (!fetchedZipData) {
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
@@ -258,6 +262,8 @@ function App(): JSX.Element {
             address: details.formatted_address,
             imgSrc: [defaultStreetViewImg],
             category: data.types[0] ? data.types[0] : '식당',
+            latitude: details.geometry.location.lat,
+            longitude: details.geometry.location.lng,
           },
         };
         const addZipMutation = `
@@ -273,6 +279,8 @@ function App(): JSX.Element {
               id
               src
             }
+            latitude
+            longitude
           }
       }`;
         const addZipRes = await request(
@@ -306,6 +314,42 @@ function App(): JSX.Element {
           },
         };
         await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      }
+      // fallback if matzip has no coordinates
+      let location: Coordinate;
+      if (
+        fetchedZipData.latitude === null ||
+        fetchedZipData.longitude === null
+      ) {
+        console.log('⛔️ no coordinate');
+        if (typeof details === 'string') {
+          location = await addressToCoordinate(details);
+        } else {
+          location = {
+            latitude: details.geometry.location.lat,
+            longitude: details.geometry.location.lng,
+          };
+        }
+        const updateZipQuery = `
+          mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+              updateZip(id: $id, zipInfo: $zipInfo) {
+                id
+              }
+          }
+         `;
+        const updateZipVariables = {
+          id: fetchedZipData.id,
+          zipInfo: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+        };
+        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      } else {
+        location = {
+          latitude: fetchedZipData.latitude,
+          longitude: fetchedZipData.longitude,
+        };
       }
 
       const fetchReviewQuery = `{

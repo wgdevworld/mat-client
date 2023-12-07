@@ -47,15 +47,25 @@ export const matMapSerializer = async (matMaps: any[]) => {
             };
           });
           let coordinate: Coordinate;
-          try {
-            coordinate = await addressToCoordinate(zip.address);
-          } catch (error) {
-            console.error(
-              `Failed to get coordinates for address: ${zip.address}`,
-              error,
-            );
-            coordinate = {latitude: 0, longitude: 0}; // Fallback
+          if (zip.latitude === null || zip.longitude === null) {
+            try {
+              // fallback for when database doesn't have coordinates stored
+              console.log('⛔️ Using Geocoder to retrieve coordinates');
+              coordinate = await addressToCoordinate(zip.address);
+            } catch (error) {
+              console.error(
+                `Geocoder failed to get coordinates for address: ${zip.address}`,
+                error,
+              );
+              coordinate = {latitude: 0, longitude: 0}; // Fallback
+            }
+          } else {
+            coordinate = {
+              latitude: zip.latitude,
+              longitude: zip.longitude,
+            };
           }
+
           return {
             id: zip.id,
             name: zip.name,
