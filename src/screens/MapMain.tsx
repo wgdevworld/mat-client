@@ -46,7 +46,6 @@ import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 
 const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -59,8 +58,6 @@ function App(): JSX.Element {
   const textInputRef = useRef(null);
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
-  const [buttonHeight, setButtonHeight] = useState(0);
-  const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -336,8 +333,8 @@ function App(): JSX.Element {
         name: fetchedZipData.name,
         imageSrc:
           fetchedZipData.images || fetchedZipData.images.length === 0
-            ? fetchedZipData.images[0].src
-            : defaultStreetViewImg,
+            ? defaultStreetViewImg
+            : fetchedZipData.images[0].src,
         coordinate: location,
         reviews: fetchedReviewData ? fetchedReviewData : [],
         reviewAvgRating: fetchedZipData.reviewAvgRating,
@@ -365,15 +362,6 @@ function App(): JSX.Element {
   };
 
   const snapPoints = useMemo(() => ['30%', '80%'], []);
-
-  const handleSheetChange = useCallback(
-    (index: any) => {
-      const screenPercent = parseFloat(snapPoints[index]);
-      setButtonHeight(screenHeight * screenPercent * 0.01);
-      index === 0 && setButtonVisible(true);
-    },
-    [snapPoints],
-  );
 
   const findAndSetCurMatMapByID = (givenId: string) => {
     const newMatMap = [...userOwnMaps, ...userFollowingMaps].find(
@@ -413,6 +401,7 @@ function App(): JSX.Element {
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
           let imgSrcArr = [];
+          console.log(zip);
           if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
@@ -687,57 +676,47 @@ function App(): JSX.Element {
               </Marker>
             )}
           </MapView>
-          {buttonVisible && (
-            <>
-              <TouchableOpacity
-                style={{
-                  ...styles.mapBtn,
-                  bottom: buttonHeight,
-                }}
-                onPress={() => {
-                  requestPermissionAndGetLocation(setCurrentLocation);
-                }}>
-                <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-                  <Ionicons
-                    name="navigate-outline"
-                    color={'white'}
-                    size={25}
-                    style={{paddingRight: 2}}
-                  />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  ...styles.mapBtn,
-                  bottom: buttonHeight + 50,
-                  display: marker && !isMarkerSavedMatZip ? 'flex' : 'none',
-                }}
-                onPress={onPressAddBtn}>
-                <View style={styles.mapBtnContainer}>
-                  <Ionicons
-                    name="add-outline"
-                    color={'white'}
-                    size={35}
-                    style={{paddingLeft: 2}}
-                  />
-                </View>
-              </TouchableOpacity>
-            </>
-          )}
+          <TouchableOpacity
+            style={styles.mapBtn}
+            onPress={() => {
+              requestPermissionAndGetLocation(setCurrentLocation);
+            }}>
+            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+              <Ionicons
+                name="navigate-outline"
+                color={'white'}
+                size={22}
+                style={{paddingRight: 2}}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...styles.mapBtn,
+              display: marker && !isMarkerSavedMatZip ? 'flex' : 'none',
+            }}
+            onPress={onPressAddBtn}>
+            <View
+              style={{
+                ...styles.mapBtnContainer,
+                top: getStatusBarHeight() + 100,
+              }}>
+              <Ionicons
+                name="add-outline"
+                color={'white'}
+                size={22}
+                style={{paddingLeft: 2}}
+              />
+            </View>
+          </TouchableOpacity>
 
-          <BottomSheet
-            ref={sheetRef}
-            snapPoints={snapPoints}
-            onChange={handleSheetChange}>
+          <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
             {orderedMatZips && orderedMatZips.length !== 0 ? (
               <BottomSheetFlatList
                 data={orderedMatZips}
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}
                 contentContainerStyle={styles.contentContainer}
-                onScrollBeginDrag={() => {
-                  setButtonVisible(false);
-                }}
                 // onScrollEndDrag={() => {
                 //   setButtonVisible(true);
                 // }}
@@ -787,7 +766,6 @@ function App(): JSX.Element {
                   <DropDownPicker
                     containerStyle={styles.dropDownPickerContainer}
                     dropDownContainerStyle={{height: 150}}
-
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
                     setOpen={setDropDownOpen}
@@ -906,8 +884,19 @@ const styles = StyleSheet.create({
     right: '3%',
   },
   mapBtnContainer: {
-    width: 40,
-    height: 40,
+    position: 'absolute',
+    top: getStatusBarHeight() + 55,
+    borderColor: colors.white,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
+    right: 10,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     backgroundColor: colors.coral1,
     justifyContent: 'center',

@@ -55,13 +55,29 @@ export default function Login() {
       .then((result: {data: any}) => {
         result.data.data === null
           ? Alert.alert('이메일이나 비밀번호를 확인해주세요.')
-          : navigation.navigate('SplashScreen');
+          : (async () => {
+              const now = new Date();
+              await AsyncStorage.multiSet([
+                [
+                  ASYNC_STORAGE_ENUM.REFRESH_TOKEN,
+                  result.data.data.login[1].replace('refreshToken=', ''),
+                ],
+                [
+                  ASYNC_STORAGE_ENUM.ID_TOKEN,
+                  result.data.data.login[0].replace('accessToken=', ''),
+                ],
+                [ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true'],
+                [ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString()],
+              ]);
+              navigation.navigate('SplashScreen');
+            })();
       })
       .catch(e => console.log(e.response ? e.response.data : e.message));
   };
 
   useEffect(() => {
     const deepLinkNavigation = async (url: string) => {
+      console.log(url);
       const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
 
       if (route === 'kakao-login') {
@@ -69,8 +85,8 @@ export default function Login() {
         console.log('ℹ️ access token via kakao login: ' + accessToken);
         AsyncStorage.multiSet([
           [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
-          [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
         ]).then(() => {
+          AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true');
           navigation.navigate('SplashScreen');
         });
         return;
@@ -125,7 +141,6 @@ export default function Login() {
 
       if (identityToken) {
         // sign in with Firebase Auth using nonce & identityToken
-        console.log('💡Identity Token:' + identityToken);
         accessToken = identityToken;
       } else {
         // 음 no token - failed sign-in?
@@ -162,9 +177,17 @@ export default function Login() {
           },
         )
         .then(async (result: {data: any}) => {
+          console.log(result.data.data);
           await AsyncStorage.multiSet([
-            [ASYNC_STORAGE_ENUM.ID_TOKEN, result.data.data.loginApple],
-            [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
+            [
+              ASYNC_STORAGE_ENUM.REFRESH_TOKEN,
+              result.data.data.loginApple[1].replace('refreshToken=', ''),
+            ],
+            [
+              ASYNC_STORAGE_ENUM.ID_TOKEN,
+              result.data.data.loginApple[0].replace('accessToken=', ''),
+            ],
+            [ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true'],
           ]);
           navigation.navigate('SplashScreen');
         })

@@ -10,7 +10,6 @@ import {
   Image,
   TextInput,
   Modal,
-  ViewBase,
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
