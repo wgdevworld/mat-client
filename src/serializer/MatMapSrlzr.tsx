@@ -1,3 +1,4 @@
+import {REQ_METHOD, request} from '../controls/RequestControl';
 import {addressToCoordinate} from '../tools/CommonFunc';
 import {Coordinate, MatMap, MatZip} from '../types/store';
 
@@ -10,47 +11,33 @@ export const matMapSerializer = async (matMaps: any[]) => {
           const zipImgSrcArr = zip.images
             ? zip.images.map((img: any) => img.src)
             : [];
-          // const fetchReviewQuery = `{
-          //     fetchReviewsByZipId(zipId: "${zip.id}") {
-          //       writer {
-          //         name
-          //       }
-          //       rating
-          //       content
-          //       createdAt
-          //       images {
-          //         id
-          //         src
-          //       }
-          //     }
-          //   }`;
-          // const fetchedReviewRes = await request(
-          //   fetchReviewQuery,
-          //   REQ_METHOD.QUERY,
-          // );
-          // const fetchedReviewData =
-          //   fetchedReviewRes?.data.data.fetchReviewsByZipId;
-          // const filteredReviewList = fetchedReviewData.map((review: any) => {
-          //   const reviewImages = review.images.map((image: any) => {
-          //     return {
-          //       id: image.id,
-          //       src: image.src,
-          //     };
-          //   });
-          //   return {
-          //     author: review.writer.name,
-          //     rating: review.rating,
-          //     content: review.content,
-          //     date: new Date(review.createdAt),
-          //     images: reviewImages,
-          //   };
-          // });
           let coordinate: Coordinate;
           if (zip.latitude === null || zip.longitude === null) {
             try {
               // fallback for when database doesn't have coordinates stored
               console.log('⛔️ Using Geocoder to retrieve coordinates');
               coordinate = await addressToCoordinate(zip.address);
+              const updateZipQuery = `
+              mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+                  updateZip(id: $id, zipInfo: $zipInfo) {
+                    id
+                    latitude
+                    longitude
+                  }
+              }
+             `;
+              const updateZipVariables = {
+                id: zip.id,
+                zipInfo: {
+                  latitude: coordinate.latitude,
+                  longitude: coordinate.longitude,
+                },
+              };
+              await request(
+                updateZipQuery,
+                REQ_METHOD.MUTATION,
+                updateZipVariables,
+              );
             } catch (error) {
               console.error(
                 `Geocoder failed to get coordinates for address: ${zip.address}`,

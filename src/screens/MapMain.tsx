@@ -333,6 +333,8 @@ function App(): JSX.Element {
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
                 id
+                latitude
+                longitude
               }
           }
          `;
