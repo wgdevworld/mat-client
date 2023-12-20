@@ -53,6 +53,7 @@ function App(): JSX.Element {
     state => state.userMaps.followingMaps,
   );
   const curUser = useAppSelector(state => state.user);
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
 
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
@@ -137,7 +138,7 @@ function App(): JSX.Element {
 
       return sortedArray;
     });
-  }, [currentLocation, curMatMap]);
+  }, [currentLocation, curMatMap, visitedZips]);
 
   useEffect(() => {
     const newRegion = {
@@ -534,13 +535,6 @@ function App(): JSX.Element {
                 ellipsizeMode="tail">
                 {matZip.name}
               </Text>
-              {matZip.isVisited && (
-                <Ionicons
-                  name="checkmark-done-circle-outline"
-                  size={20}
-                  color={colors.coral1}
-                />
-              )}
               <View style={styles.itemStarReviewContainer}>
                 <Ionicons name="star" size={14} color={colors.coral1} />
                 <Text style={styles.itemStarsText}>
@@ -557,10 +551,20 @@ function App(): JSX.Element {
               ellipsizeMode="tail">
               {trimCountry(matZip.address)}
             </Text>
-            <Text style={styles.itemSubtext}>
-              나와의 거리{' '}
-              {calculateDistance(matZip.coordinate, currentLocation)}m
-            </Text>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={styles.itemSubtext}>
+                나와의 거리{' '}
+                {calculateDistance(matZip.coordinate, currentLocation)}m
+              </Text>
+              {visitedZips.find(zip => zip.id === matZip.id) && (
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={colors.coral1}
+                />
+              )}
+            </View>
           </View>
         </TouchableOpacity>
       </SwipeableRow>

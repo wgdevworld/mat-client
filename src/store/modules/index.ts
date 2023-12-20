@@ -8,6 +8,9 @@ import publicMaps, {initialState as publicMapsInitialState} from './publicMaps';
 import globalComponents, {
   initialState as globalComponentsInitialState,
 } from './globalComponent';
+import visitedZips, {
+  initialState as visitedZipsInitialState,
+} from './visitedZips';
 
 const rootReducer = combineReducers({
   user,
@@ -17,6 +20,7 @@ const rootReducer = combineReducers({
   userMuckitems,
   publicMaps,
   globalComponents,
+  visitedZips,
 });
 
 export const initialStateObject: {
@@ -29,6 +33,7 @@ export const initialStateObject: {
   userMuckitems: itemsInitialState,
   publicMaps: publicMapsInitialState,
   globalComponents: globalComponentsInitialState,
+  visitedZips: visitedZipsInitialState,
 };
 
 export default rootReducer;

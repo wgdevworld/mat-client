@@ -24,6 +24,10 @@ import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
 import Config from 'react-native-config';
 import {useDispatch} from 'react-redux';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  addVisitedMatZipAction,
+  removeVisitedZipAction,
+} from '../store/modules/visitedZips';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -96,6 +100,7 @@ export default function MatZipMain() {
   const zipDataFromStore = useAppSelector(state =>
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   );
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
 
   const matZipFromZipId = async () => {
@@ -224,11 +229,43 @@ export default function MatZipMain() {
     // show review shen toggled
   };
   const [toggleReview, setToggleReview] = useState(true);
-  const [saveIcon, setSaveIcon] = useState(true);
-  const handleIconPress = () => {
-    setSaveIcon(prev => !prev);
-    // save zip (add zip to user.savedZips)
-    // use server API: communicate with backend
+  const [saveIcon, setSaveIcon] = useState(
+    !!visitedZips.find(zip => zip.id === zipId),
+  );
+  const handleIconPress = async () => {
+    dispatch(updateIsLoadingAction(true));
+    try {
+      let beenToThisMatZipQuery;
+      if (saveIcon === false) {
+        beenToThisMatZipQuery = `
+      mutation dibsZip($zipId: String!) {
+        dibsZip(zipId: $zipId) {
+          id
+        }
+      }`;
+      } else {
+        beenToThisMatZipQuery = `
+        mutation undibsZip($zipId: String!) {
+          dibsZip(zipId: $zipId) {
+            id
+          }
+        }`;
+      }
+      const variables = {
+        zipId: zipId,
+      };
+      await request(beenToThisMatZipQuery, REQ_METHOD.MUTATION, variables);
+      if (saveIcon === false) {
+        dispatch(addVisitedMatZipAction(zipData));
+      } else {
+        dispatch(removeVisitedZipAction(zipData?.id));
+      }
+      setSaveIcon(prev => !prev);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
   };
   const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
@@ -253,12 +290,13 @@ export default function MatZipMain() {
             </Text>
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
               <Ionicons
-                name="bookmark-outline"
+                name={
+                  saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                }
                 size={28}
-                color={saveIcon ? colors.coral1 : 'darkgrey'}
+                color={colors.coral1}
               />
             </TouchableOpacity>
-
             <View style={{flex: 1}} />
             <View
               style={{
@@ -266,7 +304,7 @@ export default function MatZipMain() {
                 borderRadius: 8,
                 padding: 7,
               }}>
-              <View style={styles.horizontal}>
+              <View style={{...styles.horizontal}}>
                 <Ionicons name="star" color={colors.coral1} size={15} />
                 <Text style={styles.matZipRatingText}>
                   {ratingAverage(reviews)}
@@ -442,5 +480,6 @@ const styles = StyleSheet.create({
   saveIcon: {
     marginTop: 10,
     marginLeft: 5,
+    alignContent: 'center',
   },
 });

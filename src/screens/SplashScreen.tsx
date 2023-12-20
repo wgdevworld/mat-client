@@ -26,6 +26,8 @@ import {
 } from 'react-native';
 import assets from '../../assets';
 import colors from '../styles/colors';
+import {matZipSerializer, matZipSeriralizer} from '../serializer/MatZipSrlzr';
+import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -148,6 +150,42 @@ const SplashScreen = () => {
                   );
                   dispatch(replaceOwnMatMapAction([defaultMatMap]));
                 }
+                const fetchUserSavedZipsQuery = `{
+                  fetchUser(email: "${curUserEmail}") {
+                    savedZips {
+                      id
+                      name
+                      address
+                      images {
+                        src
+                      }
+                      reviewCount
+                      reviewAvgRating
+                      parentMap {
+                        id
+                      }
+                      category
+                      latitude
+                      longitude
+                    }
+                  }
+                }`;
+                const fetchUserSavedZipsRes = await request(
+                  fetchUserSavedZipsQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const fetchUserSavedZipsData =
+                  fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
+                console.log(fetchUserSavedZipsData);
+                if (
+                  fetchUserSavedZipsData &&
+                  fetchUserSavedZipsData.length !== 0
+                ) {
+                  const visitedMatZips = await matZipSerializer(
+                    fetchUserSavedZipsData,
+                  );
+                  dispatch(replaceVisitedMatZipsAction(visitedMatZips));
+                }
                 const fetchFollowingMapQuery = `{
                   fetchMapsFollowed {
                     id
@@ -186,7 +224,6 @@ const SplashScreen = () => {
                 );
                 const userFollowingMapData =
                   userFollowingMapRes?.data.data.fetchMapsFollowed;
-                console.log(userFollowingMapData[0].zipList);
                 if (userFollowingMapData) {
                   const userFollowingMap = await matMapSerializer(
                     userFollowingMapData,
