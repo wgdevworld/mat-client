@@ -52,6 +52,8 @@ function App(): JSX.Element {
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
   );
+  const curUser = useAppSelector(state => state.user);
+
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
   const textInputRef = useRef(null);
@@ -252,7 +254,7 @@ function App(): JSX.Element {
       if (!fetchedZipData) {
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
-        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
         const variables = {
           zipInfo: {
             name: details.name,
@@ -737,7 +739,12 @@ function App(): JSX.Element {
           <TouchableOpacity
             style={{
               ...styles.mapBtn,
-              display: marker && !isMarkerSavedMatZip ? 'flex' : 'none',
+              display:
+                marker &&
+                !isMarkerSavedMatZip &&
+                curMatMap.authorId === curUser.id
+                  ? 'flex'
+                  : 'none',
             }}
             onPress={onPressAddBtn}>
             <View
