@@ -1,15 +1,12 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
-import {MatMap, User} from '../../types/store';
+import {User} from '../../types/store';
 
 export const initialState: User = {
   id: '',
   name: '',
   username: '',
   email: '',
-  institution: '',
   address: '',
-  userMaps: [],
-  followingMaps: [],
   deviceToken: '',
   pushAllowStatus: false,
 };
@@ -25,19 +22,17 @@ export const userSlice = createSlice({
       state.name = newUser.name;
       state.username = newUser.username;
       state.email = newUser.email;
-      state.institution = newUser.institution;
       state.address = newUser.address;
-      state.followingMaps = newUser.followingMaps;
       state.deviceToken = newUser.deviceToken;
       state.pushAllowStatus = newUser.pushAllowStatus;
       return state;
     },
-    createMatMapAction: (state, action: PayloadAction<MatMap>) => {
-      state = {...state, userMaps: [...state.userMaps, action.payload]};
+    updateUserIdAction: (state, action: PayloadAction<string>) => {
+      state.id = action.payload;
       return state;
     },
   },
 });
 
-export const {createUserAction} = userSlice.actions;
+export const {createUserAction, updateUserIdAction} = userSlice.actions;
 export default userSlice.reducer;

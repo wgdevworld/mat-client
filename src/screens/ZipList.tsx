@@ -3,48 +3,17 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
 import React, {useEffect} from 'react';
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ZipCard from '../components/ZipCard';
-import {zips} from '../controls/MatZipControl';
 import {ScreenParamList} from '../types/navigation';
 import colors from '../styles/colors';
-
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
   const mapData = route.params;
-
-  // const zips = async (zipId: string) => {
-  //   try {
-  //     const query = `{
-  //     fetchZip(id: "${zipId}") {
-  //       name
-  //       address
-  //       reviewCount
-  //       parentMap {
-  //         name
-  //       }
-  //     }
-  //   }`;
-
-  //     const url = `https://muckit-server.site/graphql?query=${query}`;
-
-  //     const response = await axios.get(url, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     });
-
-  //     console.log(response.data);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const zipData = zips('0923');
-  // const testZips = zips('0923');
   const zipData = [
     {
       id: '1',
@@ -87,25 +56,31 @@ export default function ZipList() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>{mapData.map.name} 👀</Text>
-        <View style={styles.description}><Text>2022년 4월부터 방영 중인 풍자의 맛집 탐방 콘텐츠! 
-          '또간집'이라는 프로그램명부터 알 수 있듯 여러 번 간 맛집을 찾아다니는 게 콘셉트다.</Text></View>
+        <Text style={styles.heading}>{mapData.map.name} 🎯</Text>
+        <View style={styles.description}>
+          {/* TODO: 이거 이미지 로딩 안됌 */}
+          <Image source={{uri: mapData.map.imageSrc[0]}} />
+          <Text>{mapData.map.description}</Text>
+        </View>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
-            data={zipData}
+            data={mapData.map.zipList}
             keyExtractor={item => item.id}
             scrollEnabled={false}
             renderItem={({item}) => (
               <ZipCard
                 // id={item.id}
                 name={item.name}
-                stars={item.stars}
-                numReview={item.numReview}
+                stars={item.reviewAvgRating}
+                numReview={item.reviewCount}
                 address={item.address}
                 distance={item.distance}
                 isVisited={item.isVisited}
                 category={item.category}
-                onPressZip={() => navigation.navigate('MatZip', {zip: item})}
+                onPressZip={() => {
+                  console.log(item.id);
+                  navigation.navigate('MatZipMain', {zipID: item.id});
+                }}
               />
             )}
           />
@@ -136,6 +111,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     borderRadius: 9,
     backgroundColor: colors.grey,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });

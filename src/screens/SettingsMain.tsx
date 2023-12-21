@@ -10,30 +10,83 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Switch,
-  Dimensions,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
-import colors from '../styles/colors'; 
-import {ScreenParamList} from '../types/navigation';
-import {useAppSelector} from '../store/hooks';
+import colors from '../styles/colors';
+import {REQ_METHOD, request} from '../controls/RequestControl';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Linking, Platform} from 'react-native';
 
 export default function Settings() {
-  const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const [isPush, setIsPush] = React.useState(true);
-  const togglePush = () => setIsPush(prev => !prev);
-  const [isLocPush, setIsLocPush] = React.useState(true);
-  const toggleLocPush = () => setIsLocPush(prev => !prev);
-  const screenWidth = Dimensions.get('window').width;
+
+  const logout = async () => {
+    try {
+      const logoutQuery = `
+        mutation logout() {
+          logout()
+        }
+      `;
+      const variables = {};
+      await request(logoutQuery, REQ_METHOD.MUTATION, variables);
+      await AsyncStorage.clear();
+      // await AsyncStorage.clear();
+      // navigation.replace('SplashScreen');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const openSettings = () => {
+    const url =
+      //TODO: add Android support
+      Platform.OS === 'ios' ? 'app-settings:' : 'package:your.app.package';
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        console.log("Can't handle settings URL");
+      }
+    });
+  };
+
+  const sendEmail = () => {
+    const to = 'example@email.com';
+    const subject = 'Muckit 기능 문의';
+    const body = '문의 내용을 적어주세요!';
+    const url = `mailto:${to}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`;
+
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (!supported) {
+          Alert.alert('이메일 앱을 찾을수가 없어요!');
+          console.log("Can't handle url: " + url);
+        } else {
+          return Linking.openURL(url);
+        }
+      })
+      .catch(err => console.error('An error occurred', err));
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.containter}>
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.heading}>설정</Text>
-            </View>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.containter}
+        showsVerticalScrollIndicator={false}>
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 30,
+            }}>
+            <Text style={styles.heading}>설정</Text>
+          </View>
         </View>
         <TouchableOpacity
           style={{paddingHorizontal: 24}}
@@ -55,8 +108,8 @@ export default function Settings() {
             </TouchableOpacity>
             <View style={{flex: 1}} />
             <View style={styles.profile}>
-              <Text style={styles.profileName}>{user.name}</Text>
-              <Text style={styles.profileUserID}>{user.username}</Text>
+              <Text style={styles.profileName}>홍길동</Text>
+              <Text style={styles.profileUserID}>@matzip-user-01</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -87,38 +140,20 @@ export default function Settings() {
             <Ionicons name="notifications-outline" size={18} />
             <Text style={styles.rowText}>푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
-            <Switch onValueChange={togglePush} value={isPush} />
+            <TouchableOpacity onPress={openSettings}>
+              <Ionicons name="settings-outline" size={18} />
+            </TouchableOpacity>
           </View>
           <View style={styles.row}>
             <Ionicons name="earth-outline" size={18} />
             <Text style={styles.rowText}>위치 기반 푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
-            <Switch onValueChange={toggleLocPush} value={isLocPush} />
+            <TouchableOpacity onPress={openSettings}>
+              <Ionicons name="settings-outline" size={18} />
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>팔로우</Text>
-          <View style={styles.row}>
-            <Ionicons name="people-outline" size={18} />
-            <Text style={styles.rowText}>팔로우한 유저</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
-          <View style={styles.row}>
-            <Ionicons name="map-outline" size={18} />
-            <Text style={styles.rowText}>저장한 맛집들</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
-        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>도움말</Text>
 
@@ -126,8 +161,7 @@ export default function Settings() {
             onPress={() => {
               navigation.navigate('Help');
             }}
-            style={styles.row}
-            >
+            style={styles.row}>
             <Ionicons name="information-circle-outline" size={18} />
             <Text style={styles.rowText}>앱 사용법</Text>
             <View style={{flex: 1}} />
@@ -137,20 +171,20 @@ export default function Settings() {
               size={22}
             />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('FAQ');
             }}
-            style={styles.row}
-          >
+            style={styles.row}>
             <Ionicons name="help-circle-outline" size={18} />
             <Text style={styles.rowText}>자주 물어보는 질문</Text>
             <View style={{flex: 1}} />
             <Ionicons
               name="chevron-forward-outline"
               color="#0c0c0c"
-              size={22}/>
+              size={22}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.section}>
@@ -181,7 +215,7 @@ export default function Settings() {
               size={22}
             />
           </View>
-          <View style={styles.row}>
+          <TouchableOpacity onPress={sendEmail} style={styles.row}>
             <Ionicons name="mail-outline" size={18} />
             <Text style={styles.rowText}>문의하기</Text>
             <View style={{flex: 1}} />
@@ -190,10 +224,14 @@ export default function Settings() {
               color="#0c0c0c"
               size={22}
             />
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={{paddingHorizontal: 60}}>
-          <TouchableOpacity style={styles.logout}>
+          <TouchableOpacity
+            style={styles.logout}
+            onPress={() => {
+              logout();
+            }}>
             <Text style={styles.logoutText}>로그아웃</Text>
           </TouchableOpacity>
         </View>
@@ -210,7 +248,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginBottom: 20,
+    marginBottom: 0,
     textAlign: 'left',
     paddingHorizontal: 24,
   },
@@ -259,7 +297,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.1,
   },
-  
+
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -273,14 +311,14 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 17,
     color: '#0c0c0c',
-    marginLeft: 10,
+    marginLeft: 5,
   },
   logout: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
-    backgroundColor: 'gray',
+    backgroundColor: 'red',
     borderRadius: 8,
     marginTop: 15,
   },

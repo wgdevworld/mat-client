@@ -3,6 +3,7 @@ import {ImageSourcePropType} from 'react-native';
 export type AssetImages = {
   images: {
     [key: string]: ImageSourcePropType;
+    splash_background: ImageSourcePropType;
     스시올로지: ImageSourcePropType;
     진만두: ImageSourcePropType;
     월량관: ImageSourcePropType;
@@ -17,6 +18,7 @@ export type AssetImages = {
 
 const assets: AssetImages = {
   images: {
+    splash_background: require('./image/splash_background.png'),
     스시올로지: require('./image/1.png'),
     진만두: require('./image/2.png'),
     월량관: require('./image/3.png'),
@@ -33,7 +35,7 @@ const assets: AssetImages = {
     산방산국수맛집1: require('./image/14.png'),
     산방산국수맛집2: require('./image/15.png'),
     애월제주다: require('./image/16.png'),
-    default_map: require('./image/map_default.jpeg'),
+    default_map: require('./image/instagram_page.png'),
     placeholder: require('./image/placeholder.png'),
     default_profile: require('./image/default_profile.png'),
     kakao_login_medium_narrow: require('./image/kakao_login_medium_narrow.png'),

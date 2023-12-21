@@ -1,10 +1,8 @@
-import {MatMap, MatZip} from './store';
+import {MatMap} from './store';
 
 export type ScreenParamList = RootStackParamList;
 
 export type RootStackParamList = {
-  AppleLoginTest: undefined;
-  SplashScreen: undefined;
   TabNavContainer: {
     screen: string;
   };
@@ -33,9 +31,8 @@ export type RootStackParamList = {
     // mapID: string;
     map: MatMap;
   };
-  MatZip: {
-    // zipID: string;
-    zip: MatZip;
+  MatZipMain: {
+    zipID: string | undefined;
   };
 };
 

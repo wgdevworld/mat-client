@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import {
@@ -41,7 +42,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="map-outline"
                   size={screenWidth * 0.08}
-                  color='black'
+                  color="black"
                 />
               );
               break;
@@ -50,16 +51,16 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="star-outline"
                   size={screenWidth * 0.08}
-                  color='grey'
+                  color="black"
                 />
               );
               break;
             case 'Community':
               icon = (
                 <Ionicons
-                  name="people-outline"
+                  name="reader-outline"
                   size={screenWidth * 0.08}
-                  color='grey'
+                  color="black"
                 />
               );
               break;
@@ -68,7 +69,7 @@ const TabNavContainer = () => {
                 <Ionicons
                   name="person-circle-outline"
                   size={screenWidth * 0.08}
-                  color='grey'
+                  color="black"
                 />
               );
               break;
@@ -80,7 +81,10 @@ const TabNavContainer = () => {
           return (
             <TouchableOpacity
               key={index}
-              style={styles.iconContainer}
+              style={{
+                ...styles.iconContainer,
+                opacity: index === state.index ? 1 : 0.5,
+              }}
               onPress={onPress}>
               {icon}
             </TouchableOpacity>

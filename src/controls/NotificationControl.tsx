@@ -1,6 +1,8 @@
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 export const initPushNotification = async () => {
   // Register the device with FCM
@@ -8,6 +10,7 @@ export const initPushNotification = async () => {
     // Get the token
     const token = await messaging().getToken();
     console.log('ℹ️ Notification token: ' + token);
+    AsyncStorage.setItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN, token);
 
     // Register background handler
     messaging().setBackgroundMessageHandler(async remoteMessage => {

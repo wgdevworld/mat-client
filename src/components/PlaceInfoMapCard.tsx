@@ -1,28 +1,38 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../styles/colors';
+import {MatZip} from '../types/store';
+import {ratingAverage} from '../tools/CommonFunc';
 
 type Props = {
-  name: string;
-  address: string;
-  numReview: number;
-  rating: number;
+  marker: MatZip;
 };
 
 const PlaceInfoMapCard = (props: Props) => {
-  const {name, numReview, rating} = props;
+  const {marker} = props;
+  const averageRating = ratingAverage(marker.reviews);
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container}>
       <View style={styles.nameRatingContainer}>
-        <Text style={styles.nameText}>{name}</Text>
+        <Text style={styles.nameText}>{marker.name}</Text>
         <View style={styles.ratingReviewContainer}>
-          <Ionicons name="star" size={10} color={'white'} />
-          <Text style={styles.ratingText}>{rating}</Text>
-          <Text style={styles.reviewText}>리뷰 {numReview}</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Ionicons name="star" size={10} color={'white'} />
+            <Text style={styles.ratingText}>{averageRating}</Text>
+          </View>
+          <Text style={styles.reviewText}>
+            리뷰 {marker.reviews ? marker.reviews.length : 0} 개
+          </Text>
         </View>
       </View>
-    </View>
+      <Ionicons
+        name="chevron-forward-outline"
+        color={colors.white}
+        style={{alignSelf: 'center', paddingLeft: 5}}
+      />
+    </TouchableOpacity>
   );
 };
 
@@ -31,6 +41,7 @@ const styles = StyleSheet.create({
     height: 50,
     flexDirection: 'row',
     padding: 10,
+    paddingRight: 5,
     marginBottom: 5,
     backgroundColor: colors.coral1,
     borderRadius: 5,
@@ -42,6 +53,7 @@ const styles = StyleSheet.create({
   ratingReviewContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   nameText: {
     fontSize: 12,

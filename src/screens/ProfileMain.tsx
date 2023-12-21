@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,85 +9,174 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
-import colors from '../styles/colors';
+import {useAppSelector} from '../store/hooks';
+import {REQ_METHOD, request} from '../controls/RequestControl';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import { color } from 'react-native-reanimated';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
+import colors from '../styles/colors';
 
 export default function ProfileMain() {
+  const user = useAppSelector(state => state.user);
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+
   const [isEdit, setIsEdit] = React.useState(false);
   const toggleEdit = () => setIsEdit(true);
   const [nickname, setNickname] = React.useState('홍길동');
   const [isEditAddr, setIsEditAddr] = React.useState(false);
   const toggleEditAddr = () => setIsEditAddr(true);
   const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
-  const navigation = useNavigation();
+  const [isPressedDeleteUser, setIsPressedDeleteUser] = useState(false);
+
+  const deleteUser = async () => {
+    const curUserId = user.id;
+    const deleteUserQuery = `
+    mutation deleteUser($userId: String!) {
+      deleteUser(userId: $userId)
+    }
+    `;
+    const variables = {
+      userId: curUserId,
+    };
+    await request(deleteUserQuery, REQ_METHOD.MUTATION, variables);
+    await AsyncStorage.clear();
+    navigation.replace('LoginMain');
+  };
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.containter}>
-        <Text style={styles.heading}>프로필</Text>
-        <View style={{paddingHorizontal: 24}}>
-          <View style={styles.profileWrapper}>
+    <>
+      <Modal
+        visible={isPressedDeleteUser}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isPressedDeleteUser ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View style={styles.popupContainer}>
+          <Text
+            style={{
+              color: colors.white,
+              alignSelf: 'center',
+              paddingTop: 5,
+              fontSize: 16,
+              fontWeight: 'bold',
+            }}>
+            정말로 탈퇴하시겠어요?
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingBottom: 10,
+            }}>
             <TouchableOpacity
-              onPress={() => {
-                // change profile picture on press
-              }}>
-              <View>
-                <Image
-                  alt="Profile picture"
-                  source={assets.images.default_profile}
-                  style={styles.profileImage}
-                />
-              </View>
+              style={{alignSelf: 'center'}}
+              onPress={() => setIsPressedDeleteUser(!isPressedDeleteUser)}>
+              <Text style={{color: colors.white}}>취소</Text>
             </TouchableOpacity>
-            <View style={{flex: 1}} />
-            <View style={styles.profile}>
-              <Text style={styles.profileName}>{nickname}</Text>
-              <Text style={styles.profileUserID}>@matzip-user-01</Text>
-              {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
-            </View>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={deleteUser}>
+              <Text style={{color: colors.white}}>탈퇴</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>프로필 설정</Text>
-          <TouchableOpacity style={styles.row} onPress={toggleEdit}>
-            <Ionicons name="person-outline" size={18} />
-            <Text style={styles.rowText}>닉네임</Text>
-            <View style={{flex: 1}} />
-            <TextInput
-              keyboardType="default"
-              style={styles.input}
-              placeholder="현재 닉네임"
-              placeholderTextColor="grey"
-              selectionColor="black"
-              editable={isEdit}
-              onEndEditing={() => {
-                setIsEdit(false);
-                // TODO: change nickname text onEndEditing
-              }}
-              onChangeText={text => setNickname(text)}
-            />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.row}>
-            <Ionicons name="lock-closed-outline" size={18} />
-            <Text style={styles.rowText}>비밀번호 변경</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </TouchableOpacity>
-          
-          {/* <TouchableOpacity
+      </Modal>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+        <ScrollView contentContainerStyle={styles.containter}>
+          <Text style={styles.heading}>프로필</Text>
+          <View style={{paddingHorizontal: 24}}>
+            <View style={styles.profileWrapper}>
+              <TouchableOpacity
+                onPress={() => {
+                  // change profile picture on press
+                }}>
+                <View>
+                  <Image
+                    alt="Profile picture"
+                    source={assets.images.default_profile}
+                    style={styles.profileImage}
+                  />
+                </View>
+              </TouchableOpacity>
+              <View style={{flex: 1}} />
+              <View style={styles.profile}>
+                <Text style={styles.profileName}>{nickname}</Text>
+                <Text style={styles.profileUserID}>{addr}</Text>
+                {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
+              </View>
+            </View>
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionHeader}>프로필 설정</Text>
+            <TouchableOpacity style={styles.row} onPress={toggleEdit}>
+              <Ionicons name="person-outline" size={18} />
+              <Text style={styles.rowText}>닉네임</Text>
+              <View style={{flex: 1}} />
+              <TextInput
+                keyboardType="default"
+                style={styles.input}
+                placeholder="현재 닉네임"
+                placeholderTextColor="grey"
+                selectionColor="black"
+                editable={isEdit}
+                onEndEditing={() => {
+                  setIsEdit(false);
+                  // TODO: change nickname text onEndEditing
+                }}
+                onChangeText={text => setNickname(text)}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
+              <Ionicons name="navigate-outline" size={18} />
+              <Text style={styles.rowText}>주소</Text>
+              <View style={{flex: 1}} />
+              <TextInput
+                keyboardType="default"
+                style={styles.input}
+                placeholder="서울시 중구 길동로 32"
+                placeholderTextColor="grey"
+                selectionColor="black"
+                editable={isEditAddr}
+                onEndEditing={() => {
+                  setIsEditAddr(false);
+                  // TODO: change nickname text onEndEditing
+                }}
+                onChangeText={text => setAddr(text)}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.row}>
+              <Ionicons name="lock-closed-outline" size={18} />
+              <Text style={styles.rowText}>비밀번호 변경</Text>
+              <View style={{flex: 1}} />
+              <Ionicons
+                name="chevron-forward-outline"
+                color="#0c0c0c"
+                size={22}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.delete}
+              onPress={() => {
+                setIsPressedDeleteUser(true);
+              }}>
+              <Text style={styles.deleteText}>탈퇴하기</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity
             onPress={() => {
               navigation.navigate('SettingsMain');
             }}>
             <View style={styles.row}>
-              <Text style={styles.accText}>계정 관리</Text>
+              <Text style={styles.rowText}>계정 관리</Text>
               <View style={{flex: 1}} />
               <Ionicons
                 name="chevron-forward-outline"
@@ -96,23 +185,38 @@ export default function ProfileMain() {
               />
             </View>
           </TouchableOpacity> */}
-        </View>
-        <View style={{paddingHorizontal: 60}}>
-            <TouchableOpacity style={styles.delete}
-              onPress={() => {
-              // to backend, to login screen
-              }}>
-              <Text style={styles.deleteText}>탈퇴하기</Text>
-            </TouchableOpacity>
           </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   containter: {
     paddingVertical: 24,
+  },
+  modalContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'grey',
+    opacity: 0.85,
+    zIndex: 10000,
+    justifyContent: 'center',
+  },
+  popupContainer: {
+    position: 'absolute',
+    zIndex: 10000,
+    top: Dimensions.get('window').height / 2 - 50,
+    alignSelf: 'center',
+    backgroundColor: colors.coral1,
+    width: 200,
+    height: 100,
+    padding: 10,
+    paddingTop: 15,
+    borderRadius: 10,
+    justifyContent: 'space-between',
   },
   heading: {
     fontSize: 30,
@@ -190,23 +294,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'right',
   },
-  accText: {
-    fontSize: 17,
-    color: colors.coral1,
-    fontWeight: 'bold',
-  },
   delete: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
-    backgroundColor: 'gray',
+    backgroundColor: colors.red,
     borderRadius: 8,
     marginTop: 15,
   },
   deleteText: {
     fontSize: 17,
-    color: 'white',
+    color: colors.white,
     fontWeight: 'bold',
   },
 });
