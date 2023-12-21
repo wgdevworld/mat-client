@@ -7,31 +7,53 @@ export const REQ_METHOD = {
   MUTATION: 'mutation',
 };
 
+const getNewToken = async () => {
+  try {
+    const res = await AsyncStorage.multiGet([
+      ASYNC_STORAGE_ENUM.REFRESH_TOKEN,
+      ASYNC_STORAGE_ENUM.USER_EMAIL,
+    ]);
+
+    const refreshTokenPair = res.find(
+      pair => pair[0] === ASYNC_STORAGE_ENUM.REFRESH_TOKEN,
+    );
+    const userEmailPair = res.find(
+      pair => pair[0] === ASYNC_STORAGE_ENUM.USER_EMAIL,
+    );
+
+    const refreshToken = refreshTokenPair ? refreshTokenPair[1] : null;
+    const userEmail = userEmailPair ? userEmailPair[1] : null;
+
+    const fetchNewTokenQuery = `{
+      fetchNewAccessToken(refreshToken: "${refreshToken}", userEmail: "${userEmail}")
+    }`;
+    const response = await request(fetchNewTokenQuery, REQ_METHOD.QUERY);
+    const idToken = response?.data.data.fetchNewAccessToken;
+    console.log('ℹ️ Token refreshed: ' + idToken);
+    return idToken;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getValidIdToken = async () => {
-  let idToken;
   const lastTokenDateString = await AsyncStorage.getItem(
     ASYNC_STORAGE_ENUM.TOKEN_TIME,
   );
+
   const now = new Date();
-  const fiftyMinBefore = new Date(now.getTime() - 50 * 60 * 1000);
-  if (!lastTokenDateString) {
-    return;
-  }
-  const lastTokenDate = new Date(lastTokenDateString);
-  if (lastTokenDate.getTime() < fiftyMinBefore.getTime()) {
-    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString());
+  const fiftyMinBeforeNow = new Date(now.getTime() - 50 * 60 * 1000);
+  const lastTokenDate =
+    lastTokenDateString !== null ? new Date(lastTokenDateString) : null;
+
+  if (!lastTokenDate || lastTokenDate.getTime() < fiftyMinBeforeNow.getTime()) {
     console.log('ℹ️ Token expired, refreshing...');
-    const query = `{
-      getAccessToken
-    }`;
-    const response = await request(query, REQ_METHOD.QUERY);
-    idToken = response?.data.data.getAccessToken;
-    console.log('ℹ️ Token refreshed:' + idToken);
-    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, idToken);
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.TOKEN_TIME, now.toString());
+    const newIdToken = await getNewToken();
+    return newIdToken;
   } else {
-    idToken = await AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN);
+    return await AsyncStorage.getItem(ASYNC_STORAGE_ENUM.ID_TOKEN);
   }
-  return idToken;
 };
 
 export const request = async (

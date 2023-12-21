@@ -19,8 +19,11 @@ import {MuckitItem} from '../types/store';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {
   addMuckitemAction,
+  deleteMuckitemAction,
   updateMuckitemAction,
 } from '../store/modules/userItems';
+import SwipeableRow from '../components/SwipeableRow';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
 
 export default function MuckitNotes() {
   const dispatch = useDispatch();
@@ -35,10 +38,12 @@ export default function MuckitNotes() {
   const [newItemText, setNewItemText] = useState('');
 
   const handleCheckboxToggle = async (itemId: any) => {
-    const variables = {
-      itemId: itemId,
-    };
-    const toggleStatusMutation = `
+    try {
+      dispatch(updateIsLoadingAction(true));
+      const variables = {
+        itemId: itemId,
+      };
+      const toggleStatusMutation = `
     mutation toggleMuckitemStatus($itemId: String!) {
       toggleMuckitemStatus(itemId: $itemId) {
         id
@@ -48,27 +53,51 @@ export default function MuckitNotes() {
       }
     }
     `;
-    const toggleStatusRes = await request(
-      toggleStatusMutation,
-      REQ_METHOD.MUTATION,
-      variables,
-    );
-    const updatedItemData = toggleStatusRes?.data?.data?.toggleMuckitemStatus;
-    console.log(updatedItemData);
-    const updatedItem: MuckitItem = {
-      id: updatedItemData.id,
-      title: updatedItemData.title,
-      description: updatedItemData.description,
-      completeStatus: updatedItemData.completeStatus,
-    };
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId
-          ? {...item, checked: updatedItemData.completeStatus}
-          : item,
-      ),
-    );
-    dispatch(updateMuckitemAction(updatedItem));
+      const toggleStatusRes = await request(
+        toggleStatusMutation,
+        REQ_METHOD.MUTATION,
+        variables,
+      );
+      const updatedItemData = toggleStatusRes?.data?.data?.toggleMuckitemStatus;
+      const updatedItem: MuckitItem = {
+        id: updatedItemData.id,
+        title: updatedItemData.title,
+        description: updatedItemData.description,
+        completeStatus: updatedItemData.completeStatus,
+      };
+      setItems(prevItems =>
+        prevItems.map(item =>
+          item.id === itemId
+            ? {...item, checked: updatedItemData.completeStatus}
+            : item,
+        ),
+      );
+      dispatch(updateMuckitemAction(updatedItem));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
+  const onDeleteMuckitem = async (itemId: string) => {
+    try {
+      dispatch(updateIsLoadingAction(true));
+      const variables = {
+        itemId: itemId,
+      };
+      const deleteItemMutation = `
+        mutation deleteMuckitem($itemId: String!) {
+          deleteMuckitem(itemId: $itemId)
+        }
+      `;
+      await request(deleteItemMutation, REQ_METHOD.MUTATION, variables);
+      dispatch(deleteMuckitemAction(itemId));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
   };
 
   const handleAddItem = async () => {
@@ -110,17 +139,22 @@ export default function MuckitNotes() {
 
   const renderItem = ({item}) => {
     return (
-      <TouchableOpacity
-        style={[
-          styles.itemContainer,
-          item.completeStatus && styles.checkedItem,
-        ]}
-        onPress={() => handleCheckboxToggle(item.id)}>
-        <View>
-          <Text style={styles.itemTitle}>{item.title}</Text>
-        </View>
-        <View style={styles.checkbox} />
-      </TouchableOpacity>
+      <SwipeableRow
+        onSwipeableRightOpen={() => {
+          onDeleteMuckitem(item.id);
+        }}>
+        <TouchableOpacity
+          style={[
+            styles.itemContainer,
+            item.completeStatus && styles.checkedItem,
+          ]}
+          onPress={() => handleCheckboxToggle(item.id)}>
+          <View>
+            <Text style={styles.itemTitle}>{item.title}</Text>
+          </View>
+          <View style={styles.checkbox} />
+        </TouchableOpacity>
+      </SwipeableRow>
     );
   };
 
@@ -128,8 +162,10 @@ export default function MuckitNotes() {
     setNewItemText(text);
   };
 
-  const handleTextInputSubmit = () => {
-    handleAddItem();
+  const handleTextInputSubmit = async () => {
+    dispatch(updateIsLoadingAction(true));
+    await handleAddItem();
+    dispatch(updateIsLoadingAction(false));
   };
 
   return (

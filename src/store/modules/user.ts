@@ -27,8 +27,12 @@ export const userSlice = createSlice({
       state.pushAllowStatus = newUser.pushAllowStatus;
       return state;
     },
+    updateUserIdAction: (state, action: PayloadAction<string>) => {
+      state.id = action.payload;
+      return state;
+    },
   },
 });
 
-export const {createUserAction} = userSlice.actions;
+export const {createUserAction, updateUserIdAction} = userSlice.actions;
 export default userSlice.reducer;

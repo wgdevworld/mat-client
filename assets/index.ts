@@ -3,6 +3,7 @@ import {ImageSourcePropType} from 'react-native';
 export type AssetImages = {
   images: {
     [key: string]: ImageSourcePropType;
+    splash_background: ImageSourcePropType;
     스시올로지: ImageSourcePropType;
     진만두: ImageSourcePropType;
     월량관: ImageSourcePropType;
@@ -17,6 +18,7 @@ export type AssetImages = {
 
 const assets: AssetImages = {
   images: {
+    splash_background: require('./image/splash_background.png'),
     스시올로지: require('./image/1.png'),
     진만두: require('./image/2.png'),
     월량관: require('./image/3.png'),

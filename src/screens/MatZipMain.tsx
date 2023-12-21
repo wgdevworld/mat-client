@@ -9,11 +9,9 @@ import {
   TouchableOpacity,
   FlatList,
   Animated,
-  Image,
   ScrollView,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
 import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
@@ -24,12 +22,32 @@ import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
 import Config from 'react-native-config';
+import {useDispatch} from 'react-redux';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  addVisitedMatZipAction,
+  removeVisitedZipAction,
+} from '../store/modules/visitedZips';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
   reviews,
 }) => {
   const [height] = useState(new Animated.Value(0));
+
+  const [orderedReviews, setOrderedReviews] = useState<Review[] | undefined>(
+    reviews,
+  );
+
+  useEffect(() => {
+    if (reviews) {
+      setOrderedReviews(
+        reviews.sort((a, b) => {
+          return b.date.getTime() - a.date.getTime();
+        }),
+      );
+    }
+  }, [reviews]);
 
   useEffect(() => {
     Animated.timing(height, {
@@ -57,7 +75,7 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   return (
     <Animated.View style={{height}}>
       <FlatList
-        data={reviews}
+        data={orderedReviews}
         keyExtractor={(item, index) => item.date.toISOString() + index}
         scrollEnabled={true}
         maxToRenderPerBatch={5}
@@ -77,9 +95,12 @@ export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
   const zipId = route.params.zipID;
 
+  const dispatch = useDispatch();
+
   const zipDataFromStore = useAppSelector(state =>
     state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   );
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
 
   const matZipFromZipId = async () => {
@@ -131,8 +152,37 @@ export default function MatZipMain() {
         };
         await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
       }
+
+      const selectedMatZip: MatZip = {
+        id: fetchedZipData.id,
+        name: fetchedZipData.name,
+        imageSrc:
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length !== 0
+            ? fetchedZipData.images.map((image: any) => image.src)
+            : defaultStreetViewImg,
+        coordinate: location,
+        reviewAvgRating: fetchedZipData.reviewAvgRating,
+        reviewCount: fetchedZipData.reviewCount,
+        address: fetchedZipData.address,
+        category: fetchedZipData.category,
+      };
+      setZipData(selectedMatZip);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(updateIsLoadingAction(true));
+    if (zipDataFromStore) {
+      setZipData(zipDataFromStore);
+    } else {
+      matZipFromZipId();
+    }
+    const fetchReview = async () => {
       const fetchReviewQuery = `{
-        fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+        fetchReviewsByZipId(zipId: "${zipId}") {
           writer {
             name
           }
@@ -150,7 +200,6 @@ export default function MatZipMain() {
         REQ_METHOD.QUERY,
       );
       const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
-
       const filteredReviewList = fetchedReviewData.map((review: any) => {
         const reviewImages = review.images.map((image: any) => {
           return {
@@ -166,56 +215,59 @@ export default function MatZipMain() {
           images: reviewImages,
         };
       });
-
-      const selectedMatZip: MatZip = {
-        id: fetchedZipData.id,
-        name: fetchedZipData.name,
-        imageSrc:
-          fetchedZipData.images === undefined ||
-          fetchedZipData.images.length !== 0
-            ? fetchedZipData.images.map((image: any) => image.src)
-            : defaultStreetViewImg,
-        coordinate: location,
-        reviews: filteredReviewList,
-        reviewAvgRating: fetchedZipData.reviewAvgRating,
-        reviewCount: fetchedZipData.reviewCount,
-        address: fetchedZipData.address,
-        category: fetchedZipData.category,
-      };
-      setZipData(selectedMatZip);
       setReviews(filteredReviewList);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    if (zipDataFromStore) {
-      setZipData(zipDataFromStore);
-      setReviews(zipDataFromStore.reviews);
-    } else {
-      matZipFromZipId();
-    }
+      dispatch(updateIsLoadingAction(false));
+    };
+    fetchReview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zipId, zipDataFromStore]);
 
   const images = zipData?.imageSrc;
-  console.log(images);
   const handlePressReviewChevron = () => {
     // navigation.navigate('MatZip', {id: zipId});
     setToggleReview(prev => !prev);
     // show review shen toggled
   };
   const [toggleReview, setToggleReview] = useState(true);
-  const [saveIcon, setSaveIcon] = useState(true);
-  const handleIconPress = () => {
-    setSaveIcon(prev => !prev);
-    // save zip (add zip to user.savedZips)
-    // use server API: communicate with backend
-  };
-  const [reviews, setReviews] = useState<Review[] | undefined>(
-    zipData?.reviews ? zipData?.reviews : [],
+  const [saveIcon, setSaveIcon] = useState(
+    !!visitedZips.find(zip => zip.id === zipId),
   );
+  const handleIconPress = async () => {
+    dispatch(updateIsLoadingAction(true));
+    try {
+      let beenToThisMatZipQuery;
+      if (saveIcon === false) {
+        beenToThisMatZipQuery = `
+      mutation dibsZip($zipId: String!) {
+        dibsZip(zipId: $zipId) {
+          id
+        }
+      }`;
+      } else {
+        beenToThisMatZipQuery = `
+        mutation undibsZip($zipId: String!) {
+          dibsZip(zipId: $zipId) {
+            id
+          }
+        }`;
+      }
+      const variables = {
+        zipId: zipId,
+      };
+      await request(beenToThisMatZipQuery, REQ_METHOD.MUTATION, variables);
+      if (saveIcon === false) {
+        dispatch(addVisitedMatZipAction(zipData));
+      } else {
+        dispatch(removeVisitedZipAction(zipData?.id));
+      }
+      setSaveIcon(prev => !prev);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+  const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <ScrollView bounces={false} contentContainerStyle={styles.containter}>
@@ -230,16 +282,21 @@ export default function MatZipMain() {
         )} */}
         <View style={styles.matZipContainer}>
           <View style={styles.horizontal}>
-            <Text style={styles.zipNameText}>{zipData?.name}</Text>
-
+            <Text
+              style={styles.zipNameText}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {zipData?.name}
+            </Text>
             <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
               <Ionicons
-                name="bookmark-outline"
+                name={
+                  saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                }
                 size={28}
-                color={saveIcon ? colors.coral1 : 'darkgrey'}
+                color={colors.coral1}
               />
             </TouchableOpacity>
-
             <View style={{flex: 1}} />
             <View
               style={{
@@ -247,7 +304,7 @@ export default function MatZipMain() {
                 borderRadius: 8,
                 padding: 7,
               }}>
-              <View style={styles.horizontal}>
+              <View style={{...styles.horizontal}}>
                 <Ionicons name="star" color={colors.coral1} size={15} />
                 <Text style={styles.matZipRatingText}>
                   {ratingAverage(reviews)}
@@ -304,6 +361,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingBottom: 10,
     textAlign: 'left',
+    width: 250,
   },
   matZipListText: {
     fontSize: 13,
@@ -422,5 +480,6 @@ const styles = StyleSheet.create({
   saveIcon: {
     marginTop: 10,
     marginLeft: 5,
+    alignContent: 'center',
   },
 });

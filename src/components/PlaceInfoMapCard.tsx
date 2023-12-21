@@ -27,6 +27,11 @@ const PlaceInfoMapCard = (props: Props) => {
           </Text>
         </View>
       </View>
+      <Ionicons
+        name="chevron-forward-outline"
+        color={colors.white}
+        style={{alignSelf: 'center', paddingLeft: 5}}
+      />
     </TouchableOpacity>
   );
 };
@@ -36,6 +41,7 @@ const styles = StyleSheet.create({
     height: 50,
     flexDirection: 'row',
     padding: 10,
+    paddingRight: 5,
     marginBottom: 5,
     backgroundColor: colors.coral1,
     borderRadius: 5,

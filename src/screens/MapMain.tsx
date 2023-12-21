@@ -24,7 +24,6 @@ import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
 import {
   addressToCoordinate,
   calculateDistance,
-  ratingAverage,
   trimCountry,
 } from '../tools/CommonFunc';
 import {useNavigation} from '@react-navigation/native';
@@ -43,9 +42,9 @@ import Config from 'react-native-config';
 import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
 
 const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -53,18 +52,23 @@ function App(): JSX.Element {
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
   );
+  const curUser = useAppSelector(state => state.user);
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
+
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
   const textInputRef = useRef(null);
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
-  const [buttonHeight, setButtonHeight] = useState(0);
-  const [buttonVisible, setButtonVisible] = useState(true);
   const [marker, setMarker] = useState<MatZip | null>();
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMarkerSavedMatZip, setIsMarkerSavedMatZip] = useState(false);
   const [searchedMatZips, setSearchedMatZips] =
     useState<{zipId: number; name: string; address: string}[]>();
+  const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
+    curMatMap.zipList,
+  );
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -94,7 +98,6 @@ function App(): JSX.Element {
 
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
-  //TODO: 리덕스에다 저장
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
     latitude: 0,
     longitude: 0,
@@ -121,33 +124,21 @@ function App(): JSX.Element {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
 
-  //TODO: 팔로잉 맵 목록 가져오기
-  // const fetchFollowingMaps = async () => {
-  //   try {
-  //     const query = ` {
-  //     fetchMapsFollowed {
-  //       id
-  //       name
-  //     }
-  //   }`;
-  //     const res = await request(query, REQ_METHOD.QUERY);
-  //     return res?.data.data.fetchMapsFollowed;
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  useEffect(() => {
+    setOrderedMatZips(curMatMap.zipList);
+  }, [curMatMap]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // useEffect(async () => {
-  //   const followingMaps = await fetchFollowingMaps();
-  //   console.log(followingMaps);
-  //   const maps = followingMaps.map((obj: any) => ({
-  //     label: obj.name,
-  //     value: obj.id,
-  //   }));
-  //   console.log(maps);
-  //   setItems(maps);
-  // }, []);
+  useEffect(() => {
+    setOrderedMatZips(prev => {
+      const sortedArray = [...prev].sort(
+        (a, b) =>
+          calculateDistance(a.coordinate, currentLocation) -
+          calculateDistance(b.coordinate, currentLocation),
+      );
+
+      return sortedArray;
+    });
+  }, [currentLocation, curMatMap, visitedZips]);
 
   useEffect(() => {
     const newRegion = {
@@ -156,7 +147,7 @@ function App(): JSX.Element {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     };
-    mapRef.current?.animateToRegion(newRegion, 1000);
+    mapRef.current?.animateToRegion(newRegion, 300);
   }, [currentLocation]);
 
   const performSearch = async (input: string) => {
@@ -206,11 +197,13 @@ function App(): JSX.Element {
   };
 
   const onPressSearchResult = async (data: any, details: any) => {
-    let location: Coordinate;
-    let fetchedZipData: any = null;
-    if (typeof details === 'string') {
-      location = await addressToCoordinate(details);
-      const fetchZipQuery = `{
+    dispatch(updateIsLoadingAction(true));
+    try {
+      let fetchedZipData: any = null;
+      // if searched with our DB
+      if (typeof details === 'string') {
+        // location = await addressToCoordinate(details);
+        const fetchZipQuery = `{
         fetchZip(id: "${data}") {
           id
           name
@@ -221,16 +214,23 @@ function App(): JSX.Element {
             name
           }
           category
+          images {
+            id
+            src
+          }
+          latitude
+          longitude
         }
       }`;
-      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-      fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
-    } else {
-      location = {
-        latitude: details.geometry.location.lat,
-        longitude: details.geometry.location.lng,
-      };
-      const fetchZipQuery = `{
+        const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+        fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
+      } else {
+        // if searched with Google Maps API
+        // location = {
+        //   latitude: details.geometry.location.lat,
+        //   longitude: details.geometry.location.lng,
+        // };
+        const fetchZipQuery = `{
         fetchZipByGID(gid: "${data.place_id}") {
           id
           name
@@ -241,25 +241,34 @@ function App(): JSX.Element {
             name
           }
           category
+          images {
+            id
+            src
+          }
+          latitude
+          longitude
         }
       }`;
-      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
-    }
-    //TODO: add functionality for custom Zips
-    if (!fetchedZipData) {
-      console.log('ℹ️ 맛집 생성중');
-      const variables = {
-        zipInfo: {
-          name: details.name,
-          number: data.place_id,
-          description: data.description,
-          address: details.formatted_address,
-          imgSrc: [],
-          category: data.types[0] ? data.types[0] : '식당',
-        },
-      };
-      const addZipMutation = `
+        const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+        fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+      }
+      if (!fetchedZipData) {
+        console.log('ℹ️ 맛집 생성중');
+        const apiKey = Config.MAPS_API;
+        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
+        const variables = {
+          zipInfo: {
+            name: details.name,
+            number: data.place_id,
+            description: data.description,
+            address: details.formatted_address,
+            imgSrc: [defaultStreetViewImg],
+            category: data.types[0] ? data.types[0] : '식당',
+            latitude: details.geometry.location.lat,
+            longitude: details.geometry.location.lng,
+          },
+        };
+        const addZipMutation = `
         mutation addZip($zipInfo: CreateZipInput!) {
           addZip(zipInfo: $zipInfo) {
             id
@@ -268,77 +277,149 @@ function App(): JSX.Element {
             reviewCount
             reviewAvgRating
             category
+            images {
+              id
+              src
+            }
+            latitude
+            longitude
           }
       }`;
-      const addZipRes = await request(
-        addZipMutation,
-        REQ_METHOD.MUTATION,
-        variables,
-      );
-      fetchedZipData = addZipRes?.data.data.addZip;
-    }
-
-    const fetchReviewQuery = `{
-      fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
-        writer {
-          name
-        }
-        rating
-        content
-        createdAt
-        images {
-          id
-          src
-        }
+        const addZipRes = await request(
+          addZipMutation,
+          REQ_METHOD.MUTATION,
+          variables,
+        );
+        fetchedZipData = addZipRes?.data.data.addZip;
       }
-    }`;
-    const fetchedReviewRes = await request(fetchReviewQuery, REQ_METHOD.QUERY);
-    const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
 
-    const selectedMatZip: MatZip = {
-      id: fetchedZipData.id,
-      name: fetchedZipData.name,
-      imageSrc: fetchedZipData.images
-        ? fetchedZipData.images[0].src
-        : assets.images.placeholder,
-      coordinate: location,
-      reviews: fetchedReviewData ? fetchedReviewData : [],
-      reviewAvgRating: fetchedZipData.reviewAvgRating,
-      reviewCount: fetchedZipData.reviewCount,
-      address: fetchedZipData.address,
-      category: fetchedZipData.category,
-    };
-    setMarker(selectedMatZip);
-    mapRef.current?.animateToRegion(
-      {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      },
-      1000,
-    );
+      let defaultStreetViewImg = assets.images.placeholder;
+      if (
+        fetchedZipData.images === undefined ||
+        fetchedZipData.images.length === 0
+      ) {
+        console.log('⛔️ no image');
+        const apiKey = Config.MAPS_API;
+        //@ts-ignore
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        const updateZipQuery = `
+          mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+              updateZip(id: $id, zipInfo: $zipInfo) {
+                id
+              }
+          }
+         `;
+        const updateZipVariables = {
+          id: fetchedZipData.id,
+          zipInfo: {
+            imgSrc: [defaultStreetViewImg],
+          },
+        };
+        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      }
+      // fallback if matzip has no coordinates
+      let location: Coordinate;
+      if (
+        fetchedZipData.latitude === null ||
+        fetchedZipData.longitude === null
+      ) {
+        console.log('⛔️ no coordinate');
+        if (typeof details === 'string') {
+          location = await addressToCoordinate(details);
+        } else {
+          location = {
+            latitude: details.geometry.location.lat,
+            longitude: details.geometry.location.lng,
+          };
+        }
+        const updateZipQuery = `
+          mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+              updateZip(id: $id, zipInfo: $zipInfo) {
+                id
+                latitude
+                longitude
+              }
+          }
+         `;
+        const updateZipVariables = {
+          id: fetchedZipData.id,
+          zipInfo: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+        };
+        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      } else {
+        location = {
+          latitude: fetchedZipData.latitude,
+          longitude: fetchedZipData.longitude,
+        };
+      }
+
+      //   const fetchReviewQuery = `{
+      //   fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
+      //     writer {
+      //       name
+      //     }
+      //     rating
+      //     content
+      //     createdAt
+      //     images {
+      //       id
+      //       src
+      //     }
+      //   }
+      // }`;
+      //   const fetchedReviewRes = await request(
+      //     fetchReviewQuery,
+      //     REQ_METHOD.QUERY,
+      //   );
+      //   const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
+
+      const selectedMatZip: MatZip = {
+        id: fetchedZipData.id,
+        name: fetchedZipData.name,
+        imageSrc:
+          fetchedZipData.images || fetchedZipData.images.length === 0
+            ? defaultStreetViewImg
+            : fetchedZipData.images[0].src,
+        coordinate: location,
+        reviewAvgRating: fetchedZipData.reviewAvgRating,
+        reviewCount: fetchedZipData.reviewCount,
+        address: fetchedZipData.address,
+        category: fetchedZipData.category,
+      };
+      setMarker(selectedMatZip);
+      setIsMarkerSavedMatZip(false);
+      mapRef.current?.animateToRegion(
+        {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        0,
+      );
+      dispatch(updateIsLoadingAction(false));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
   };
 
   const snapPoints = useMemo(() => ['30%', '80%'], []);
-
-  const handleSheetChange = useCallback(
-    (index: any) => {
-      const screenPercent = parseFloat(snapPoints[index]);
-      setButtonHeight(screenHeight * screenPercent * 0.01);
-      index === 0 && setButtonVisible(true);
-    },
-    [snapPoints],
-  );
 
   const findAndSetCurMatMapByID = (givenId: string) => {
     const newMatMap = [...userOwnMaps, ...userFollowingMaps].find(
       item => item.id === givenId,
     );
     newMatMap && setCurMatMap(newMatMap);
+    setMarker(null);
   };
   const onPressAddBtn = async () => {
     try {
+      dispatch(updateIsLoadingAction(true));
       const variables = {
         mapId: curMatMap.id,
         zipId: marker?.id,
@@ -353,6 +434,7 @@ function App(): JSX.Element {
         reviewAvgRating
         category
         images {
+          id
           src
         }
       }
@@ -366,7 +448,8 @@ function App(): JSX.Element {
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
           let imgSrcArr = [];
-          if (zip.images !== null) {
+          console.log(zip);
+          if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
             imgSrcArr = [];
@@ -397,10 +480,13 @@ function App(): JSX.Element {
       dispatch(replaceOwnMatMapZipListAction(serializedZipList));
     } catch (e) {
       console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
     }
   };
 
   const onDeleteMatZip = async (id: string) => {
+    dispatch(updateIsLoadingAction(true));
     const removeFromMapQuery = `
       mutation removeFromMap($mapId: String! $zipId:String!) {
         removeFromMap(mapId: $mapId, zipId: $zipId) {
@@ -414,6 +500,7 @@ function App(): JSX.Element {
     };
     await request(removeFromMapQuery, REQ_METHOD.MUTATION, variables);
     dispatch(removeFromOwnMatMapAction(id));
+    dispatch(updateIsLoadingAction(false));
   };
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -427,7 +514,9 @@ function App(): JSX.Element {
         <TouchableOpacity
           key={matZip.id}
           style={styles.itemContainer}
-          onPress={() => navigation.navigate('MatZipMain', {zipID: matZip.id})}>
+          onPress={() => {
+            navigation.navigate('MatZipMain', {zipID: matZip.id});
+          }}>
           <View style={styles.itemImageContainer}>
             <Image
               source={
@@ -446,20 +535,13 @@ function App(): JSX.Element {
                 ellipsizeMode="tail">
                 {matZip.name}
               </Text>
-              {matZip.isVisited && (
-                <Ionicons
-                  name="checkmark-done-circle-outline"
-                  size={20}
-                  color={colors.coral1}
-                />
-              )}
               <View style={styles.itemStarReviewContainer}>
                 <Ionicons name="star" size={14} color={colors.coral1} />
                 <Text style={styles.itemStarsText}>
-                  {ratingAverage(matZip.reviews)}
+                  {matZip.reviewAvgRating}
                 </Text>
                 <Text style={styles.itemReviewText}>
-                  리뷰 {matZip.reviews ? matZip.reviews.length : 0}개
+                  리뷰 {matZip.reviewCount}개
                 </Text>
               </View>
             </View>
@@ -469,10 +551,20 @@ function App(): JSX.Element {
               ellipsizeMode="tail">
               {trimCountry(matZip.address)}
             </Text>
-            <Text style={styles.itemSubtext}>
-              나와의 거리{' '}
-              {calculateDistance(matZip.coordinate, currentLocation)}m
-            </Text>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={styles.itemSubtext}>
+                나와의 거리{' '}
+                {calculateDistance(matZip.coordinate, currentLocation)}m
+              </Text>
+              {visitedZips.find(zip => zip.id === matZip.id) && (
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={colors.coral1}
+                />
+              )}
+            </View>
           </View>
         </TouchableOpacity>
       </SwipeableRow>
@@ -561,11 +653,6 @@ function App(): JSX.Element {
         </View>
         <View style={styles.container}>
           <MapView
-            onMarkerPress={() => {
-              navigation.navigate('MatZipMain', {
-                zipID: marker?.id,
-              });
-            }}
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
@@ -580,16 +667,47 @@ function App(): JSX.Element {
             onPress={() => {
               setIsSearchGoogle(false);
               // TODO: figure out when to make marker null
-              // setMarker(null);
             }}>
             {marker && (
-              <Marker coordinate={marker.coordinate}>
-                <View style={styles.markerContentContainer}>
-                  <PlaceInfoMapCard marker={marker} />
-                  <Ionicons name="location" size={35} color={colors.coral1} />
-                </View>
-              </Marker>
+              <>
+                <Marker
+                  key={`key_${marker.coordinate.latitude}_${marker.coordinate.longitude}`}
+                  onPress={() => {
+                    dispatch(updateIsLoadingAction(true));
+                    navigation.navigate('MatZipMain', {
+                      zipID: marker?.id,
+                    });
+                  }}
+                  coordinate={marker.coordinate}>
+                  <View style={styles.markerContentContainer}>
+                    <PlaceInfoMapCard marker={marker} />
+                    <Ionicons name="location" size={26} color={colors.coral1} />
+                  </View>
+                </Marker>
+              </>
             )}
+
+            {curMatMap &&
+              curMatMap.zipList.map(zip => {
+                return (
+                  <Marker
+                    key={zip.id}
+                    coordinate={zip.coordinate}
+                    id={zip.id}
+                    onPress={() => {
+                      setMarker(zip);
+                      setIsMarkerSavedMatZip(true);
+                    }}>
+                    <View style={styles.markerContentContainer}>
+                      <Ionicons
+                        name="location"
+                        size={26}
+                        color={colors.coral1}
+                      />
+                    </View>
+                  </Marker>
+                );
+              })}
 
             {currentLocation && (
               <Marker
@@ -608,54 +726,88 @@ function App(): JSX.Element {
               </Marker>
             )}
           </MapView>
-          {buttonVisible && (
-            <TouchableOpacity
-              style={{
-                ...styles.mapBtn,
-                bottom: buttonHeight,
-              }}
-              onPress={() => {
-                requestPermissionAndGetLocation(setCurrentLocation);
-              }}>
-              <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
-                <Ionicons
-                  name="navigate-outline"
-                  color={'white'}
-                  size={25}
-                  style={{paddingRight: 2}}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.mapBtn}
+            onPress={() => {
+              requestPermissionAndGetLocation(setCurrentLocation);
+            }}>
+            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+              <Ionicons
+                name="navigate-outline"
+                color={'white'}
+                size={22}
+                style={{paddingRight: 2}}
+              />
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             style={{
               ...styles.mapBtn,
-              bottom: buttonHeight + 50,
-              display: marker ? 'flex' : 'none',
+              display:
+                marker &&
+                !isMarkerSavedMatZip &&
+                curMatMap.authorId === curUser.id
+                  ? 'flex'
+                  : 'none',
             }}
             onPress={onPressAddBtn}>
-            <View style={styles.mapBtnContainer}>
+            <View
+              style={{
+                ...styles.mapBtnContainer,
+                top: getStatusBarHeight() + 100,
+              }}>
               <Ionicons
                 name="add-outline"
                 color={'white'}
-                size={35}
+                size={22}
                 style={{paddingLeft: 2}}
               />
             </View>
           </TouchableOpacity>
-          <BottomSheet
-            ref={sheetRef}
-            snapPoints={snapPoints}
-            onChange={handleSheetChange}>
-            <BottomSheetFlatList
-              data={curMatMap.zipList}
-              keyExtractor={i => i.id}
-              renderItem={({item}) => renderItem(item)}
-              contentContainerStyle={styles.contentContainer}
-              onScrollBeginDrag={() => {
-                setButtonVisible(false);
-              }}
-              ListHeaderComponent={
+
+          <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
+            {orderedMatZips && orderedMatZips.length !== 0 ? (
+              <BottomSheetFlatList
+                data={orderedMatZips}
+                keyExtractor={i => i.id}
+                renderItem={({item}) => renderItem(item)}
+                contentContainerStyle={styles.contentContainer}
+                // onScrollEndDrag={() => {
+                //   setButtonVisible(true);
+                // }}
+                ListHeaderComponent={
+                  <View style={styles.bottomSheetHeader}>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        alignSelf: 'center',
+                        marginLeft: 16,
+                        color: colors.coral1,
+                      }}>
+                      근처 나의 맛집들 📍
+                    </Text>
+                    <DropDownPicker
+                      containerStyle={styles.dropDownPickerContainer}
+                      placeholder="맛맵 선택"
+                      open={dropDownOpen}
+                      setOpen={setDropDownOpen}
+                      value={dropDownValue}
+                      setValue={setDropDownValue}
+                      onChangeValue={item => {
+                        item && findAndSetCurMatMapByID(item);
+                      }}
+                      items={dropDownItems}
+                      setItems={setDropDownItems}
+                      itemKey="value"
+                    />
+                  </View>
+                }
+                stickyHeaderIndices={[0]}
+                ListFooterComponent={<View style={{height: 200}} />}
+                extraData={currentLocation}
+              />
+            ) : (
+              <>
                 <View style={styles.bottomSheetHeader}>
                   <Text
                     style={{
@@ -668,6 +820,7 @@ function App(): JSX.Element {
                   </Text>
                   <DropDownPicker
                     containerStyle={styles.dropDownPickerContainer}
+                    dropDownContainerStyle={{height: 150}}
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
                     setOpen={setDropDownOpen}
@@ -681,10 +834,31 @@ function App(): JSX.Element {
                     itemKey="value"
                   />
                 </View>
-              }
-              stickyHeaderIndices={[0]}
-              ListFooterComponent={<View style={{height: 200}} />}
-            />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    paddingHorizontal: 20,
+                    justifyContent: 'center',
+                    paddingTop: 10,
+                  }}>
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={26}
+                    color={colors.coral1}
+                    style={{alignSelf: 'center'}}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12.5,
+                      alignSelf: 'center',
+                      color: colors.coral1,
+                      paddingLeft: 3,
+                    }}>
+                    {'저장하고 싶은 맛집을 \n검색해서 추가하세요!'}
+                  </Text>
+                </View>
+              </>
+            )}
           </BottomSheet>
         </View>
       </GestureHandlerRootView>
@@ -765,8 +939,19 @@ const styles = StyleSheet.create({
     right: '3%',
   },
   mapBtnContainer: {
-    width: 40,
-    height: 40,
+    position: 'absolute',
+    top: getStatusBarHeight() + 55,
+    borderColor: colors.white,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
+    right: 10,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     backgroundColor: colors.coral1,
     justifyContent: 'center',
@@ -836,7 +1021,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   dropDownPickerContainer: {
-    width: '30%',
+    width: '28%',
     alignSelf: 'center',
     marginRight: 16,
   },

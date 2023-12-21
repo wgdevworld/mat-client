@@ -1,12 +1,21 @@
 import React, {useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from 'react-native';
 import {Button} from 'react-native-elements'; // Import the Button component
 import colors from '../styles/colors';
 import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
 import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {MatMap} from '../types/store';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {useAppSelector} from '../store/hooks';
 
 interface MapCardProps {
   map: MatMap;
@@ -16,6 +25,10 @@ interface MapCardProps {
 const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   const dispatch = useDispatch();
   const [addIcon, setAddIcon] = useState(true);
+  const userFollowingMaps = useAppSelector(
+    state => state.userMaps.followingMaps,
+  );
+  const user = useAppSelector(state => state.user);
 
   return (
     <TouchableOpacity onPress={onPressMap}>
@@ -36,10 +49,30 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
             }}
             title="알림 받기"
             buttonStyle={styles.bellButton}
-            titleStyle={styles.buttonTitle} // Adjust the font size here
+            titleStyle={styles.buttonTitle}
             onPress={() => {
-              addUserFollower(map.id);
-              dispatch(addFollowingMatMapAction(map));
+              console.log(map.authorId);
+              if (map.authorId && map.authorId === user.id) {
+                Alert.alert('본인 지도입니다!');
+              } else if (
+                userFollowingMaps.find(
+                  followingMap => followingMap.id === map.id,
+                )
+              ) {
+                Alert.alert('이미 팔로우하신 지도입니다!');
+              } else {
+                dispatch(updateIsLoadingAction(true));
+                addUserFollower(map.id)
+                  .then(() => {
+                    dispatch(addFollowingMatMapAction(map));
+                  })
+                  .catch(error => {
+                    console.error('Error adding follower:', error);
+                  })
+                  .finally(() => {
+                    dispatch(updateIsLoadingAction(false));
+                  });
+              }
             }}
           />
         </View>

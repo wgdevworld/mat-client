@@ -22,27 +22,22 @@ import {Linking, Platform} from 'react-native';
 
 export default function Settings() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const deleteUser = async () => {
-    const fetchLoggedInQuery = `{
-      fetchLoggedIn {
-        id
-      }
-    }
-    `;
-    const curUserRes = await request(fetchLoggedInQuery, REQ_METHOD.QUERY);
 
-    const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
-    const deleteUserQuery = `
-    mutation deleteUser($userId: String!) {
-      deleteUser(userId: $userId)
+  const logout = async () => {
+    try {
+      const logoutQuery = `
+        mutation logout() {
+          logout()
+        }
+      `;
+      const variables = {};
+      await request(logoutQuery, REQ_METHOD.MUTATION, variables);
+      await AsyncStorage.clear();
+      // await AsyncStorage.clear();
+      // navigation.replace('SplashScreen');
+    } catch (e) {
+      console.log(e);
     }
-    `;
-    const variables = {
-      userId: curUserId,
-    };
-    await request(deleteUserQuery, REQ_METHOD.MUTATION, variables);
-    await AsyncStorage.clear();
-    navigation.replace('LoginMain');
   };
 
   const openSettings = () => {
@@ -80,7 +75,10 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.containter}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.containter}
+        showsVerticalScrollIndicator={false}>
         <View style={{flex: 1, justifyContent: 'center'}}>
           <View
             style={{
@@ -233,9 +231,9 @@ export default function Settings() {
           <TouchableOpacity
             style={styles.logout}
             onPress={() => {
-              deleteUser();
+              logout();
             }}>
-            <Text style={styles.logoutText}>탈퇴하기</Text>
+            <Text style={styles.logoutText}>로그아웃</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

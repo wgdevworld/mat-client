@@ -1,15 +1,14 @@
 export interface MatZip {
   id: string;
   name: string;
-  reviews?: Review[];
   imageSrc: string[];
   coordinate: Coordinate;
   address: string;
   distance?: number;
   isVisited?: boolean;
   category: string;
-  reviewAvgRating?: number;
-  reviewCount?: number;
+  reviewAvgRating: number;
+  reviewCount: number;
   description?: string;
   notificationSent?: boolean;
 }
@@ -20,6 +19,7 @@ export interface MatMap {
   name: string;
   description: string;
   author: string;
+  authorId: string;
   publicStatus: boolean;
   imageSrc: string[];
   areaCode: string;
@@ -66,4 +66,8 @@ export interface MatZipPayload {
 export interface Event {
   taskId: string;
   timestamp: string;
+}
+
+export interface GlobalComponent {
+  isLoading: boolean;
 }
