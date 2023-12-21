@@ -251,7 +251,7 @@ export default function Login() {
           </View>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('EmailRegisterMain');
+              navigation.navigate('SignupEmail');
             }}
             style={styles.setAccountButtonEmail}>
             <Text style={styles.setAccountButtonTextEmail}>
@@ -280,7 +280,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.coral1,
     alignItems: 'center',
     justifyContent: 'center',
   },

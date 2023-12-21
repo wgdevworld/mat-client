@@ -19,8 +19,19 @@ import {onDisplayNotification} from './controls/NotificationControl';
 import EmailRegisterMain from './screens/EmailRegisterMain';
 import ZipList from './screens/ZipList';
 import ProfileMain from './screens/ProfileMain';
-import {LogBox} from 'react-native';
+import Welcome from './screens/Onboarding/Welcome';
+import Survey1 from './screens/Onboarding/Survey1';
+import Survey2 from './screens/Onboarding/Survey2';
+import Survey3 from './screens/Onboarding/Survey3';
+import SignupEmail from './screens/Signup/SIgnupEmail';
+import SignupPwd from './screens/Signup/SignupPwd';
+import SignupUser from './screens/Signup/SignupUser';
+import AccessGrant from './screens/Onboarding/AccessGrant';
+import {View} from 'react-native';
+import colors from './styles/colors';
 import SplashScreen from './screens/SplashScreen';
+import AppleLoginPage from './screens/AppleLoginTest';
+import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 
 LogBox.ignoreLogs([
@@ -122,6 +133,47 @@ const App = () => {
                   headerShown: false,
                 }}
               />
+
+              <Stack.Screen
+                name="Survey1"
+                component={Survey1}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Survey2"
+                component={Survey2}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Survey3"
+                component={Survey3}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SignupEmail"
+                component={SignupEmail}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SignupPwd"
+                component={SignupPwd}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SignupUser"
+                component={SignupUser}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Welcome"
+                component={Welcome}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AccessGrant"
+                component={AccessGrant}
+                options={{headerShown: false}}
+              />
               <Stack.Screen
                 name="SplashScreen"
                 component={SplashScreen}
@@ -129,13 +181,6 @@ const App = () => {
                   headerShown: false,
                   gestureEnabled: false,
                   animationEnabled: false,
-                }}
-              />
-              <Stack.Screen
-                name="MatZip"
-                component={MatZipMain}
-                options={{
-                  headerShown: false,
                 }}
               />
             </Stack.Navigator>

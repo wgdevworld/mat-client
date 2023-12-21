@@ -13,7 +13,6 @@ import {
   Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {ScreenParamList} from '../types/navigation';
 import assets from '../../assets';
 import colors from '../styles/colors';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -324,7 +323,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   logoutText: {
-    fontSize: 15,
+    fontSize: 17,
     color: 'white',
     fontWeight: 'bold',
   },

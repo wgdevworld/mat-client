@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   profileWrapper: {
     flexDirection: 'row',
     height: 100,
-    backgroundColor: '#FF4000',
+    backgroundColor: colors.coral1,
     borderRadius: 20,
     marginBottom: 12,
     paddingHorizontal: 12,
@@ -295,14 +295,13 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   delete: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
     backgroundColor: colors.red,
     borderRadius: 8,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    textAlign: 'center',
+    marginTop: 15,
   },
   deleteText: {
     fontSize: 17,
