@@ -3,6 +3,7 @@ $FirebaseSDKVersion = '10.12.0'
 
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-permissions/scripts/setup'
 platform :ios, '16.2'
 prepare_react_native_project!
 
@@ -22,6 +23,20 @@ if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
+
+setup_permissions([
+  'Camera',
+  'LocationAccuracy',
+  'LocationAlways',
+  'LocationWhenInUse',
+  'MediaLibrary',
+  'Microphone',
+  'Motion',
+  'Notifications',
+  'PhotoLibrary',
+  'PhotoLibraryAddOnly',
+])
+
 
 target 'mat_client' do
   # React Native Maps dependencies

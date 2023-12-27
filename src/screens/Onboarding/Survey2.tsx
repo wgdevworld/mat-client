@@ -1,21 +1,14 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  ScrollView,
-  View,
-  TouchableOpacity,
-  Image,
-  TextInput,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import colors from '../../styles/colors';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
 
 export default function Survey2() {
-  const [selectedOption, setSelectedOption] = React.useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = React.useState<string | null>(
+    null,
+  );
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const handleNext = () => {
@@ -32,10 +25,10 @@ export default function Survey2() {
       <TouchableOpacity
         style={[
           styles.optionBox,
-          selectedOption === '맛집 기록 및 저장하기' && styles.selectedOptionBox,
+          selectedOption === '맛집 기록 및 저장하기' &&
+            styles.selectedOptionBox,
         ]}
-        onPress={() => handleOptionSelect('맛집 기록 및 저장하기')}
-      >
+        onPress={() => handleOptionSelect('맛집 기록 및 저장하기')}>
         <Text style={styles.optionText}>맛집 기록 및 저장하기</Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -43,8 +36,7 @@ export default function Survey2() {
           styles.optionBox,
           selectedOption === '나의 맛집 공유하기' && styles.selectedOptionBox,
         ]}
-        onPress={() => handleOptionSelect('나의 맛집 공유하기')}
-      >
+        onPress={() => handleOptionSelect('나의 맛집 공유하기')}>
         <Text style={styles.optionText}>나의 맛집 공유하기</Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -52,8 +44,7 @@ export default function Survey2() {
           styles.optionBox,
           selectedOption === '새로운 맛집 탐색하기' && styles.selectedOptionBox,
         ]}
-        onPress={() => handleOptionSelect('새로운 맛집 탐색하기')}
-      >
+        onPress={() => handleOptionSelect('새로운 맛집 탐색하기')}>
         <Text style={styles.optionText}>새로운 맛집 탐색하기</Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -61,11 +52,10 @@ export default function Survey2() {
           styles.optionBox,
           selectedOption === '주변 맛집 검색하기' && styles.selectedOptionBox,
         ]}
-        onPress={() => handleOptionSelect('주변 맛집 검색하기')}
-      >
+        onPress={() => handleOptionSelect('주변 맛집 검색하기')}>
         <Text style={styles.optionText}>주변 맛집 검색하기</Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity
         style={[
           styles.nextButton,
@@ -78,20 +68,16 @@ export default function Survey2() {
       </TouchableOpacity>
 
       <View style={styles.progressIndicator}>
-        {[1, 2, 3, 4].map((step) => (
+        {[1, 2, 3, 4].map(step => (
           <View
             key={step}
-            style={[
-              styles.stepMarker,
-              step === 3 && styles.currentStepMarker, 
-            ]}
+            style={[styles.stepMarker, step === 3 && styles.currentStepMarker]}
           />
         ))}
       </View>
-
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -115,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   selectedOptionBox: {
-    backgroundColor: 'gray', 
+    backgroundColor: 'gray',
   },
   optionText: {
     fontSize: 20,
@@ -151,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
   },
   currentStepMarker: {
-    backgroundColor: colors.coral1, 
+    backgroundColor: colors.coral1,
   },
   disabledNextButton: {
     backgroundColor: 'gray', // Apply a different style for disabled button
