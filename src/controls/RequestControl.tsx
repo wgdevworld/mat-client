@@ -110,7 +110,7 @@ export const request = async (
     }
     return response;
   } catch (error: any) {
-    console.log(
+    console.error(
       '🚨 Server error:',
       error.response ? error.response.data : error.message,
     );

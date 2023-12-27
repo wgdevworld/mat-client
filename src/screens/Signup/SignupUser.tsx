@@ -13,9 +13,16 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
 import {useDispatch} from 'react-redux';
 import {updateUsernameAction} from '../../store/modules/user';
+import {useAppSelector} from '../../store/hooks';
+import {REQ_METHOD, request} from '../../controls/RequestControl';
+import {updateIsLoadingAction} from '../../store/modules/globalComponent';
 
 export default function SignupUser() {
   const dispatch = useDispatch();
+  const user = useAppSelector(state => state.user);
+  const isFromSocial = useAppSelector(
+    state => state.globalComponents.isFromSocial,
+  );
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [username, setUsername] = useState('');
   const [isEmpty, setIsEmpty] = useState(false);
@@ -28,9 +35,74 @@ export default function SignupUser() {
     }
   };
 
-  function onNext() {
+  async function onNext() {
     dispatch(updateUsernameAction(username));
-    navigation.navigate('SignupPwd');
+    if (!isFromSocial) {
+      try {
+        dispatch(updateIsLoadingAction(true));
+        const usernameForQuery = user.username;
+        const emailForQuery = user.email;
+        const pwdForQuery = user.password;
+
+        const createUserVariables = {
+          createUserInput: {
+            name: '홍길동',
+            username: usernameForQuery,
+            email: emailForQuery,
+            pwd: pwdForQuery,
+            address: '없음',
+          },
+        };
+
+        const createUserQuery = `
+            mutation createUser($createUserInput: CreateUserInput!) {
+                createUser(userInput: $createUserInput) {
+                    username
+                    id
+                    email
+            }
+        }`;
+
+        await request(
+          createUserQuery,
+          REQ_METHOD.MUTATION,
+          createUserVariables,
+        );
+        navigation.navigate('AccessGrant');
+      } catch (e) {
+        console.log(e);
+      } finally {
+        dispatch(updateIsLoadingAction(false));
+      }
+    } else {
+      try {
+        dispatch(updateIsLoadingAction(true));
+        const usernameForQuery = user.username;
+        const updateUserVariables = {
+          updateUserInput: {
+            username: usernameForQuery,
+          },
+        };
+
+        const updateUserQuery = `
+            mutation updateUser($updateUserInput: UpdateUserInput!) {
+                updateUser(userInput: $updateUserInput) {
+                  id
+            }
+        }`;
+
+        await request(
+          updateUserQuery,
+          REQ_METHOD.MUTATION,
+          updateUserVariables,
+        );
+        navigation.navigate('AccessGrant');
+      } catch (e) {
+        console.log(e);
+      } finally {
+        dispatch(updateIsLoadingAction(false));
+      }
+    }
   }
 
   return (
@@ -53,7 +125,7 @@ export default function SignupUser() {
           <Text style={styles.errorText}>유저네임을 입력해주세요!</Text>
         )}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>다음</Text>
+          <Text style={styles.buttonText}>가입 완료</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -78,7 +150,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 5,
     backgroundColor: 'white',
-    width: '66.6%',
+    width: '100%',
   },
   container: {
     flex: 1,

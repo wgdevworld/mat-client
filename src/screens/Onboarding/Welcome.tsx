@@ -4,12 +4,23 @@ import colors from '../../styles/colors';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
+import {useAppSelector} from '../../store/hooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_STORAGE_ENUM} from '../../types/asyncStorage';
 
 export default function Welcome() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const handleNext = () => {
-    navigation.navigate('TabNavContainer');
-  }
+  const isFromSocial = useAppSelector(
+    state => state.globalComponents.isFromSocial,
+  );
+  const handleNext = async () => {
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE, 'true');
+    if (isFromSocial) {
+      navigation.navigate('SplashScreen');
+    } else {
+      navigation.navigate('LoginMain');
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>환영합니다!</Text>
@@ -19,7 +30,9 @@ export default function Welcome() {
         먹킷리스트를 지금 만들어 보세요.
       </Text>
       <TouchableOpacity style={styles.startButton} onPress={handleNext}>
-        <Text style={styles.buttonText}>시작하기</Text>
+        <Text style={styles.buttonText}>
+          {isFromSocial ? '시작하기' : '로그인하러 가기'}
+        </Text>
       </TouchableOpacity>
     </View>
   );

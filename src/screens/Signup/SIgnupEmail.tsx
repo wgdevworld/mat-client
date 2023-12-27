@@ -29,7 +29,7 @@ export default function SignupEmail() {
 
   function onNext() {
     dispatch(updateEmailAction(email));
-    navigation.navigate('SignupUser');
+    navigation.navigate('SignupPwd');
   }
 
   return (
@@ -47,7 +47,7 @@ export default function SignupEmail() {
           value={email}
           onChangeText={text => {
             setEmail(text);
-            setIsEmpty(false); // Reset empty state when input changes
+            setIsEmpty(false);
           }}
           placeholder="이메일 입력"
         />

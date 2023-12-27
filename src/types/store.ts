@@ -71,4 +71,5 @@ export interface Event {
 
 export interface GlobalComponent {
   isLoading: boolean;
+  isFromSocial: boolean;
 }

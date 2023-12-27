@@ -18,22 +18,26 @@ import colors from '../styles/colors';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Linking, Platform} from 'react-native';
+import {ScreenParamList} from '../types/navigation';
+import {useAppSelector} from '../store/hooks';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
 export default function Settings() {
+  const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const logout = async () => {
     try {
       const logoutQuery = `
-        mutation logout() {
-          logout()
+        mutation {
+          logout
         }
       `;
       const variables = {};
       await request(logoutQuery, REQ_METHOD.MUTATION, variables);
       await AsyncStorage.clear();
-      // await AsyncStorage.clear();
-      // navigation.replace('SplashScreen');
+      await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE, 'true');
+      navigation.replace('LoginMain');
     } catch (e) {
       console.log(e);
     }
@@ -63,7 +67,7 @@ export default function Settings() {
     Linking.canOpenURL(url)
       .then(supported => {
         if (!supported) {
-          Alert.alert('이메일 앱을 찾을수가 없어요!');
+          Alert.alert('이메일 앱이 설치 되어있는지 확인해주세요!');
           console.log("Can't handle url: " + url);
         } else {
           return Linking.openURL(url);
@@ -108,8 +112,7 @@ export default function Settings() {
             </TouchableOpacity>
             <View style={{flex: 1}} />
             <View style={styles.profile}>
-              <Text style={styles.profileName}>홍길동</Text>
-              <Text style={styles.profileUserID}>@matzip-user-01</Text>
+              <Text style={styles.profileName}>{user.username}</Text>
             </View>
           </View>
         </TouchableOpacity>

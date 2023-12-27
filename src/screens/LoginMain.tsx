@@ -20,8 +20,11 @@ import appleAuth from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import colors from '../styles/colors';
+import {useDispatch} from 'react-redux';
+import {updateIsFromSocialAction} from '../store/modules/globalComponent';
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [email, setUserEmail] = useState('');
   const [pwd, setPwd] = useState('');
@@ -53,6 +56,7 @@ export default function Login() {
         },
       )
       .then((result: {data: any}) => {
+        console.log(result.data);
         result.data.data === null
           ? Alert.alert('이메일이나 비밀번호를 확인해주세요.')
           : (async () => {
@@ -81,15 +85,34 @@ export default function Login() {
       const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
 
       if (route === 'kakao-login') {
-        const accessToken = url.split('=')[1];
-        console.log('ℹ️ access token via kakao login: ' + accessToken);
-        AsyncStorage.multiSet([
-          [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
-        ]).then(() => {
-          AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true');
-          navigation.navigate('SplashScreen');
-        });
-        return;
+        // Extract the access token and refresh token
+        const accessToken = url.split('?')[1].split('=')[1];
+        const refreshToken = url.split('?')[2].split('=')[1];
+        console.log('ℹ️ Access token via kakao login: ' + accessToken);
+        console.log('ℹ️ Refresh token via kakao login: ' + refreshToken);
+        if (!accessToken || !refreshToken) {
+          Alert.alert('다른 로그인 방법을 선택해주세요.');
+        } else {
+          AsyncStorage.multiSet([
+            [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
+            [ASYNC_STORAGE_ENUM.REFRESH_TOKEN, refreshToken],
+          ]).then(async () => {
+            dispatch(updateIsFromSocialAction(true));
+            let isOnboardingDone = await AsyncStorage.getItem(
+              ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE,
+            );
+            if (!isOnboardingDone) {
+              navigation.navigate('SignupUser');
+            } else {
+              await AsyncStorage.setItem(
+                ASYNC_STORAGE_ENUM.IS_LOGGED_IN,
+                'true',
+              );
+              navigation.navigate('SplashScreen');
+            }
+          });
+          return;
+        }
       }
     };
 
@@ -178,6 +201,7 @@ export default function Login() {
         )
         .then(async (result: {data: any}) => {
           console.log(result.data.data);
+          dispatch(updateIsFromSocialAction(true));
           await AsyncStorage.multiSet([
             [
               ASYNC_STORAGE_ENUM.REFRESH_TOKEN,
@@ -189,7 +213,15 @@ export default function Login() {
             ],
             [ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true'],
           ]);
-          navigation.navigate('SplashScreen');
+          let isOnboardingDone = await AsyncStorage.getItem(
+            ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE,
+          );
+          if (!isOnboardingDone) {
+            navigation.navigate('SignupUser');
+          } else {
+            AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true');
+            navigation.navigate('SplashScreen');
+          }
         })
         .catch(e => console.log(e));
     }
@@ -251,11 +283,12 @@ export default function Login() {
           </View>
           <TouchableOpacity
             onPress={() => {
+              dispatch(updateIsFromSocialAction(false));
               navigation.navigate('SignupEmail');
             }}
             style={styles.setAccountButtonEmail}>
             <Text style={styles.setAccountButtonTextEmail}>
-              이메일로 시작하기
+              이메일로 회원가입하기
             </Text>
           </TouchableOpacity>
 

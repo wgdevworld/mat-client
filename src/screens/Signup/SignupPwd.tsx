@@ -32,7 +32,7 @@ export default function SignupPwd() {
   };
 
   function onNext() {
-    navigation.navigate('AccessGrant');
+    navigation.navigate('SignupUser');
   }
 
   return (
@@ -68,7 +68,7 @@ export default function SignupPwd() {
           <Text style={styles.errorText}>비밀번호가 일치하지 않습니다.</Text>
         )}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>가입 완료</Text>
+          <Text style={styles.buttonText}>다음</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 5,
     backgroundColor: 'white',
-    width: '100%',
+    width: '66.6%',
   },
   container: {
     flex: 1,
