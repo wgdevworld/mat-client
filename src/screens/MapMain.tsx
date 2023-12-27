@@ -199,6 +199,7 @@ function App(): JSX.Element {
   const onPressSearchResult = async (data: any, details: any) => {
     dispatch(updateIsLoadingAction(true));
     try {
+      setSearchQuery('');
       let fetchedZipData: any = null;
       // if searched with our DB
       if (typeof details === 'string') {
@@ -301,7 +302,7 @@ function App(): JSX.Element {
         console.log('⛔️ no image');
         const apiKey = Config.MAPS_API;
         //@ts-ignore
-        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
         const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
@@ -434,9 +435,10 @@ function App(): JSX.Element {
         reviewAvgRating
         category
         images {
-          id
           src
         }
+        latitude
+        longitude
       }
     }`;
       const addToMapRes = await request(
@@ -452,7 +454,9 @@ function App(): JSX.Element {
           if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
-            imgSrcArr = [];
+            const apiKey = Config.MAPS_API;
+            const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
+            imgSrcArr = [defaultStreetViewImg];
           }
           let coordinate: Coordinate;
           try {

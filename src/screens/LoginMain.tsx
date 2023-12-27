@@ -28,6 +28,7 @@ export default function Login() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [email, setUserEmail] = useState('');
   const [pwd, setPwd] = useState('');
+  const [pwdInvisible, setPwdInvisible] = useState(true);
 
   const onLogin = () => {
     const query = `
@@ -253,13 +254,18 @@ export default function Login() {
               <Ionicons name="lock-closed-outline" size={15} color={'white'} />
             </View>
             <TextInput
+              secureTextEntry={pwdInvisible}
               style={styles.input}
               placeholder="비밀번호"
               placeholderTextColor="white"
               selectionColor="white"
               onChangeText={value => setPwd(value)}
             />
-            <TouchableOpacity style={styles.passwordVisibleButton}>
+            <TouchableOpacity
+              onPress={() => {
+                setPwdInvisible(!pwdInvisible);
+              }}
+              style={styles.passwordVisibleButton}>
               <Ionicons name="eye-off" size={15} color={'white'} />
             </TouchableOpacity>
           </View>

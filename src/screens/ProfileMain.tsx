@@ -28,7 +28,7 @@ export default function ProfileMain() {
 
   const [isEdit, setIsEdit] = React.useState(false);
   const toggleEdit = () => setIsEdit(true);
-  const [nickname, setNickname] = React.useState('홍길동');
+  const [nickname, setNickname] = React.useState(user.username);
   const [isEditAddr, setIsEditAddr] = React.useState(false);
   const toggleEditAddr = () => setIsEditAddr(true);
   const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
@@ -92,7 +92,7 @@ export default function ProfileMain() {
         </View>
       </Modal>
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-        <ScrollView contentContainerStyle={styles.containter}>
+        <View style={styles.containter}>
           <Text style={styles.heading}>프로필</Text>
           <View style={{paddingHorizontal: 24}}>
             <View style={styles.profileWrapper}>
@@ -111,7 +111,7 @@ export default function ProfileMain() {
               <View style={{flex: 1}} />
               <View style={styles.profile}>
                 <Text style={styles.profileName}>{nickname}</Text>
-                <Text style={styles.profileUserID}>{addr}</Text>
+                {/* <Text style={styles.profileUserID}>{addr}</Text> */}
                 {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
               </View>
             </View>
@@ -125,7 +125,7 @@ export default function ProfileMain() {
               <TextInput
                 keyboardType="default"
                 style={styles.input}
-                placeholder="현재 닉네임"
+                placeholder={user.username}
                 placeholderTextColor="grey"
                 selectionColor="black"
                 editable={isEdit}
@@ -136,7 +136,7 @@ export default function ProfileMain() {
                 onChangeText={text => setNickname(text)}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
+            {/* <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
               <Ionicons name="navigate-outline" size={18} />
               <Text style={styles.rowText}>주소</Text>
               <View style={{flex: 1}} />
@@ -153,8 +153,8 @@ export default function ProfileMain() {
                 }}
                 onChangeText={text => setAddr(text)}
               />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.row}>
+            </TouchableOpacity> */}
+            {/* <TouchableOpacity style={styles.row}>
               <Ionicons name="lock-closed-outline" size={18} />
               <Text style={styles.rowText}>비밀번호 변경</Text>
               <View style={{flex: 1}} />
@@ -163,7 +163,7 @@ export default function ProfileMain() {
                 color="#0c0c0c"
                 size={22}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.delete}
               onPress={() => {
@@ -186,7 +186,7 @@ export default function ProfileMain() {
             </View>
           </TouchableOpacity> */}
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );
