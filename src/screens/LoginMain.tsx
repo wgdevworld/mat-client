@@ -10,18 +10,22 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
+  Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import axios from 'axios';
-import appleAuth from '@invertase/react-native-apple-authentication';
+import appleAuth, {
+  AppleButton,
+} from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import colors from '../styles/colors';
 import {useDispatch} from 'react-redux';
 import {updateIsFromSocialAction} from '../store/modules/globalComponent';
+import assets from '../../assets';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -229,8 +233,8 @@ export default function Login() {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{
+      <View
+        style={{
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
@@ -299,19 +303,32 @@ export default function Login() {
           </TouchableOpacity>
 
           {appleAuth.isSupported && (
-            <TouchableOpacity
+            <AppleButton
+              buttonStyle={AppleButton.Style.BLACK}
               onPress={onAppleButtonPress}
-              style={styles.setAccountButton}>
-              <Text style={styles.setAccountButtonText}>Apple로 계속하기</Text>
-            </TouchableOpacity>
+              style={styles.setAccountButton}
+              cornerRadius={10}
+            />
           )}
-          <TouchableOpacity
-            onPress={signInWithKakao}
-            style={styles.setAccountButton}>
-            <Text style={styles.setAccountButtonText}>Kakao로 계속하기</Text>
+          <TouchableOpacity onPress={signInWithKakao}>
+            <View
+              style={{
+                flexDirection: 'row',
+                height: 45,
+                padding: 16,
+                backgroundColor: '#FEE500',
+                borderRadius: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Image
+                resizeMethod={'auto'}
+                source={assets.images.kakao_login_medium_narrow}
+              />
+            </View>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -336,7 +353,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    width: '126%',
+    width: '95%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -399,7 +416,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   setAccountButton: {
-    backgroundColor: 'black',
     padding: 14,
     borderRadius: 10,
     marginBottom: 10,
