@@ -100,8 +100,8 @@ function App(): JSX.Element {
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
-    latitude: 0,
-    longitude: 0,
+    latitude: 37.5571888,
+    longitude: 126.923643,
   });
 
   //TODO: add following maps as well
@@ -117,9 +117,9 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   requestPermissionAndGetLocation(setCurrentLocation);
-  // }, []);
+  useEffect(() => {
+    requestPermissionAndGetLocation(setCurrentLocation);
+  }, []);
 
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
@@ -451,7 +451,6 @@ function App(): JSX.Element {
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
           let imgSrcArr = [];
-          console.log(zip);
           if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
@@ -667,8 +666,8 @@ function App(): JSX.Element {
               longitude: currentLocation
                 ? currentLocation.longitude
                 : 126.923643,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1,
             }}
             onPress={() => {
               setIsSearchGoogle(false);

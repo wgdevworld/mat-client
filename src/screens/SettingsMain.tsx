@@ -198,7 +198,7 @@ export default function Settings() {
             <View style={{flex: 1}} />
             <Text>0.0.1</Text>
           </View>
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <Ionicons name="newspaper-outline" size={18} />
             <Text style={styles.rowText}>서비스 약관 및 방침</Text>
             <View style={{flex: 1}} />
@@ -207,7 +207,7 @@ export default function Settings() {
               color="#0c0c0c"
               size={22}
             />
-          </View>
+          </View> */}
           <View style={styles.row}>
             <Ionicons name="bug-outline" size={18} />
             <Text style={styles.rowText}>버그 신고</Text>
