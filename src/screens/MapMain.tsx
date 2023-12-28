@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
@@ -70,6 +70,7 @@ function App(): JSX.Element {
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
     curMatMap.zipList,
   );
+  const [isLocationLoaded, setIsLocationLoaded] = useState(false);
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -122,6 +123,21 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    const newRegion: Region = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    mapRef.current?.animateToRegion(newRegion, 100);
+    if (!isLocationLoaded) {
+      requestPermissionAndGetLocation(setCurrentLocation);
+      setIsLocationLoaded(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation]);
+
+  useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
   }, [userOwnMaps]);
 
@@ -140,16 +156,6 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
-
-  useEffect(() => {
-    const newRegion = {
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-    mapRef.current?.animateToRegion(newRegion, 300);
-  }, [currentLocation]);
 
   const performSearch = async (input: string) => {
     const query = `{
@@ -661,14 +667,7 @@ function App(): JSX.Element {
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
-            initialRegion={{
-              latitude: currentLocation ? currentLocation.latitude : 37.5571888,
-              longitude: currentLocation
-                ? currentLocation.longitude
-                : 126.923643,
-              latitudeDelta: 0.1,
-              longitudeDelta: 0.1,
-            }}
+            followsUserLocation={true}
             onPress={() => {
               setIsSearchGoogle(false);
               // TODO: figure out when to make marker null
