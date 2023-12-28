@@ -15,7 +15,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import assets from '../../assets';
 import colors from '../styles/colors';
@@ -43,11 +42,13 @@ import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const screenWidth = Dimensions.get('window').width;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const userOwnMaps = useAppSelector(state => state.userMaps.ownMaps);
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
@@ -578,7 +579,8 @@ function App(): JSX.Element {
   return (
     <View style={{flex: 1}}>
       <GestureHandlerRootView style={{flex: 1}}>
-        <View style={styles.searchTextInputContainer}>
+        <View
+          style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
           {isSearchGoogle ? (
             <GooglePlacesAutocomplete
               minLength={2}
@@ -735,7 +737,12 @@ function App(): JSX.Element {
             onPress={() => {
               requestPermissionAndGetLocation(setCurrentLocation);
             }}>
-            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+            <View
+              style={{
+                ...styles.mapBtnContainer,
+                marginBottom: 5,
+                top: insets.top + 55,
+              }}>
               <Ionicons
                 name="navigate-outline"
                 color={'white'}
@@ -758,7 +765,7 @@ function App(): JSX.Element {
             <View
               style={{
                 ...styles.mapBtnContainer,
-                top: getStatusBarHeight() + 100,
+                top: insets.top + 100,
               }}>
               <Ionicons
                 name="add-outline"
@@ -916,7 +923,6 @@ const styles = StyleSheet.create({
   },
   searchTextInputContainer: {
     position: 'absolute',
-    paddingTop: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
     alignSelf: 'center',
@@ -944,7 +950,6 @@ const styles = StyleSheet.create({
   },
   mapBtnContainer: {
     position: 'absolute',
-    top: getStatusBarHeight() + 55,
     borderColor: colors.white,
     shadowColor: '#000',
     shadowOffset: {

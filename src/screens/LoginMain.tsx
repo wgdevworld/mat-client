@@ -101,6 +101,7 @@ export default function Login() {
           AsyncStorage.multiSet([
             [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
             [ASYNC_STORAGE_ENUM.REFRESH_TOKEN, refreshToken],
+            [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
           ]).then(async () => {
             dispatch(updateIsFromSocialAction(true));
             let isOnboardingDone = await AsyncStorage.getItem(
@@ -217,6 +218,7 @@ export default function Login() {
               result.data.data.loginApple[0].replace('accessToken=', ''),
             ],
             [ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true'],
+            [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
           ]);
           let isOnboardingDone = await AsyncStorage.getItem(
             ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE,
