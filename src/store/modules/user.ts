@@ -5,6 +5,7 @@ export const initialState: User = {
   id: '',
   name: '',
   username: '',
+  password: '',
   email: '',
   address: '',
   deviceToken: '',
@@ -16,7 +17,6 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     createUserAction: (state, action: PayloadAction<User>) => {
-      // Assuming the payload contains the user information to create
       const newUser = action.payload;
       state.id = newUser.id;
       state.name = newUser.name;
@@ -31,8 +31,26 @@ export const userSlice = createSlice({
       state.id = action.payload;
       return state;
     },
+    updateUsernameAction: (state, action: PayloadAction<string>) => {
+      state.username = action.payload;
+      return state;
+    },
+    updatePasswordAction: (state, action: PayloadAction<string>) => {
+      state.password = action.payload;
+      return state;
+    },
+    updateEmailAction: (state, action: PayloadAction<string>) => {
+      state.email = action.payload;
+      return state;
+    },
   },
 });
 
-export const {createUserAction, updateUserIdAction} = userSlice.actions;
+export const {
+  createUserAction,
+  updateUserIdAction,
+  updateUsernameAction,
+  updateEmailAction,
+  updatePasswordAction,
+} = userSlice.actions;
 export default userSlice.reducer;

@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 45,
-    marginLeft: 70,
+    alignSelf: 'flex-end',
     borderRadius: 20,
   },
   buttonTitle: {

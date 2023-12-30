@@ -39,6 +39,7 @@ export interface User {
   id: string;
   name: string;
   username: string;
+  password: string;
   email: string;
   address: string;
   deviceToken: string;
@@ -70,4 +71,5 @@ export interface Event {
 
 export interface GlobalComponent {
   isLoading: boolean;
+  isFromSocial: boolean;
 }

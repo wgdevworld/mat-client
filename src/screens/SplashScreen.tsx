@@ -16,7 +16,7 @@ import {v4 as uuidv4} from 'uuid';
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
-import {updateUserIdAction} from '../store/modules/user';
+import {updateUserIdAction, updateUsernameAction} from '../store/modules/user';
 import {
   Animated,
   Dimensions,
@@ -26,7 +26,7 @@ import {
 } from 'react-native';
 import assets from '../../assets';
 import colors from '../styles/colors';
-import {matZipSerializer, matZipSeriralizer} from '../serializer/MatZipSrlzr';
+import {matZipSerializer} from '../serializer/MatZipSrlzr';
 import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
 
 const SplashScreen = () => {
@@ -46,6 +46,7 @@ const SplashScreen = () => {
                   fetchLoggedIn {
                     id
                     email
+                    username
                   }
                 }
                 `;
@@ -60,7 +61,10 @@ const SplashScreen = () => {
                 console.log(curUserRes?.data.data.fetchLoggedIn);
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
+                const curUserUsername =
+                  curUserRes?.data.data.fetchLoggedIn.username;
                 dispatch(updateUserIdAction(curUserId));
+                dispatch(updateUsernameAction(curUserUsername));
                 await AsyncStorage.setItem(
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
                   curUserEmail,

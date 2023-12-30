@@ -88,9 +88,9 @@
 	<key>App requires background tracking</key>
 	<string>App requires background tracking</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>App requires background tracking</string>
+	<string>서비스 동작을 위해 위치 정보가 필요합니다</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>맛집 사진 업로드를 위해 카메라 권한이 필요합니다</string>
+	<string>맛집 사진 업로드를 위해 권한이 필요합니다</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

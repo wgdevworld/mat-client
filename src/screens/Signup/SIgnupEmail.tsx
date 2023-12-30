@@ -11,8 +11,11 @@ import colors from '../../styles/colors';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
+import {useDispatch} from 'react-redux';
+import {updateEmailAction} from '../../store/modules/user';
 
-export default function SignupEmail() {  
+export default function SignupEmail() {
+  const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [email, setEmail] = useState('');
   const [isEmpty, setIsEmpty] = useState(false);
@@ -20,43 +23,42 @@ export default function SignupEmail() {
     if (email.trim() === '') {
       setIsEmpty(true);
     } else {
-      onNext(email);
+      onNext();
     }
   };
 
-  function onNext(email: string) {
-    navigation.navigate('SignupUser');
+  function onNext() {
+    dispatch(updateEmailAction(email));
+    navigation.navigate('SignupPwd');
   }
 
-
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1,}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1}}>
       <View style={styles.header}>
-          <Text style={styles.headerText}>회원가입</Text>
+        <Text style={styles.headerText}>회원가입</Text>
       </View>
       <View style={styles.dividerContainer}>
         <View style={styles.divider} />
       </View>
       <Text style={styles.title}>로그인에 사용할 이메일을 입력해주세요.</Text>
-        <View style={styles.container}>
-          <TextInput
-            style={[styles.input, styles.placeholderBackground]}
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setIsEmpty(false); // Reset empty state when input changes
-            }}
-            placeholder="이메일 입력"
-          />
-          {isEmpty && <Text style={styles.errorText}>이메일을 입력하세요.</Text>}
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>다음</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-      );
-    };
-    
+      <View style={styles.container}>
+        <TextInput
+          style={[styles.input, styles.placeholderBackground]}
+          value={email}
+          onChangeText={text => {
+            setEmail(text);
+            setIsEmpty(false);
+          }}
+          placeholder="이메일 입력"
+        />
+        {isEmpty && <Text style={styles.errorText}>이메일을 입력하세요.</Text>}
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>다음</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
   header: {
@@ -80,29 +82,30 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginTop: 20, 
+    marginTop: 10,
     alignItems: 'center',
   },
   title: {
     fontSize: 20,
     marginLeft: 35,
-    marginTop: 40,
+    marginTop: 30,
     marginBottom: 20,
     color: 'white',
   },
   placeholderBackground: {
-    backgroundColor: 'white', // Set background color for placeholder
+    backgroundColor: 'white',
   },
   input: {
     width: 320,
     height: 60,
-    borderWidth: 1,
+    borderRadius: 5,
     borderColor: '#ccc',
     padding: 15,
-    marginBottom: 20,
     fontSize: 18,
   },
   button: {
+    position: 'absolute',
+    bottom: 10,
     backgroundColor: 'black',
     width: 320,
     height: 60,
@@ -116,6 +119,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   errorText: {
+    position: 'absolute',
+    bottom: 70,
     color: 'white',
     fontSize: 14,
     marginBottom: 20,

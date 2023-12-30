@@ -281,46 +281,58 @@ export default function MatZipMain() {
           <ImageCarousel images={images} />
         )} */}
         <View style={styles.matZipContainer}>
-          <View style={styles.horizontal}>
-            <Text
-              style={styles.zipNameText}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {zipData?.name}
-            </Text>
-            <TouchableOpacity onPress={handleIconPress} style={styles.saveIcon}>
-              <Ionicons
-                name={
-                  saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
-                }
-                size={28}
-                color={colors.coral1}
-              />
-            </TouchableOpacity>
-            <View style={{flex: 1}} />
-            <View
-              style={{
-                backgroundColor: '#f2f2f2f2',
-                borderRadius: 8,
-                padding: 7,
-              }}>
-              <View style={{...styles.horizontal}}>
-                <Ionicons name="star" color={colors.coral1} size={15} />
-                <Text style={styles.matZipRatingText}>
-                  {ratingAverage(reviews)}
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View>
+              <View style={styles.horizontal}>
+                <Text
+                  style={styles.zipNameText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {zipData?.name}
                 </Text>
+                <View style={{flex: 1}} />
               </View>
+
+              <Text style={styles.matZipListText}>
+                {' '}
+                @muckit_list 맛집에 포함
+              </Text>
+              <View style={styles.horizontal}>
+                <Ionicons name="location-outline" color="black" size={18} />
+                <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
+              </View>
+              <Text style={styles.matZipDescriptionText}>
+                {zipData?.description}
+              </Text>
+            </View>
+            <View style={{alignContent: 'center'}}>
+              <View
+                style={{
+                  backgroundColor: '#f2f2f2f2',
+                  borderRadius: 8,
+                  padding: 7,
+                  marginTop: 10,
+                }}>
+                <View style={{...styles.horizontal}}>
+                  <Ionicons name="star" color={colors.coral1} size={15} />
+                  <Text style={styles.matZipRatingText}>
+                    {ratingAverage(reviews)}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={handleIconPress}
+                style={styles.saveIcon}>
+                <Ionicons
+                  name={
+                    saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                  }
+                  size={28}
+                  color={colors.coral1}
+                />
+              </TouchableOpacity>
             </View>
           </View>
-
-          <Text style={styles.matZipListText}> @muckit_list 맛집에 포함</Text>
-          <View style={styles.horizontal}>
-            <Ionicons name="location-outline" color="black" size={18} />
-            <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
-          </View>
-          <Text style={styles.matZipDescriptionText}>
-            {zipData?.description}
-          </Text>
 
           {zipData && <ReviewForm zipId={zipData.id} setReviews={setReviews} />}
           <TouchableOpacity
@@ -358,7 +370,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginTop: 15,
+    marginTop: 10,
     paddingBottom: 10,
     textAlign: 'left',
     width: 250,
@@ -478,8 +490,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   saveIcon: {
-    marginTop: 10,
-    marginLeft: 5,
-    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
   },
 });

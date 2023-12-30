@@ -27,10 +27,7 @@ import SignupEmail from './screens/Signup/SIgnupEmail';
 import SignupPwd from './screens/Signup/SignupPwd';
 import SignupUser from './screens/Signup/SignupUser';
 import AccessGrant from './screens/Onboarding/AccessGrant';
-import {View} from 'react-native';
-import colors from './styles/colors';
 import SplashScreen from './screens/SplashScreen';
-import AppleLoginPage from './screens/AppleLoginTest';
 import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 
@@ -58,7 +55,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'LoginMain'}>
+            <Stack.Navigator initialRouteName={'SplashScreen'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}
@@ -111,7 +108,6 @@ const App = () => {
                   headerShown: false,
                 }}
               />
-              {/* temporarily here for building */}
               <Stack.Screen
                 name="MatZipMain"
                 component={MatZipMain}
@@ -133,7 +129,6 @@ const App = () => {
                   headerShown: false,
                 }}
               />
-
               <Stack.Screen
                 name="Survey1"
                 component={Survey1}

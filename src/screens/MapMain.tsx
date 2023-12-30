@@ -12,10 +12,9 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import assets from '../../assets';
 import colors from '../styles/colors';
@@ -43,11 +42,13 @@ import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const screenWidth = Dimensions.get('window').width;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const userOwnMaps = useAppSelector(state => state.userMaps.ownMaps);
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
@@ -69,6 +70,7 @@ function App(): JSX.Element {
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
     curMatMap.zipList,
   );
+  const [isLocationLoaded, setIsLocationLoaded] = useState(false);
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -99,8 +101,8 @@ function App(): JSX.Element {
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
-    latitude: 0,
-    longitude: 0,
+    latitude: 37.5571888,
+    longitude: 126.923643,
   });
 
   //TODO: add following maps as well
@@ -116,9 +118,24 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   requestPermissionAndGetLocation(setCurrentLocation);
-  // }, []);
+  useEffect(() => {
+    requestPermissionAndGetLocation(setCurrentLocation);
+  }, []);
+
+  useEffect(() => {
+    const newRegion: Region = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+    mapRef.current?.animateToRegion(newRegion, 100);
+    if (!isLocationLoaded) {
+      requestPermissionAndGetLocation(setCurrentLocation);
+      setIsLocationLoaded(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentLocation]);
 
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
@@ -139,16 +156,6 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
-
-  useEffect(() => {
-    const newRegion = {
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-    mapRef.current?.animateToRegion(newRegion, 300);
-  }, [currentLocation]);
 
   const performSearch = async (input: string) => {
     const query = `{
@@ -199,6 +206,7 @@ function App(): JSX.Element {
   const onPressSearchResult = async (data: any, details: any) => {
     dispatch(updateIsLoadingAction(true));
     try {
+      setSearchQuery('');
       let fetchedZipData: any = null;
       // if searched with our DB
       if (typeof details === 'string') {
@@ -301,7 +309,7 @@ function App(): JSX.Element {
         console.log('⛔️ no image');
         const apiKey = Config.MAPS_API;
         //@ts-ignore
-        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
         const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
@@ -434,9 +442,10 @@ function App(): JSX.Element {
         reviewAvgRating
         category
         images {
-          id
           src
         }
+        latitude
+        longitude
       }
     }`;
       const addToMapRes = await request(
@@ -448,11 +457,12 @@ function App(): JSX.Element {
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
           let imgSrcArr = [];
-          console.log(zip);
           if (zip.images) {
             imgSrcArr = zip.images.map((img: any) => img.src);
           } else {
-            imgSrcArr = [];
+            const apiKey = Config.MAPS_API;
+            const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
+            imgSrcArr = [defaultStreetViewImg];
           }
           let coordinate: Coordinate;
           try {
@@ -574,7 +584,8 @@ function App(): JSX.Element {
   return (
     <View style={{flex: 1}}>
       <GestureHandlerRootView style={{flex: 1}}>
-        <View style={styles.searchTextInputContainer}>
+        <View
+          style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
           {isSearchGoogle ? (
             <GooglePlacesAutocomplete
               minLength={2}
@@ -656,14 +667,7 @@ function App(): JSX.Element {
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={styles.map}
-            initialRegion={{
-              latitude: currentLocation ? currentLocation.latitude : 37.5571888,
-              longitude: currentLocation
-                ? currentLocation.longitude
-                : 126.923643,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
+            followsUserLocation={true}
             onPress={() => {
               setIsSearchGoogle(false);
               // TODO: figure out when to make marker null
@@ -731,7 +735,12 @@ function App(): JSX.Element {
             onPress={() => {
               requestPermissionAndGetLocation(setCurrentLocation);
             }}>
-            <View style={{...styles.mapBtnContainer, marginBottom: 5}}>
+            <View
+              style={{
+                ...styles.mapBtnContainer,
+                marginBottom: 5,
+                top: insets.top + 55,
+              }}>
               <Ionicons
                 name="navigate-outline"
                 color={'white'}
@@ -754,7 +763,7 @@ function App(): JSX.Element {
             <View
               style={{
                 ...styles.mapBtnContainer,
-                top: getStatusBarHeight() + 100,
+                top: insets.top + 100,
               }}>
               <Ionicons
                 name="add-outline"
@@ -912,7 +921,6 @@ const styles = StyleSheet.create({
   },
   searchTextInputContainer: {
     position: 'absolute',
-    paddingTop: getStatusBarHeight(),
     zIndex: 1,
     width: '95%',
     alignSelf: 'center',
@@ -940,7 +948,6 @@ const styles = StyleSheet.create({
   },
   mapBtnContainer: {
     position: 'absolute',
-    top: getStatusBarHeight() + 55,
     borderColor: colors.white,
     shadowColor: '#000',
     shadowOffset: {

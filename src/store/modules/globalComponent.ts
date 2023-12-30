@@ -3,6 +3,7 @@ import {GlobalComponent} from '../../types/store';
 
 export const initialState: GlobalComponent = {
   isLoading: false,
+  isFromSocial: false,
 };
 
 export const zipSlice = createSlice({
@@ -13,8 +14,13 @@ export const zipSlice = createSlice({
       state.isLoading = action.payload;
       return state;
     },
+    updateIsFromSocialAction: (state, action: PayloadAction<boolean>) => {
+      state.isFromSocial = action.payload;
+      return state;
+    },
   },
 });
 
-export const {updateIsLoadingAction} = zipSlice.actions;
+export const {updateIsLoadingAction, updateIsFromSocialAction} =
+  zipSlice.actions;
 export default zipSlice.reducer;

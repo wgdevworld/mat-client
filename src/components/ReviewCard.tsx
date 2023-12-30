@@ -17,12 +17,13 @@ import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import colors from '../styles/colors';
-
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 interface ReviewCardProps {
   review: Review;
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
+  const insets = useSafeAreaInsets();
   const [isImageViewVisible, setImageViewVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -65,7 +66,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
               style={{
                 position: 'absolute',
                 right: 10,
-                top: getStatusBarHeight(),
+                top: insets.top,
                 zIndex: 1,
               }}
               onPress={() => setImageViewVisible(false)}>
