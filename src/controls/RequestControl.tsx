@@ -60,14 +60,18 @@ export const request = async (
   query: string,
   method: string,
   variables?: object,
+  isTokenLess?: boolean,
 ) => {
   try {
-    const idToken = await getValidIdToken();
-    axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
-    let headers = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    };
+    let headers;
+    if (!isTokenLess) {
+      const idToken = await getValidIdToken();
+      axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
+      headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
+    }
     let response;
     switch (method) {
       case REQ_METHOD.QUERY:

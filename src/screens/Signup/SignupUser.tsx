@@ -67,6 +67,7 @@ export default function SignupUser() {
           createUserQuery,
           REQ_METHOD.MUTATION,
           createUserVariables,
+          true,
         );
         navigation.navigate('AccessGrant');
       } catch (e) {
