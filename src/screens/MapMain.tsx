@@ -2,6 +2,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
@@ -65,6 +66,7 @@ function App(): JSX.Element {
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMarkerSavedMatZip, setIsMarkerSavedMatZip] = useState(false);
+  const [isSearchResultLoading, setIsSearchResultLoading] = useState(false);
   const [searchedMatZips, setSearchedMatZips] =
     useState<{zipId: number; name: string; address: string}[]>();
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
@@ -173,12 +175,16 @@ function App(): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSearch = useCallback(
     throttle(query => {
+      setIsSearchResultLoading(true);
       performSearch(query)
         .then(data => {
           setSearchedMatZips(data);
         })
         .catch(error => {
           console.log(error);
+        })
+        .finally(() => {
+          setIsSearchResultLoading(false);
         });
     }, 2000),
     [],
@@ -186,6 +192,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (searchQuery.length > 0) {
+      setIsSearchResultLoading(true);
       throttledSearch(searchQuery);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -624,7 +631,7 @@ function App(): JSX.Element {
                     setSearchQuery('');
                   }}
                 />
-                {searchQuery.length > 0 && (
+                {searchQuery.length > 0 ? (
                   <TouchableOpacity
                     style={{position: 'absolute', right: 5, top: 9}}
                     onPress={() => {
@@ -641,13 +648,33 @@ function App(): JSX.Element {
                       color={colors.coral1}
                     />
                   </TouchableOpacity>
-                )}
+                ) : null}
               </View>
-              {searchedMatZips && searchQuery.length !== 0 && (
+              {searchedMatZips && searchQuery.length !== 0 ? (
                 <FlatList
                   data={searchedMatZips}
                   renderItem={renderSearchedItem}
                   contentContainerStyle={styles.searchResultContainer}
+                  ListHeaderComponent={
+                    isSearchResultLoading ? (
+                      <View
+                        style={{
+                          borderBottomColor: 'grey',
+                          borderBottomWidth: 0.17,
+                        }}>
+                        <ActivityIndicator
+                          style={{
+                            padding: 12,
+                            alignSelf: 'flex-start',
+                            borderBottomColor: 'grey',
+                            borderBottomWidth: 0.17,
+                          }}
+                          size="small"
+                          color={colors.coral1}
+                        />
+                      </View>
+                    ) : null
+                  }
                   ListFooterComponent={
                     <TouchableOpacity
                       onPress={() => {
@@ -658,7 +685,7 @@ function App(): JSX.Element {
                     </TouchableOpacity>
                   }
                 />
-              )}
+              ) : null}
             </>
           )}
         </View>
@@ -670,7 +697,6 @@ function App(): JSX.Element {
             followsUserLocation={true}
             onPress={() => {
               setIsSearchGoogle(false);
-              // TODO: figure out when to make marker null
             }}>
             {marker && (
               <>
@@ -781,9 +807,6 @@ function App(): JSX.Element {
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}
                 contentContainerStyle={styles.contentContainer}
-                // onScrollEndDrag={() => {
-                //   setButtonVisible(true);
-                // }}
                 ListHeaderComponent={
                   <View style={styles.bottomSheetHeader}>
                     <Text
