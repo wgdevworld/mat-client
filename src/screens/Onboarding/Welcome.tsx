@@ -16,6 +16,7 @@ export default function Welcome() {
   const handleNext = async () => {
     await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE, 'true');
     if (isFromSocial) {
+      await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN, 'true');
       navigation.navigate('SplashScreen');
     } else {
       navigation.navigate('LoginMain');

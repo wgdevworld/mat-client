@@ -105,6 +105,7 @@ const SplashScreen = () => {
                   fetchUserMapQuery,
                   REQ_METHOD.QUERY,
                 );
+                console.log(userOwnMapRes?.data);
                 const userOwnMapData = userOwnMapRes?.data.data
                   ? userOwnMapRes?.data.data.fetchUserMap
                   : null;
