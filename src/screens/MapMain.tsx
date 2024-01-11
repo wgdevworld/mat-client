@@ -524,67 +524,72 @@ function App(): JSX.Element {
 
   const renderItem = (matZip: MatZip) => {
     return (
-      <SwipeableRow
-        onSwipeableRightOpen={() => {
-          onDeleteMatZip(matZip.id);
-        }}>
-        <TouchableOpacity
-          key={matZip.id}
-          style={styles.itemContainer}
-          onPress={() => {
-            navigation.navigate('MatZipMain', {zipID: matZip.id});
-          }}>
-          <View style={styles.itemImageContainer}>
-            <Image
-              source={
-                matZip.imageSrc && matZip.imageSrc.length === 0
-                  ? assets.images.placeholder
-                  : {uri: matZip.imageSrc[0]}
-              }
-              style={styles.itemImage}
-            />
-          </View>
-          <View style={styles.itemInfoContainer}>
-            <View style={styles.itemTitleStarsContainer}>
+      <>
+        <SwipeableRow
+          onSwipeableRightOpen={() => {
+            onDeleteMatZip(matZip.id);
+          }}
+          borderRadius={10}>
+          <TouchableOpacity
+            activeOpacity={1}
+            key={matZip.id}
+            style={styles.itemContainer}
+            onPress={() => {
+              navigation.navigate('MatZipMain', {zipID: matZip.id});
+            }}>
+            <View style={styles.itemImageContainer}>
+              <Image
+                source={
+                  matZip.imageSrc && matZip.imageSrc.length === 0
+                    ? assets.images.placeholder
+                    : {uri: matZip.imageSrc[0]}
+                }
+                style={styles.itemImage}
+              />
+            </View>
+            <View style={styles.itemInfoContainer}>
+              <View style={styles.itemTitleStarsContainer}>
+                <Text
+                  style={styles.itemTitleText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {matZip.name}
+                </Text>
+                <View style={styles.itemStarReviewContainer}>
+                  <Ionicons name="star" size={14} color={colors.coral1} />
+                  <Text style={styles.itemStarsText}>
+                    {matZip.reviewAvgRating}
+                  </Text>
+                  <Text style={styles.itemReviewText}>
+                    리뷰 {matZip.reviewCount}개
+                  </Text>
+                </View>
+              </View>
               <Text
-                style={styles.itemTitleText}
+                style={styles.itemSubtext}
                 numberOfLines={1}
                 ellipsizeMode="tail">
-                {matZip.name}
+                {trimCountry(matZip.address)}
               </Text>
-              <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={colors.coral1} />
-                <Text style={styles.itemStarsText}>
-                  {matZip.reviewAvgRating}
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.itemSubtext}>
+                  나와의 거리{' '}
+                  {calculateDistance(matZip.coordinate, currentLocation)}m
                 </Text>
-                <Text style={styles.itemReviewText}>
-                  리뷰 {matZip.reviewCount}개
-                </Text>
+                {visitedZips.find(zip => zip.id === matZip.id) && (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={20}
+                    color={colors.coral1}
+                  />
+                )}
               </View>
             </View>
-            <Text
-              style={styles.itemSubtext}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {trimCountry(matZip.address)}
-            </Text>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={styles.itemSubtext}>
-                나와의 거리{' '}
-                {calculateDistance(matZip.coordinate, currentLocation)}m
-              </Text>
-              {visitedZips.find(zip => zip.id === matZip.id) && (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color={colors.coral1}
-                />
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </SwipeableRow>
+          </TouchableOpacity>
+        </SwipeableRow>
+        <View style={{height: 5, backgroundColor: 'white'}} />
+      </>
     );
   };
 
@@ -989,6 +994,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     backgroundColor: 'white',
+    padding: 10,
   },
   flatListHeaderText: {
     color: colors.coral1,
@@ -999,8 +1005,6 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     padding: 10,
-    marginHorizontal: 12,
-    marginVertical: 5,
     backgroundColor: colors.grey,
     borderRadius: 10,
   },

@@ -1,26 +1,26 @@
-/* eslint-disable react-native/no-inline-styles */
-import {TouchableOpacity} from '@gorhom/bottom-sheet';
 import React from 'react';
-import {StyleSheet, Text, Animated, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {RectButton, Swipeable} from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type SwipeableRowProps = {
   children: React.ReactNode;
   onSwipeableRightOpen: () => void;
+  borderRadius?: number;
 };
 
 const SwipeableRow: React.FC<SwipeableRowProps> = ({
   children,
   onSwipeableRightOpen,
+  borderRadius,
 }) => {
   const renderRightActions = () => {
     return (
-      <TouchableOpacity
-        style={styles.rightAction}
+      <RectButton
+        style={{...styles.rightAction, borderRadius: borderRadius}}
         onPress={onSwipeableRightOpen}>
         <Ionicons name="trash" size={24} color="white" />
-      </TouchableOpacity>
+      </RectButton>
     );
   };
 
@@ -40,13 +40,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'red',
     width: 50,
-    height: '90%',
+    height: '100%',
     alignSelf: 'center',
-    marginRight: 16,
-    borderRadius: 10,
-  },
-  actionText: {
-    // Define your styles for the text inside the delete button
   },
 });
 

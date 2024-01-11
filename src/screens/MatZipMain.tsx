@@ -305,10 +305,10 @@ export default function MatZipMain() {
                   (parentMap.length > 2
                     ? `${parentMap[0]}, ${parentMap[1]} 외 ${
                         parentMap.length - 2
-                      }개의 맛지도에 포함`
+                      }개의 맛맵에 포함`
                     : parentMap.length === 2
-                    ? `${parentMap[0]}, ${parentMap[1]} 에 포함`
-                    : `${parentMap[0]} 맛지도에 포함`)}
+                    ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                    : `${parentMap[0]} 맛맵에 포함`)}
               </Text>
               <View
                 style={{

@@ -144,6 +144,7 @@ export default function MuckitNotes() {
           onDeleteMuckitem(item.id);
         }}>
         <TouchableOpacity
+          activeOpacity={1}
           style={styles.itemContainer}
           onPress={() => handleCheckboxToggle(item.id)}>
           <View>
@@ -223,6 +224,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   itemContainer: {
+    backgroundColor: 'white',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
