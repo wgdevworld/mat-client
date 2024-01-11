@@ -529,7 +529,8 @@ function App(): JSX.Element {
           onSwipeableRightOpen={() => {
             onDeleteMatZip(matZip.id);
           }}
-          borderRadius={10}>
+          borderRadius={10}
+          renderRight={curMatMap.authorId === curUser.id ? true : false}>
           <TouchableOpacity
             activeOpacity={1}
             key={matZip.id}
@@ -818,7 +819,7 @@ function App(): JSX.Element {
                       style={{
                         fontSize: 20,
                         alignSelf: 'center',
-                        marginLeft: 16,
+                        marginLeft: 10,
                         color: colors.coral1,
                       }}>
                       근처 나의 맛집들 📍
@@ -850,13 +851,16 @@ function App(): JSX.Element {
                     style={{
                       fontSize: 20,
                       alignSelf: 'center',
-                      marginLeft: 16,
+                      marginLeft: 20,
                       color: colors.coral1,
                     }}>
                     근처 나의 맛집들 📍
                   </Text>
                   <DropDownPicker
-                    containerStyle={styles.dropDownPickerContainer}
+                    containerStyle={{
+                      ...styles.dropDownPickerContainer,
+                      paddingRight: 10,
+                    }}
                     dropDownContainerStyle={{height: 150}}
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
@@ -995,6 +999,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     backgroundColor: 'white',
     padding: 10,
+    paddingTop: 0,
   },
   flatListHeaderText: {
     color: colors.coral1,
@@ -1057,7 +1062,6 @@ const styles = StyleSheet.create({
   dropDownPickerContainer: {
     width: '28%',
     alignSelf: 'center',
-    marginRight: 16,
   },
   ourDBSearchBar: {
     height: 44,

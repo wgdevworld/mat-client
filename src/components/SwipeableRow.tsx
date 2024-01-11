@@ -7,12 +7,14 @@ type SwipeableRowProps = {
   children: React.ReactNode;
   onSwipeableRightOpen: () => void;
   borderRadius?: number;
+  renderRight?: boolean;
 };
 
 const SwipeableRow: React.FC<SwipeableRowProps> = ({
   children,
   onSwipeableRightOpen,
   borderRadius,
+  renderRight = true,
 }) => {
   const renderRightActions = () => {
     return (
@@ -26,7 +28,7 @@ const SwipeableRow: React.FC<SwipeableRowProps> = ({
 
   return (
     <Swipeable
-      renderRightActions={renderRightActions}
+      renderRightActions={renderRight ? renderRightActions : undefined}
       overshootRight={false}
       friction={2}>
       {children}
@@ -40,7 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'red',
     width: 50,
-    height: '100%',
+    height: '99.5%',
     alignSelf: 'center',
   },
 });
