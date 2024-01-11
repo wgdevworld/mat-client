@@ -84,7 +84,11 @@ export const request = async (
             headers,
           },
         );
-        console.log('ℹ️ Query success: ' + response.data.data);
+        if (response.data.data === null) {
+          console.error('⛔️ Query error for: ' + query);
+        } else {
+          console.log('ℹ️ Query success: ' + response.data.data);
+        }
         break;
       case REQ_METHOD.MUTATION:
         if (variables instanceof FormData) {
@@ -109,7 +113,11 @@ export const request = async (
             },
           );
         }
-        console.log('ℹ️ Mutation success: ' + response);
+        if (response.data.data === null) {
+          console.error('⛔️ Mutation error for: ' + query);
+        } else {
+          console.log('ℹ️ Mutation success: ' + response.data.data);
+        }
         break;
     }
     return response;

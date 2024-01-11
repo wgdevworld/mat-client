@@ -24,7 +24,6 @@ interface MapCardProps {
 
 const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   const dispatch = useDispatch();
-  const [addIcon, setAddIcon] = useState(true);
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
   );
