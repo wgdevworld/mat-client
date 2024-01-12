@@ -6,6 +6,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -44,6 +45,7 @@ import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Share from 'react-native-share';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -520,6 +522,27 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
+  const onPressShareMatMap = async () => {
+    const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
+    await Share.open({
+      message:
+        curMatMap.id === curUser.id
+          ? `먹킷 어플에서 만든 제 맛맵을 팔로우 해보세요!
+          \nMuckit 어플 미설치시 ${
+            Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
+          }화면으로 자동으로 이동합니다.`
+          : `${curMatMap.author} 유저가 만든 ${
+              curMatMap.name
+            } 맛맵을 팔로우 해보세요!
+            \nMuckit 어플 미설치시 ${
+              Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
+            }화면으로 자동으로 이동합니다.`,
+      url: deepLinkUrl,
+    })
+      .then(res => console.log(res))
+      .catch(e => console.error(e));
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
@@ -824,6 +847,19 @@ function App(): JSX.Element {
                       }}>
                       근처 나의 맛집들 📍
                     </Text>
+                    <TouchableOpacity
+                      onPress={onPressShareMatMap}
+                      style={{alignSelf: 'center'}}>
+                      <Ionicons
+                        name="share-outline"
+                        size={24}
+                        color={colors.coral1}
+                        style={{
+                          alignSelf: 'center',
+                          paddingLeft: 40,
+                        }}
+                      />
+                    </TouchableOpacity>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
                       placeholder="맛맵 선택"

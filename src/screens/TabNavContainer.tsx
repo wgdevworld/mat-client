@@ -1,23 +1,136 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   createBottomTabNavigator,
   BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
-import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import colors from '../styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapMain from './MapMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
+import {useDispatch} from 'react-redux';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {addUserFollower} from '../controls/MatMapControl';
+import {addFollowingMatMapAction} from '../store/modules/userMaps';
+import {REQ_METHOD, request} from '../controls/RequestControl';
+import {matMapSerializer} from '../serializer/MatMapSrlzr';
 
 const screenWidth = Dimensions.get('window').width;
+
+let isDeepLinkLoading = false;
 
 const Tab = createBottomTabNavigator();
 
 const TabNavContainer = () => {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const dispatch = useDispatch();
+
+  // DeepLink navigation
+  useEffect(() => {
+    const deepLinkNavigation = async (url: string) => {
+      if (isDeepLinkLoading) {
+        console.log('DeepLink is loading');
+        return;
+      }
+
+      isDeepLinkLoading = true;
+      if (!url) {
+        console.log('not url');
+        return;
+      }
+
+      const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
+
+      if (route === 'follow_map') {
+        dispatch(updateIsLoadingAction(true));
+        const mapId = url.split('?')[1]?.split('=')[1];
+
+        navigation.navigate('TabNavContainer', {
+          screen: 'Map',
+        });
+
+        addUserFollower(mapId)
+          .then(async () => {
+            const fetchMapQuery = `{
+              fetchMap(id: "${mapId}") {
+                id
+                name
+                description
+                createdAt
+                publicStatus
+                creator {
+                  id
+                  name
+                }
+                images {
+                  src
+                }
+                zipList {
+                  id
+                  name
+                  address
+                  images {
+                    src
+                  }
+                  reviewCount
+                  reviewAvgRating
+                  parentMap {
+                    id
+                  }
+                  category
+                  latitude
+                  longitude
+                }
+              }
+            }
+            `;
+            const fetchMapRes = await request(fetchMapQuery, REQ_METHOD.QUERY);
+            const fetchMapData = fetchMapRes?.data.data.fetchMap;
+            if (fetchMapData) {
+              const map = await matMapSerializer([fetchMapData]);
+              dispatch(addFollowingMatMapAction(map[0]));
+              console.log(map[0].id + 'added');
+            } else {
+              console.error('Error fetching map:', fetchMapData);
+            }
+          })
+          .catch(error => {
+            console.error('Error adding follower:', error);
+          })
+          .finally(() => {
+            dispatch(updateIsLoadingAction(false));
+          });
+        return;
+      }
+
+      isDeepLinkLoading = false;
+    };
+
+    Linking.getInitialURL().then(value => {
+      if (!value) {
+        return;
+      }
+      deepLinkNavigation(value);
+    });
+
+    Linking?.addEventListener('url', e => {
+      deepLinkNavigation(e.url);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const MyTabBar = ({state, navigation: TabNavigation}: BottomTabBarProps) => {
     return (
       <View style={styles.container}>
