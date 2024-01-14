@@ -16,7 +16,7 @@ import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
-import {MatZip, Review} from '../types/store';
+import {Coordinate, MatZip, Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -121,16 +121,21 @@ export default function MatZipMain() {
             name
           }
           category
+          longitude
+          latitude
         }
       }`;
       const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
       const fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
 
-      const location = await addressToCoordinate(fetchedZipData.address);
+      // const location = await addressToCoordinate(fetchedZipData.address);
+      const coordinate: Coordinate = {
+        latitude: fetchedZipData.latitude,
+        longitude: fetchedZipData.longitude,
+      };
 
       // Update zip as street view image if no default image
       let defaultStreetViewImg;
-      console.log(fetchedZipData.images);
       if (
         fetchedZipData.images === undefined ||
         fetchedZipData.images.length === 0
@@ -162,7 +167,7 @@ export default function MatZipMain() {
           fetchedZipData.images.length !== 0
             ? fetchedZipData.images.map((image: any) => image.src)
             : defaultStreetViewImg,
-        coordinate: location,
+        coordinate: coordinate,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
         address: fetchedZipData.address,

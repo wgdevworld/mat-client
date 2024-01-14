@@ -473,16 +473,11 @@ function App(): JSX.Element {
             const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
             imgSrcArr = [defaultStreetViewImg];
           }
-          let coordinate: Coordinate;
-          try {
-            coordinate = await addressToCoordinate(zip.address);
-          } catch (error) {
-            console.error(
-              `Failed to get coordinates for address: ${zip.address}`,
-              error,
-            );
-            coordinate = {latitude: 0, longitude: 0};
-          }
+
+          const coordinate = {
+            latitude: zip.latitude,
+            longitude: zip.longitude,
+          };
 
           return {
             id: zip.id,

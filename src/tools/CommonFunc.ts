@@ -56,6 +56,7 @@ export async function addressToCoordinate(
     longitude: 0,
   };
   try {
+    console.warn('⛔️ Using Geocoder to retrieve coordinates');
     await Geocoder.from(address)
       .then(json => {
         const location = json.results[0].geometry.location;
