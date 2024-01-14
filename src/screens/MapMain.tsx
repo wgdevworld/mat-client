@@ -2,10 +2,13 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
+  Platform,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -34,6 +37,7 @@ import {useDispatch} from 'react-redux';
 import {
   removeFromOwnMatMapAction,
   replaceOwnMatMapZipListAction,
+  updatePublicStatusAction,
 } from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -43,6 +47,7 @@ import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Share from 'react-native-share';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -65,6 +70,7 @@ function App(): JSX.Element {
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMarkerSavedMatZip, setIsMarkerSavedMatZip] = useState(false);
+  const [isSearchResultLoading, setIsSearchResultLoading] = useState(false);
   const [searchedMatZips, setSearchedMatZips] =
     useState<{zipId: number; name: string; address: string}[]>();
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
@@ -173,12 +179,16 @@ function App(): JSX.Element {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSearch = useCallback(
     throttle(query => {
+      setIsSearchResultLoading(true);
       performSearch(query)
         .then(data => {
           setSearchedMatZips(data);
         })
         .catch(error => {
           console.log(error);
+        })
+        .finally(() => {
+          setIsSearchResultLoading(false);
         });
     }, 2000),
     [],
@@ -186,6 +196,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (searchQuery.length > 0) {
+      setIsSearchResultLoading(true);
       throttledSearch(searchQuery);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -363,7 +374,6 @@ function App(): JSX.Element {
           longitude: fetchedZipData.longitude,
         };
       }
-
       //   const fetchReviewQuery = `{
       //   fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
       //     writer {
@@ -464,16 +474,11 @@ function App(): JSX.Element {
             const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
             imgSrcArr = [defaultStreetViewImg];
           }
-          let coordinate: Coordinate;
-          try {
-            coordinate = await addressToCoordinate(zip.address);
-          } catch (error) {
-            console.error(
-              `Failed to get coordinates for address: ${zip.address}`,
-              error,
-            );
-            coordinate = {latitude: 0, longitude: 0};
-          }
+
+          const coordinate = {
+            latitude: zip.latitude,
+            longitude: zip.longitude,
+          };
 
           return {
             id: zip.id,
@@ -513,71 +518,132 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
+  const onPressShareMatMap = async () => {
+    const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
+    await Share.open({
+      message:
+        curMatMap.id === curUser.id
+          ? `먹킷 어플에서 만든 제 맛맵을 팔로우 해보세요!
+          \nMuckit 어플 미설치시 ${
+            Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
+          }화면으로 자동으로 이동합니다.`
+          : `${curMatMap.author} 유저가 만든 ${
+              curMatMap.name
+            } 맛맵을 팔로우 해보세요!
+            \nMuckit 어플 미설치시 ${
+              Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
+            }화면으로 자동으로 이동합니다.`,
+      url: deepLinkUrl,
+    })
+      .then(res => console.log(res))
+      .catch(e => console.error(e));
+  };
+
+  const onPublicStatusChange = async () => {
+    dispatch(updateIsLoadingAction(true));
+    try {
+      const updateMapQuery = `
+      mutation updateMap($mapInfo: UpdateMapInput!, $id: String!) {
+        updateMap(mapInfo: $mapInfo, id: $id) {
+          publicStatus
+        }
+      }
+    `;
+      const updateMapVariables = {
+        mapInfo: {
+          publicStatus: !curMatMap.publicStatus,
+        },
+        id: curMatMap.id,
+      };
+      const updateMapRes = await request(
+        updateMapQuery,
+        REQ_METHOD.MUTATION,
+        updateMapVariables,
+      );
+      if (updateMapRes === null || updateMapRes === undefined) {
+        return;
+      }
+      dispatch(
+        updatePublicStatusAction(updateMapRes.data.data.updateMap.publicStatus),
+      );
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
     return (
-      <SwipeableRow
-        onSwipeableRightOpen={() => {
-          onDeleteMatZip(matZip.id);
-        }}>
-        <TouchableOpacity
-          key={matZip.id}
-          style={styles.itemContainer}
-          onPress={() => {
-            navigation.navigate('MatZipMain', {zipID: matZip.id});
-          }}>
-          <View style={styles.itemImageContainer}>
-            <Image
-              source={
-                matZip.imageSrc && matZip.imageSrc.length === 0
-                  ? assets.images.placeholder
-                  : {uri: matZip.imageSrc[0]}
-              }
-              style={styles.itemImage}
-            />
-          </View>
-          <View style={styles.itemInfoContainer}>
-            <View style={styles.itemTitleStarsContainer}>
+      <>
+        <SwipeableRow
+          onSwipeableRightOpen={() => {
+            onDeleteMatZip(matZip.id);
+          }}
+          borderRadius={10}
+          renderRight={curMatMap.authorId === curUser.id ? true : false}>
+          <TouchableOpacity
+            activeOpacity={1}
+            key={matZip.id}
+            style={styles.itemContainer}
+            onPress={() => {
+              navigation.navigate('MatZipMain', {zipID: matZip.id});
+            }}>
+            <View style={styles.itemImageContainer}>
+              <Image
+                source={
+                  matZip.imageSrc && matZip.imageSrc.length === 0
+                    ? assets.images.placeholder
+                    : {uri: matZip.imageSrc[0]}
+                }
+                style={styles.itemImage}
+              />
+            </View>
+            <View style={styles.itemInfoContainer}>
+              <View style={styles.itemTitleStarsContainer}>
+                <Text
+                  style={styles.itemTitleText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {matZip.name}
+                </Text>
+                <View style={styles.itemStarReviewContainer}>
+                  <Ionicons name="star" size={14} color={colors.coral1} />
+                  <Text style={styles.itemStarsText}>
+                    {matZip.reviewAvgRating}
+                  </Text>
+                  <Text style={styles.itemReviewText}>
+                    리뷰 {matZip.reviewCount}개
+                  </Text>
+                </View>
+              </View>
               <Text
-                style={styles.itemTitleText}
+                style={styles.itemSubtext}
                 numberOfLines={1}
                 ellipsizeMode="tail">
-                {matZip.name}
+                {trimCountry(matZip.address)}
               </Text>
-              <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={colors.coral1} />
-                <Text style={styles.itemStarsText}>
-                  {matZip.reviewAvgRating}
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.itemSubtext}>
+                  나와의 거리{' '}
+                  {calculateDistance(matZip.coordinate, currentLocation)}m
                 </Text>
-                <Text style={styles.itemReviewText}>
-                  리뷰 {matZip.reviewCount}개
-                </Text>
+                {visitedZips.find(zip => zip.id === matZip.id) && (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={20}
+                    color={colors.coral1}
+                  />
+                )}
               </View>
             </View>
-            <Text
-              style={styles.itemSubtext}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {trimCountry(matZip.address)}
-            </Text>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={styles.itemSubtext}>
-                나와의 거리{' '}
-                {calculateDistance(matZip.coordinate, currentLocation)}m
-              </Text>
-              {visitedZips.find(zip => zip.id === matZip.id) && (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color={colors.coral1}
-                />
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </SwipeableRow>
+          </TouchableOpacity>
+        </SwipeableRow>
+        <View style={{height: 5, backgroundColor: 'white'}} />
+      </>
     );
   };
 
@@ -624,7 +690,7 @@ function App(): JSX.Element {
                     setSearchQuery('');
                   }}
                 />
-                {searchQuery.length > 0 && (
+                {searchQuery.length > 0 ? (
                   <TouchableOpacity
                     style={{position: 'absolute', right: 5, top: 9}}
                     onPress={() => {
@@ -641,13 +707,34 @@ function App(): JSX.Element {
                       color={colors.coral1}
                     />
                   </TouchableOpacity>
-                )}
+                ) : null}
               </View>
-              {searchedMatZips && searchQuery.length !== 0 && (
+              {searchedMatZips && searchQuery.length !== 0 ? (
                 <FlatList
+                  showsVerticalScrollIndicator={false}
                   data={searchedMatZips}
                   renderItem={renderSearchedItem}
                   contentContainerStyle={styles.searchResultContainer}
+                  ListHeaderComponent={
+                    isSearchResultLoading ? (
+                      <View
+                        style={{
+                          borderBottomColor: 'grey',
+                          borderBottomWidth: 0.17,
+                        }}>
+                        <ActivityIndicator
+                          style={{
+                            padding: 12,
+                            alignSelf: 'flex-start',
+                            borderBottomColor: 'grey',
+                            borderBottomWidth: 0.17,
+                          }}
+                          size="small"
+                          color={colors.coral1}
+                        />
+                      </View>
+                    ) : null
+                  }
                   ListFooterComponent={
                     <TouchableOpacity
                       onPress={() => {
@@ -658,7 +745,7 @@ function App(): JSX.Element {
                     </TouchableOpacity>
                   }
                 />
-              )}
+              ) : null}
             </>
           )}
         </View>
@@ -670,7 +757,6 @@ function App(): JSX.Element {
             followsUserLocation={true}
             onPress={() => {
               setIsSearchGoogle(false);
-              // TODO: figure out when to make marker null
             }}>
             {marker && (
               <>
@@ -781,16 +867,14 @@ function App(): JSX.Element {
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}
                 contentContainerStyle={styles.contentContainer}
-                // onScrollEndDrag={() => {
-                //   setButtonVisible(true);
-                // }}
+                showsVerticalScrollIndicator={false}
                 ListHeaderComponent={
                   <View style={styles.bottomSheetHeader}>
                     <Text
                       style={{
                         fontSize: 20,
                         alignSelf: 'center',
-                        marginLeft: 16,
+                        marginLeft: 10,
                         color: colors.coral1,
                       }}>
                       근처 나의 맛집들 📍
@@ -812,7 +896,67 @@ function App(): JSX.Element {
                   </View>
                 }
                 stickyHeaderIndices={[0]}
-                ListFooterComponent={<View style={{height: 200}} />}
+                ListFooterComponent={
+                  <>
+                    <View style={{height: 50}} />
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                        }}>
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            color: colors.coral1,
+                            fontSize: 16,
+                          }}>
+                          {curMatMap.authorId === curUser.id
+                            ? '내 맛맵 공유'
+                            : '맛맵 공유'}
+                        </Text>
+                        <TouchableOpacity onPress={onPressShareMatMap}>
+                          <Ionicons
+                            name="share-outline"
+                            size={24}
+                            color={colors.coral1}
+                            style={{paddingLeft: 3}}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      {curMatMap.authorId === curUser.id ? (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                          }}>
+                          <Text
+                            style={{
+                              alignSelf: 'center',
+                              color: colors.coral1,
+                              fontSize: 16,
+                            }}>
+                            내 맛맵 공개
+                          </Text>
+                          <Switch
+                            thumbColor={'white'}
+                            trackColor={{
+                              false: colors.coral2,
+                              true: colors.coral1,
+                            }}
+                            onValueChange={onPublicStatusChange}
+                            value={curMatMap.publicStatus}
+                            style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
+                            ios_backgroundColor={colors.coral2}
+                          />
+                        </View>
+                      ) : null}
+                    </View>
+                    <View style={{height: 50}} />
+                  </>
+                }
                 extraData={currentLocation}
               />
             ) : (
@@ -822,13 +966,16 @@ function App(): JSX.Element {
                     style={{
                       fontSize: 20,
                       alignSelf: 'center',
-                      marginLeft: 16,
+                      marginLeft: 20,
                       color: colors.coral1,
                     }}>
                     근처 나의 맛집들 📍
                   </Text>
                   <DropDownPicker
-                    containerStyle={styles.dropDownPickerContainer}
+                    containerStyle={{
+                      ...styles.dropDownPickerContainer,
+                      paddingRight: 10,
+                    }}
                     dropDownContainerStyle={{height: 150}}
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
@@ -966,6 +1113,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     backgroundColor: 'white',
+    padding: 10,
+    paddingTop: 0,
   },
   flatListHeaderText: {
     color: colors.coral1,
@@ -976,8 +1125,6 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     padding: 10,
-    marginHorizontal: 12,
-    marginVertical: 5,
     backgroundColor: colors.grey,
     borderRadius: 10,
   },
@@ -1030,7 +1177,6 @@ const styles = StyleSheet.create({
   dropDownPickerContainer: {
     width: '28%',
     alignSelf: 'center',
-    marginRight: 16,
   },
   ourDBSearchBar: {
     height: 44,

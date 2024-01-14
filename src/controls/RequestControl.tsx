@@ -60,14 +60,19 @@ export const request = async (
   query: string,
   method: string,
   variables?: object,
+  isTokenLess?: boolean,
 ) => {
   try {
-    const idToken = await getValidIdToken();
-    axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
-    let headers = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    };
+    let headers;
+    if (!isTokenLess) {
+      const idToken = await getValidIdToken();
+      // console.log('ℹ️ Token: ' + idToken);
+      axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
+      headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      };
+    }
     let response;
     switch (method) {
       case REQ_METHOD.QUERY:
@@ -80,7 +85,11 @@ export const request = async (
             headers,
           },
         );
-        console.log('ℹ️ Query success: ' + response.data.data);
+        if (response.data.data === null) {
+          console.error('⛔️ Query error for: ' + query);
+        } else {
+          console.log('ℹ️ Query success: ' + response.data.data);
+        }
         break;
       case REQ_METHOD.MUTATION:
         if (variables instanceof FormData) {
@@ -105,7 +114,11 @@ export const request = async (
             },
           );
         }
-        console.log('ℹ️ Mutation success: ' + response);
+        if (response.data.data === null) {
+          console.error('⛔️ Mutation error for: ' + query);
+        } else {
+          console.log('ℹ️ Mutation success: ' + response.data.data);
+        }
         break;
     }
     return response;

@@ -16,7 +16,7 @@ import ImageCarousel from '../components/ImageCarousel';
 import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
-import {MatZip, Review} from '../types/store';
+import {Coordinate, MatZip, Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -97,11 +97,12 @@ export default function MatZipMain() {
 
   const dispatch = useDispatch();
 
-  const zipDataFromStore = useAppSelector(state =>
-    state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
-  );
+  // const zipDataFromStore = useAppSelector(state =>
+  //   state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
+  // );
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
+  const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
 
   const matZipFromZipId = async () => {
     try {
@@ -120,16 +121,21 @@ export default function MatZipMain() {
             name
           }
           category
+          longitude
+          latitude
         }
       }`;
       const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
       const fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
 
-      const location = await addressToCoordinate(fetchedZipData.address);
+      // const location = await addressToCoordinate(fetchedZipData.address);
+      const coordinate: Coordinate = {
+        latitude: fetchedZipData.latitude,
+        longitude: fetchedZipData.longitude,
+      };
 
       // Update zip as street view image if no default image
       let defaultStreetViewImg;
-      console.log(fetchedZipData.images);
       if (
         fetchedZipData.images === undefined ||
         fetchedZipData.images.length === 0
@@ -161,13 +167,17 @@ export default function MatZipMain() {
           fetchedZipData.images.length !== 0
             ? fetchedZipData.images.map((image: any) => image.src)
             : defaultStreetViewImg,
-        coordinate: location,
+        coordinate: coordinate,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
         address: fetchedZipData.address,
         category: fetchedZipData.category,
       };
       setZipData(selectedMatZip);
+      const parentMapNames: string[] = fetchedZipData.parentMap.map(
+        (parent: any) => parent.name,
+      );
+      setParentMap(parentMapNames);
     } catch (error) {
       console.log(error);
     }
@@ -175,11 +185,12 @@ export default function MatZipMain() {
 
   useEffect(() => {
     dispatch(updateIsLoadingAction(true));
-    if (zipDataFromStore) {
-      setZipData(zipDataFromStore);
-    } else {
-      matZipFromZipId();
-    }
+    // if (zipDataFromStore) {
+    //   setZipData(zipDataFromStore);
+    //   console.log('from store');
+    // } else {
+    matZipFromZipId();
+    // }
     const fetchReview = async () => {
       const fetchReviewQuery = `{
         fetchReviewsByZipId(zipId: "${zipId}") {
@@ -220,7 +231,7 @@ export default function MatZipMain() {
     };
     fetchReview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zipId, zipDataFromStore]);
+  }, [zipId]);
 
   const images = zipData?.imageSrc;
   const handlePressReviewChevron = () => {
@@ -294,10 +305,21 @@ export default function MatZipMain() {
               </View>
 
               <Text style={styles.matZipListText}>
-                {' '}
-                @muckit_list 맛집에 포함
+                {parentMap &&
+                  parentMap.length > 0 &&
+                  (parentMap.length > 2
+                    ? `${parentMap[0]}, ${parentMap[1]} 외 ${
+                        parentMap.length - 2
+                      }개의 맛맵에 포함`
+                    : parentMap.length === 2
+                    ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                    : `${parentMap[0]} 맛맵에 포함`)}
               </Text>
-              <View style={styles.horizontal}>
+              <View
+                style={{
+                  ...styles.horizontal,
+                  marginTop: parentMap && parentMap.length === 0 ? -27 : 0,
+                }}>
                 <Ionicons name="location-outline" color="black" size={18} />
                 <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
               </View>
@@ -380,13 +402,13 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'left',
     marginBottom: 25,
-    marginTop: -5,
   },
   matZipInfoText: {
     fontSize: 15,
     color: 'black',
     textAlign: 'left',
     marginLeft: 3,
+    maxWidth: 250,
   },
   matZipDescriptionText: {
     fontSize: 14,

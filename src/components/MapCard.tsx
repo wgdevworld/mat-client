@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from 'react';
 import {
   View,
   Text,
@@ -24,7 +23,6 @@ interface MapCardProps {
 
 const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   const dispatch = useDispatch();
-  const [addIcon, setAddIcon] = useState(true);
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
   );

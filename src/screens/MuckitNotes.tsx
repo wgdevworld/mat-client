@@ -144,15 +144,24 @@ export default function MuckitNotes() {
           onDeleteMuckitem(item.id);
         }}>
         <TouchableOpacity
-          style={[
-            styles.itemContainer,
-            item.completeStatus && styles.checkedItem,
-          ]}
+          activeOpacity={1}
+          style={styles.itemContainer}
           onPress={() => handleCheckboxToggle(item.id)}>
           <View>
-            <Text style={styles.itemTitle}>{item.title}</Text>
+            <Text
+              style={[
+                styles.itemTitle,
+                item.completeStatus && styles.checkedText,
+              ]}>
+              {item.title}
+            </Text>
           </View>
-          <View style={styles.checkbox} />
+          <View
+            style={[
+              styles.checkbox,
+              item.completeStatus && styles.checkedCheckBox,
+            ]}
+          />
         </TouchableOpacity>
       </SwipeableRow>
     );
@@ -215,6 +224,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   itemContainer: {
+    backgroundColor: 'white',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -222,9 +232,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ccc',
     padding: 8,
-  },
-  checkedItem: {
-    backgroundColor: colors.grey,
   },
   itemTitle: {
     fontSize: 16,
@@ -243,5 +250,15 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderBottomWidth: 1,
     padding: 8,
+  },
+  checkedText: {
+    textDecorationLine: 'line-through',
+  },
+  checkedCheckBox: {
+    width: 15,
+    height: 15,
+    borderRadius: 12,
+    borderWidth: 7.5,
+    borderColor: colors.coral1,
   },
 });

@@ -12,7 +12,6 @@ import {
   replaceFollowingMatMapAction,
   replaceOwnMatMapAction,
 } from '../store/modules/userMaps';
-import {v4 as uuidv4} from 'uuid';
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
@@ -54,10 +53,6 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
-                const lastTokenDate = await AsyncStorage.getItem(
-                  ASYNC_STORAGE_ENUM.TOKEN_TIME,
-                );
-                console.log(lastTokenDate);
                 console.log(curUserRes?.data.data.fetchLoggedIn);
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
@@ -114,45 +109,50 @@ const SplashScreen = () => {
                 } else {
                   //if the user doesn't have a MatMap yet, create a default one for them
                   console.log('ℹ️ no MatMap found, creating default one');
-                  const defaultMatMap: MatMap = {
-                    id: uuidv4(),
-                    name: '기본 맛맵',
-                    description: '유저의 첫 맛맵',
-                    imageSrc: [
-                      'https://storage.googleapis.com/kobon-01/seoul_hotple_logo.png',
-                    ],
-                    // TODO: replace with user.name when onboarding is finished (and createUserAction is in place)
-                    author: '사용자',
-                    authorId: curUserId,
-                    followerList: [],
-                    publicStatus: false,
-                    areaCode: '',
-                    zipList: [],
-                    numFollower: 0,
-                  };
                   const variables = {
                     mapInfo: {
-                      name: defaultMatMap.name,
-                      description: defaultMatMap.description,
-                      areaCode: defaultMatMap.areaCode,
-                      publicStatus: defaultMatMap.publicStatus,
+                      name: '기본 맛맵',
+                      description: `${curUserUsername}님의 첫 맛맵`,
+                      areaCode: '',
+                      publicStatus: false,
                       imageSrc: '',
                     },
                   };
-
                   const createUserMapQuery = `
                   mutation createMap($mapInfo: CreateMapInput!) {
                     createMap(mapInfo: $mapInfo) {
+                      id
                       name
+                      description
+                      publicStatus
+                      creator {
+                        id
+                        name
+                      }
+                      images {
+                        src
+                      }
                     }
                   }`;
-
-                  await request(
+                  const createMapRes = await request(
                     createUserMapQuery,
                     REQ_METHOD.MUTATION,
                     variables,
                   );
-                  dispatch(replaceOwnMatMapAction([defaultMatMap]));
+
+                  const createMapData = createMapRes?.data.data.createMap;
+                  const createMap: MatMap = {
+                    id: createMapData.id,
+                    name: createMapData.name,
+                    description: createMapData.description,
+                    publicStatus: createMapData.publicStatus,
+                    author: createMapData.creator.name,
+                    authorId: createMapData.creator.id,
+                    imageSrc: createMapData.images,
+                    zipList: [],
+                    areaCode: '',
+                  };
+                  dispatch(replaceOwnMatMapAction([createMap]));
                 }
                 const fetchUserSavedZipsQuery = `{
                   fetchUser(email: "${curUserEmail}") {
@@ -188,6 +188,7 @@ const SplashScreen = () => {
                   const visitedMatZips = await matZipSerializer(
                     fetchUserSavedZipsData,
                   );
+                  console.log(visitedMatZips);
                   dispatch(replaceVisitedMatZipsAction(visitedMatZips));
                 }
                 const fetchFollowingMapQuery = `{
@@ -235,7 +236,7 @@ const SplashScreen = () => {
                   dispatch(replaceFollowingMatMapAction(userFollowingMap));
                 }
                 navigation.replace('TabNavContainer', {
-                  screen: 'MapMain',
+                  screen: 'Map',
                 });
 
                 //유저 먹킷 리스트 불러오기
