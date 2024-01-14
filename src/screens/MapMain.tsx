@@ -8,6 +8,7 @@ import {
   Image,
   Platform,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -36,6 +37,7 @@ import {useDispatch} from 'react-redux';
 import {
   removeFromOwnMatMapAction,
   replaceOwnMatMapZipListAction,
+  updatePublicStatusAction,
 } from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -372,7 +374,6 @@ function App(): JSX.Element {
           longitude: fetchedZipData.longitude,
         };
       }
-
       //   const fetchReviewQuery = `{
       //   fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
       //     writer {
@@ -538,6 +539,40 @@ function App(): JSX.Element {
       .catch(e => console.error(e));
   };
 
+  const onPublicStatusChange = async () => {
+    dispatch(updateIsLoadingAction(true));
+    try {
+      const updateMapQuery = `
+      mutation updateMap($mapInfo: UpdateMapInput!, $id: String!) {
+        updateMap(mapInfo: $mapInfo, id: $id) {
+          publicStatus
+        }
+      }
+    `;
+      const updateMapVariables = {
+        mapInfo: {
+          publicStatus: !curMatMap.publicStatus,
+        },
+        id: curMatMap.id,
+      };
+      const updateMapRes = await request(
+        updateMapQuery,
+        REQ_METHOD.MUTATION,
+        updateMapVariables,
+      );
+      if (updateMapRes === null || updateMapRes === undefined) {
+        return;
+      }
+      dispatch(
+        updatePublicStatusAction(updateMapRes.data.data.updateMap.publicStatus),
+      );
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
@@ -676,6 +711,7 @@ function App(): JSX.Element {
               </View>
               {searchedMatZips && searchQuery.length !== 0 ? (
                 <FlatList
+                  showsVerticalScrollIndicator={false}
                   data={searchedMatZips}
                   renderItem={renderSearchedItem}
                   contentContainerStyle={styles.searchResultContainer}
@@ -831,6 +867,7 @@ function App(): JSX.Element {
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}
                 contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
                 ListHeaderComponent={
                   <View style={styles.bottomSheetHeader}>
                     <Text
@@ -842,19 +879,6 @@ function App(): JSX.Element {
                       }}>
                       근처 나의 맛집들 📍
                     </Text>
-                    <TouchableOpacity
-                      onPress={onPressShareMatMap}
-                      style={{alignSelf: 'center'}}>
-                      <Ionicons
-                        name="share-outline"
-                        size={24}
-                        color={colors.coral1}
-                        style={{
-                          alignSelf: 'center',
-                          paddingLeft: 40,
-                        }}
-                      />
-                    </TouchableOpacity>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
                       placeholder="맛맵 선택"
@@ -872,7 +896,67 @@ function App(): JSX.Element {
                   </View>
                 }
                 stickyHeaderIndices={[0]}
-                ListFooterComponent={<View style={{height: 200}} />}
+                ListFooterComponent={
+                  <>
+                    <View style={{height: 50}} />
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                        }}>
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            color: colors.coral1,
+                            fontSize: 16,
+                          }}>
+                          {curMatMap.authorId === curUser.id
+                            ? '내 맛맵 공유'
+                            : '맛맵 공유'}
+                        </Text>
+                        <TouchableOpacity onPress={onPressShareMatMap}>
+                          <Ionicons
+                            name="share-outline"
+                            size={24}
+                            color={colors.coral1}
+                            style={{paddingLeft: 3}}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      {curMatMap.authorId === curUser.id ? (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                          }}>
+                          <Text
+                            style={{
+                              alignSelf: 'center',
+                              color: colors.coral1,
+                              fontSize: 16,
+                            }}>
+                            내 맛맵 공개
+                          </Text>
+                          <Switch
+                            thumbColor={'white'}
+                            trackColor={{
+                              false: colors.coral2,
+                              true: colors.coral1,
+                            }}
+                            onValueChange={onPublicStatusChange}
+                            value={curMatMap.publicStatus}
+                            style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
+                            ios_backgroundColor={colors.coral2}
+                          />
+                        </View>
+                      ) : null}
+                    </View>
+                    <View style={{height: 50}} />
+                  </>
+                }
                 extraData={currentLocation}
               />
             ) : (

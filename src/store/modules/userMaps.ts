@@ -99,6 +99,10 @@ export const userMapsSlice = createSlice({
       });
       return state;
     },
+    updatePublicStatusAction: (state, action: PayloadAction<boolean>) => {
+      state.ownMaps[0].publicStatus = action.payload;
+      return state;
+    },
   },
 });
 
@@ -113,5 +117,6 @@ export const {
   addFollowingMatMapAction,
   removeFromOwnMatMapAction,
   incrementReviewCountAndAverageAction,
+  updatePublicStatusAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;

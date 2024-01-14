@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  ScrollView,
-  View,
-  Image,
-  Switch,
-} from 'react-native';
-import assets from '../../assets';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {SafeAreaView, StyleSheet, Text, ScrollView, View} from 'react-native';
 import colors from '../styles/colors';
 
 export default function Helps() {
