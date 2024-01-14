@@ -66,6 +66,7 @@ export const request = async (
     let headers;
     if (!isTokenLess) {
       const idToken = await getValidIdToken();
+      // console.log('ℹ️ Token: ' + idToken);
       axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
       headers = {
         'Content-Type': 'application/json',
