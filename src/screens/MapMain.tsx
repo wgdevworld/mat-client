@@ -51,6 +51,8 @@ import Share from 'react-native-share';
 
 const screenWidth = Dimensions.get('window').width;
 
+let isBackgroundNotiSent = false;
+
 function App(): JSX.Element {
   const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
@@ -120,7 +122,13 @@ function App(): JSX.Element {
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
   useEffect(() => {
+    if (isBackgroundNotiSent) {
+      // to prevent the background task to be run again on mount
+      return;
+    }
+    isBackgroundNotiSent = true;
     updateLocationAndSendNoti(allSavedZips);
+    isBackgroundNotiSent = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
