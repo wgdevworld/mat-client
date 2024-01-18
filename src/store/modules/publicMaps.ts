@@ -13,9 +13,17 @@ export const publicMapSlice = createSlice({
       state.maps = action.payload;
       return state;
     },
+    addPublicMapFollowerCountAction: (state, action: PayloadAction<string>) => {
+      const targetMap = state.maps.find(map => map.id === action.payload);
+      if (targetMap) {
+        targetMap.numFollower! += 1;
+      }
+      return state;
+    },
   },
 });
 
-export const {replacePublicMapsAction} = publicMapSlice.actions;
+export const {replacePublicMapsAction, addPublicMapFollowerCountAction} =
+  publicMapSlice.actions;
 
 export default publicMapSlice.reducer;

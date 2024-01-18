@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   View,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -15,23 +16,100 @@ import MapCard from '../components/MapCard';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from '../store/hooks';
 import {MatMap} from '../types/store';
+import {matMapSerializer} from '../serializer/MatMapSrlzr';
+import {replacePublicMapsAction} from '../store/modules/publicMaps';
+import {REQ_METHOD, request} from '../controls/RequestControl';
+import colors from '../styles/colors';
 
 export default function ListMaps() {
   const dispatch = useDispatch();
   const publicMaps = useAppSelector(state => state.publicMaps.maps);
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
-  const [maps, setMaps] = useState<MatMap[]>(publicMaps);
+  const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const orderMaps = () => {
+    const newOrdered = [...publicMaps];
+    const sorted = newOrdered.sort((a, b) => {
+      return b.numFollower! - a.numFollower!;
+    });
+    return sorted;
+  };
+
+  useEffect(() => {
+    setOrderedMaps(orderMaps());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicMaps]);
+
+  const onRefreshPublicMaps = async () => {
+    setIsRefreshing(true);
+    try {
+      const fetchAllMapsQuery = `{
+        fetchAllMaps {
+          id
+          name
+          description
+          createdAt
+          publicStatus
+          followerList {
+            id
+          }
+          creator {
+            id
+            name
+          }
+          images {
+            src
+          }
+          zipList {
+            id
+            name
+            address
+            images {
+              src
+            }
+            reviewCount
+            reviewAvgRating
+            parentMap {
+              id
+            }
+            category
+            latitude
+            longitude
+          }
+        }
+      }`;
+      const publicMapsRes = await request(fetchAllMapsQuery, REQ_METHOD.QUERY);
+      const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
+      if (publicMapsData) {
+        const serializedPublicMaps: MatMap[] = await matMapSerializer(
+          publicMapsData,
+        );
+        dispatch(replacePublicMapsAction(serializedPublicMaps));
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <ScrollView contentContainerStyle={styles.containter}>
-        <Text style={styles.heading}>지도 탐색 🚀 </Text>
+      <View style={styles.containter}>
         <View style={{paddingHorizontal: 24}}>
           <FlatList
-            data={maps}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={onRefreshPublicMaps}
+                tintColor={colors.coral1}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            data={orderedMaps}
             keyExtractor={item => item.name}
-            scrollEnabled={false}
             renderItem={({item}) => (
               <MapCard
                 map={item}
@@ -40,9 +118,15 @@ export default function ListMaps() {
                 }}
               />
             )}
+            ListHeaderComponent={
+              <Text style={styles.heading}>지도 탐색 🚀 </Text>
+            }
+            ListHeaderComponentStyle={{backgroundColor: 'white'}}
+            ListFooterComponent={<View style={{height: 100}} />}
+            stickyHeaderIndices={[0]}
           />
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -57,7 +141,6 @@ const styles = StyleSheet.create({
     color: 'black',
     marginBottom: 20,
     textAlign: 'left',
-    paddingHorizontal: 24,
   },
   map: {
     height: 100,

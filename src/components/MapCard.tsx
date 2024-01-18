@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   View,
@@ -15,6 +16,8 @@ import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {MatMap} from '../types/store';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useAppSelector} from '../store/hooks';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {addPublicMapFollowerCountAction} from '../store/modules/publicMaps';
 
 interface MapCardProps {
   map: MatMap;
@@ -32,47 +35,67 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
     <TouchableOpacity onPress={onPressMap}>
       <View style={styles.cardContainer}>
         <Image source={{uri: map.imageSrc[0]}} style={styles.image} />
-        <View style={styles.cardContent}>
-          <Text style={styles.mapName}>{map.name}</Text>
-          <Text style={styles.mapAuthor}>by: {map.author}</Text>
-          <Text style={styles.mapFollowers}>
-            팔로워 {map.numFollower} | 유튜브
-          </Text>
-          <Button
-            icon={{
-              name: 'bell',
-              type: 'font-awesome',
+        <View
+          style={{
+            position: 'absolute',
+            top: 5,
+            left: 5,
+          }}>
+          <Text
+            style={{
+              fontSize: 12,
               color: 'white',
-              size: 15,
-            }}
-            title="알림 받기"
-            buttonStyle={styles.bellButton}
-            titleStyle={styles.buttonTitle}
-            onPress={() => {
-              console.log(map.id);
-              if (map.authorId && map.authorId === user.id) {
-                Alert.alert('본인 지도입니다!');
-              } else if (
-                userFollowingMaps.find(
-                  followingMap => followingMap.id === map.id,
-                )
-              ) {
-                Alert.alert('이미 팔로우하신 지도입니다!');
-              } else {
-                dispatch(updateIsLoadingAction(true));
-                addUserFollower(map.id)
-                  .then(() => {
-                    dispatch(addFollowingMatMapAction(map));
-                  })
-                  .catch(error => {
-                    console.error('Error adding follower:', error);
-                  })
-                  .finally(() => {
-                    dispatch(updateIsLoadingAction(false));
-                  });
-              }
-            }}
-          />
+              alignSelf: 'center',
+              backgroundColor: colors.coral1,
+              padding: 3,
+            }}>
+            팔로워: {map.numFollower}
+          </Text>
+        </View>
+
+        <View style={styles.cardContent}>
+          <View>
+            <Text style={styles.mapName}>{map.name}</Text>
+            <Text style={styles.mapAuthor}>by {map.author}</Text>
+          </View>
+          <View style={{}}>
+            <Button
+              icon={{
+                name: 'people',
+                type: 'ionicon',
+                color: 'white',
+                size: 15,
+              }}
+              title="팔로우"
+              buttonStyle={styles.bellButton}
+              titleStyle={styles.buttonTitle}
+              onPress={() => {
+                // console.log(map.id);
+                if (map.authorId && map.authorId === user.id) {
+                  Alert.alert('본인 지도입니다!');
+                } else if (
+                  userFollowingMaps.find(
+                    followingMap => followingMap.id === map.id,
+                  )
+                ) {
+                  Alert.alert('이미 팔로우하신 지도입니다!');
+                } else {
+                  dispatch(updateIsLoadingAction(true));
+                  addUserFollower(map.id)
+                    .then(() => {
+                      dispatch(addFollowingMatMapAction(map));
+                      dispatch(addPublicMapFollowerCountAction(map.id));
+                    })
+                    .catch(error => {
+                      console.error('Error adding follower:', error);
+                    })
+                    .finally(() => {
+                      dispatch(updateIsLoadingAction(false));
+                    });
+                }
+              }}
+            />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -85,6 +108,7 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flex: 1,
+    justifyContent: 'space-between',
     borderColor: colors.grey,
     borderWidth: 1,
     paddingHorizontal: 12,
@@ -97,12 +121,10 @@ const styles = StyleSheet.create({
   },
   bellButton: {
     backgroundColor: colors.coral1,
-    padding: 10,
     height: 35,
-    width: 94,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 45,
+    padding: 10,
+    paddingRight: 14,
+    // marginTop: 45,
     alignSelf: 'flex-end',
     borderRadius: 20,
   },
@@ -122,6 +144,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   mapFollowers: {
+    alignSelf: 'flex-end',
     fontSize: 10,
     color: 'black',
   },

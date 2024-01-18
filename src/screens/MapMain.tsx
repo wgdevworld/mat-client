@@ -544,7 +544,7 @@ function App(): JSX.Element {
       url: deepLinkUrl,
     })
       .then(res => console.log(res))
-      .catch(e => console.error(e));
+      .catch(e => console.log(e));
   };
 
   const onPublicStatusChange = async () => {
