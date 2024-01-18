@@ -7,7 +7,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Button} from 'react-native-elements'; // Import the Button component
+import {Button} from 'react-native-elements';
 import colors from '../styles/colors';
 import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
@@ -49,7 +49,7 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
             buttonStyle={styles.bellButton}
             titleStyle={styles.buttonTitle}
             onPress={() => {
-              console.log(map.authorId);
+              console.log(map.id);
               if (map.authorId && map.authorId === user.id) {
                 Alert.alert('본인 지도입니다!');
               } else if (

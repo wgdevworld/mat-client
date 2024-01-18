@@ -34,6 +34,7 @@ import GlobalLoading from './components/GlobalLoading';
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
   'Non-serializable values were found in the navigation state',
+  'source.uri should not be an empty string',
 ]);
 
 const Stack = createStackNavigator<ScreenParamList>();

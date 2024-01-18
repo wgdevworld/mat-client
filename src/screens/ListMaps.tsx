@@ -35,7 +35,9 @@ export default function ListMaps() {
             renderItem={({item}) => (
               <MapCard
                 map={item}
-                onPressMap={() => navigation.navigate('ZipList', {map: item})}
+                onPressMap={() => {
+                  navigation.navigate('ZipList', {map: item});
+                }}
               />
             )}
           />

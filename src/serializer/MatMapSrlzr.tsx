@@ -72,13 +72,12 @@ export const matMapSerializer = async (matMaps: any[]) => {
         publicStatus: data.publicStatus,
         areaCode: data.areaCode,
         zipList: serializedZipList,
-        followerList: data.followerList,
         imageSrc: imgSrcArr,
-        author: data.creator.name,
-        authorId: data.creator.id,
-        //TODO: add back in after backend fix of followList
-        // numFollower: data.followerList.length,
+        author: data.creator ? data.creator.name : '탈퇴한 유저',
+        authorId: data.creator ? data.creator.id : '탈퇴한 유저',
+        numFollower: data.followerList ? data.followerList.length : 0,
       };
+      // console.log(serializedMatMap);
       return serializedMatMap;
     }),
   );

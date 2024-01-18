@@ -279,7 +279,9 @@ const SplashScreen = () => {
                     description
                     createdAt
                     publicStatus
-                    areaCode
+                    followerList {
+                      id
+                    }
                     creator {
                       id
                       name
