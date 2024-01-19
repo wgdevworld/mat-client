@@ -181,6 +181,7 @@ const SplashScreen = () => {
                 const fetchUserSavedZipsData =
                   fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
                 console.log(fetchUserSavedZipsData);
+                console.log(fetchUserSavedZipsData.length);
                 if (
                   fetchUserSavedZipsData &&
                   fetchUserSavedZipsData.length !== 0
@@ -188,8 +189,10 @@ const SplashScreen = () => {
                   const visitedMatZips = await matZipSerializer(
                     fetchUserSavedZipsData,
                   );
-                  console.log(visitedMatZips);
+                  // console.log('visited: ' + fetchUserSavedZipsData.length);
                   dispatch(replaceVisitedMatZipsAction(visitedMatZips));
+                } else {
+                  dispatch(replaceVisitedMatZipsAction([]));
                 }
                 const fetchFollowingMapQuery = `{
                   fetchMapsFollowed {
@@ -276,7 +279,9 @@ const SplashScreen = () => {
                     description
                     createdAt
                     publicStatus
-                    areaCode
+                    followerList {
+                      id
+                    }
                     creator {
                       id
                       name

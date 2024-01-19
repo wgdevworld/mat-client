@@ -12,9 +12,6 @@ import {REQ_METHOD, request} from './RequestControl';
 // 15분마다 한번씩 돌아가게 <- 무조건 이게 아님
 // 모름 아무도 모름 이게 돌아가는 원리
 
-// 기적적으로 1트안에 된다
-// 만약에 안된다
-// 1.
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
@@ -49,9 +46,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         latitude: location.latitude,
         longitude: location.longitude,
       };
-      Alert.alert('Background location 업데이트 됨');
       BackgroundGeolocation.startTask(taskKey => {
-        Alert.alert('테스크 시작됨 됐음');
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
@@ -91,7 +86,6 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
               };
 
               await request(notificationQuery, REQ_METHOD.MUTATION, variables);
-              Alert.alert('Notification query 보내짐');
             },
           );
         }

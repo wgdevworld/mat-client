@@ -51,6 +51,8 @@ import Share from 'react-native-share';
 
 const screenWidth = Dimensions.get('window').width;
 
+let isBackgroundNotiSent = false;
+
 function App(): JSX.Element {
   const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
@@ -120,7 +122,13 @@ function App(): JSX.Element {
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
   useEffect(() => {
+    if (isBackgroundNotiSent) {
+      // to prevent the background task to be run again on mount
+      return;
+    }
+    isBackgroundNotiSent = true;
     updateLocationAndSendNoti(allSavedZips);
+    isBackgroundNotiSent = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -536,7 +544,7 @@ function App(): JSX.Element {
       url: deepLinkUrl,
     })
       .then(res => console.log(res))
-      .catch(e => console.error(e));
+      .catch(e => console.log(e));
   };
 
   const onPublicStatusChange = async () => {
@@ -785,6 +793,13 @@ function App(): JSX.Element {
                     coordinate={zip.coordinate}
                     id={zip.id}
                     onPress={() => {
+                      const newRegion: Region = {
+                        latitude: zip.coordinate.latitude,
+                        longitude: zip.coordinate.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                      };
+                      mapRef.current?.animateToRegion(newRegion, 0);
                       setMarker(zip);
                       setIsMarkerSavedMatZip(true);
                     }}>
@@ -1175,7 +1190,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   dropDownPickerContainer: {
-    width: '28%',
+    width: '30%',
     alignSelf: 'center',
   },
   ourDBSearchBar: {

@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import assets from '../../assets';
-import ImageCarousel from './ImageCarousel';
 import colors from '../styles/colors';
 
 interface ZipCardProps {
@@ -18,7 +16,9 @@ interface ZipCardProps {
 
 const getCategoryEmoji = (category: string) => {
   switch (category) {
-    case 'D': case 'cafe': case 'bakery':
+    case 'D':
+    case 'cafe':
+    case 'bakery':
       return '🍰'; // 디저트
     case 'K':
       return '🍚'; // 한식
@@ -32,7 +32,8 @@ const getCategoryEmoji = (category: string) => {
       return '🍣'; // 일식
     case 'I':
       return '🥘'; // 인도식
-    case 'B': case 'bar':
+    case 'B':
+    case 'bar':
       return '🍻'; // 주점
     default:
       return '🍴'; // 그 외
@@ -63,13 +64,12 @@ const ZipCard: React.FC<ZipCardProps> = ({
             {/* <Text style={styles.mapAuthor}>{address}</Text> */}
             {/* <Text style={styles.mapAuthor}>{category}</Text> */}
             {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
-            <Text style={styles.mapDistance}>나와의 거리: {distance}</Text>
+            {/* //TODO: 나와의 거리 넣기 */}
+            {/* <Text style={styles.mapDistance}>나와의 거리: {distance}</Text> */}
           </View>
           <Ionicons
             name={
-              isVisited
-                ? 'checkmark-circle-outline'
-                : 'chevron-forward-outline'
+              isVisited ? 'checkmark-circle-outline' : 'chevron-forward-outline'
             }
             size={30}
             color={colors.coral1}

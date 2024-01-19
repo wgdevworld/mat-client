@@ -20,7 +20,7 @@ import {Coordinate, MatZip, Review} from '../types/store';
 import colors from '../styles/colors';
 import {useAppSelector} from '../store/hooks';
 import {REQ_METHOD, request} from '../controls/RequestControl';
-import {addressToCoordinate, ratingAverage} from '../tools/CommonFunc';
+import {ratingAverage} from '../tools/CommonFunc';
 import Config from 'react-native-config';
 import {useDispatch} from 'react-redux';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
@@ -257,7 +257,7 @@ export default function MatZipMain() {
       } else {
         beenToThisMatZipQuery = `
         mutation undibsZip($zipId: String!) {
-          dibsZip(zipId: $zipId) {
+          undibsZip(zipId: $zipId) {
             id
           }
         }`;
