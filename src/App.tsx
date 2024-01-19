@@ -31,11 +31,32 @@ import SplashScreen from './screens/SplashScreen';
 import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 
-LogBox.ignoreLogs([
+const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
   'Non-serializable values were found in the navigation state',
   'source.uri should not be an empty string',
-]);
+];
+LogBox.ignoreLogs(IGNORED_LOGS);
+
+if (__DEV__) {
+  const withoutIgnored =
+    //@ts-ignore
+
+
+      logger =>
+      (...args: any[]) => {
+        const output = args.join(' ');
+
+        if (!IGNORED_LOGS.some(log => output.includes(log))) {
+          logger(...args);
+        }
+      };
+
+  console.log = withoutIgnored(console.log);
+  console.info = withoutIgnored(console.info);
+  console.warn = withoutIgnored(console.warn);
+  console.error = withoutIgnored(console.error);
+}
 
 const Stack = createStackNavigator<ScreenParamList>();
 
