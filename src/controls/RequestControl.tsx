@@ -30,6 +30,7 @@ const getNewToken = async () => {
     const response = await request(fetchNewTokenQuery, REQ_METHOD.QUERY);
     const idToken = response?.data.data.fetchNewAccessToken;
     console.log('ℹ️ Token refreshed: ' + idToken);
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, idToken);
     return idToken;
   } catch (error) {
     throw error;
@@ -66,7 +67,7 @@ export const request = async (
     let headers;
     if (!isTokenLess) {
       const idToken = await getValidIdToken();
-      // console.log('ℹ️ Token: ' + idToken);
+      console.log('ℹ️ Token: ' + idToken);
       axios.defaults.headers.common.Authorization = `Bearer ${idToken}`;
       headers = {
         'Content-Type': 'application/json',
