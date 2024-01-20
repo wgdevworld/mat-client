@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import {RouteProp, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
@@ -28,6 +28,8 @@ import {
   addVisitedMatZipAction,
   removeVisitedZipAction,
 } from '../store/modules/visitedZips';
+import Header from '../components/Header';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -93,6 +95,11 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
 
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+
+  const onPressBack = () => {
+    navigation.goBack();
+  };
   const zipId = route.params.zipID;
 
   const dispatch = useDispatch();
@@ -281,6 +288,11 @@ export default function MatZipMain() {
   const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <Header
+        onPressBack={onPressBack}
+        color={'white'}
+        buttonColor={colors.coral1}
+      />
       <ScrollView bounces={false} contentContainerStyle={styles.containter}>
         <ImageCarousel images={images} />
         {/* {images?.length === 0 ? (

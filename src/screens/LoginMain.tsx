@@ -275,14 +275,15 @@ export default function Login() {
               <Ionicons name="eye-off" size={15} color={'white'} />
             </TouchableOpacity>
           </View>
-          <View style={styles.forgotButtons}>
+          {/* // TODO: add support for finding id and recovering password */}
+          {/* <View style={styles.forgotButtons}>
             <TouchableOpacity style={styles.forgotIdButton}>
               <Text style={styles.forgotIdButtonText}>아이디 찾기</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.forgotPasswordButton}>
               <Text style={styles.forgotPasswordButtonText}>비밀번호 찾기</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
           <TouchableOpacity
             onPress={() => onLogin()}
             style={styles.loginButton}>
@@ -303,7 +304,6 @@ export default function Login() {
               이메일로 회원가입하기
             </Text>
           </TouchableOpacity>
-
           {appleAuth.isSupported && (
             <AppleButton
               buttonStyle={AppleButton.Style.BLACK}

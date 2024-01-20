@@ -42,10 +42,6 @@ const getCategoryEmoji = (category: string) => {
 
 const ZipCard: React.FC<ZipCardProps> = ({
   name,
-  stars,
-  numReview,
-  address,
-  distance,
   isVisited,
   category,
   onPressZip,
@@ -92,7 +88,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1,
     elevation: 2,
-    padding: 0,
   },
   infoContainer: {
     flex: 1,
@@ -126,7 +121,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    paddingHorizontal: 12,
     paddingTop: 12,
     width: '100%',
     borderBottomLeftRadius: 20,

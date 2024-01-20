@@ -13,6 +13,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../../types/navigation';
 import {useDispatch} from 'react-redux';
 import {updateEmailAction} from '../../store/modules/user';
+import Header from '../../components/Header';
 
 export default function SignupEmail() {
   const dispatch = useDispatch();
@@ -34,6 +35,11 @@ export default function SignupEmail() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1}}>
+      <Header
+        onPressBack={() => navigation.goBack()}
+        color={colors.coral1}
+        buttonColor={colors.white}
+      />
       <View style={styles.header}>
         <Text style={styles.headerText}>회원가입</Text>
       </View>
@@ -63,7 +69,7 @@ export default function SignupEmail() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.coral1,
-    paddingVertical: 30,
+    paddingBottom: 30,
     alignItems: 'center',
   },
   headerText: {
