@@ -4,7 +4,6 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  ScrollView,
   View,
   FlatList,
   RefreshControl,
@@ -109,7 +108,7 @@ export default function ListMaps() {
             }
             showsVerticalScrollIndicator={false}
             data={orderedMaps}
-            keyExtractor={item => item.name}
+            keyExtractor={item => item.id}
             renderItem={({item}) => (
               <MapCard
                 map={item}

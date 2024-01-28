@@ -20,7 +20,7 @@ export const initBGLocation = async () => {
       distanceFilter: 50,
       notificationTitle: 'Background tracking',
       notificationText: 'enabled',
-      debug: true,
+      debug: false,
       startOnBoot: false,
       stopOnTerminate: true,
       locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,

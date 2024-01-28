@@ -16,6 +16,7 @@ import {updateUsernameAction} from '../../store/modules/user';
 import {useAppSelector} from '../../store/hooks';
 import {REQ_METHOD, request} from '../../controls/RequestControl';
 import {updateIsLoadingAction} from '../../store/modules/globalComponent';
+import Header from '../../components/Header';
 
 export default function SignupUser() {
   const dispatch = useDispatch();
@@ -69,7 +70,10 @@ export default function SignupUser() {
           createUserVariables,
           true,
         );
-        navigation.navigate('AccessGrant');
+        navigation.reset({
+          index: 1,
+          routes: [{name: 'LoginMain'}, {name: 'AccessGrant'}],
+        });
       } catch (e) {
         console.log(e);
       } finally {
@@ -97,7 +101,10 @@ export default function SignupUser() {
           REQ_METHOD.MUTATION,
           updateUserVariables,
         );
-        navigation.navigate('AccessGrant');
+        navigation.reset({
+          index: 1,
+          routes: [{name: 'LoginMain'}, {name: 'AccessGrant'}],
+        });
       } catch (e) {
         console.log(e);
       } finally {
@@ -108,6 +115,11 @@ export default function SignupUser() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.coral1}}>
+      <Header
+        onPressBack={() => navigation.goBack()}
+        color={colors.coral1}
+        buttonColor={colors.white}
+      />
       <View style={styles.header}>
         <Text style={styles.headerText}>회원가입</Text>
       </View>
@@ -136,7 +148,7 @@ export default function SignupUser() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.coral1,
-    paddingVertical: 30,
+    paddingBottom: 30,
     alignItems: 'center',
   },
   headerText: {
