@@ -14,6 +14,7 @@ export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
   const mapData = route.params;
+  console.log(mapData.map.id);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
