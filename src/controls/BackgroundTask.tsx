@@ -115,8 +115,8 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         setTimeout(
           () =>
             Alert.alert(
-              'App requires location tracking permission',
-              'Would you like to open app settings?',
+              '근처 맛집 알림을 받으려면 알림을 허용해야해요',
+              '알림 설정을 열까요?',
               [
                 {
                   text: 'Yes',

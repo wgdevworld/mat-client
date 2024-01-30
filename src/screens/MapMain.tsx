@@ -128,9 +128,10 @@ function App(): JSX.Element {
   });
 
   //TODO: add following maps as well
-  const allSavedZips: MatZip[] = userOwnMaps.flatMap(
-    (allMaps: MatMap) => allMaps.zipList,
-  );
+  const allSavedZips: MatZip[] = [
+    ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+  ];
 
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
@@ -873,7 +874,7 @@ function App(): JSX.Element {
               query={{
                 key: Config.MAPS_API,
                 language: 'ko',
-                components: 'country:kr',
+                components: 'country:kr|country:us',
               }}
               keyboardShouldPersistTaps={'handled'}
               fetchDetails={true}
