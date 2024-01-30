@@ -101,7 +101,7 @@ export default function Helps() {
 }
 const styles = StyleSheet.create({
   containter: {
-    paddingVertical: 24,
+    paddingBottom: 24,
   },
   heading: {
     fontSize: 30,

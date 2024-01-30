@@ -1,10 +1,20 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, Text, ScrollView} from 'react-native';
 import colors from '../styles/colors';
+import Header from '../components/Header';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 export default function FAQs() {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+      <Header
+        onPressBack={() => navigation.goBack()}
+        color={colors.white}
+        buttonColor={colors.coral1}
+      />
       <ScrollView contentContainerStyle={styles.containter}>
         <Text style={styles.heading}>자주 물어보는 질문</Text>
 
@@ -40,7 +50,7 @@ export default function FAQs() {
 }
 const styles = StyleSheet.create({
   containter: {
-    paddingVertical: 24,
+    paddingBottom: 24,
   },
   heading: {
     fontSize: 30,
