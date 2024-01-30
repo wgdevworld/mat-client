@@ -713,6 +713,9 @@ function App(): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
+    const distance = calculateDistance(matZip.coordinate, currentLocation);
+    const distanceDisplay =
+      distance > 1000 ? `${(distance / 1000).toFixed(1)}km` : `${distance}m`;
     return (
       <>
         <SwipeableRow
@@ -765,8 +768,7 @@ function App(): JSX.Element {
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text style={styles.itemSubtext}>
-                  나와의 거리{' '}
-                  {calculateDistance(matZip.coordinate, currentLocation)}m
+                  나와의 거리 {distanceDisplay}
                 </Text>
                 {visitedZips.find(zip => zip.id === matZip.id) && (
                   <Ionicons
