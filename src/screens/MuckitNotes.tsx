@@ -10,6 +10,7 @@ import {
   TextInput,
   Platform,
   SafeAreaView,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import colors from '../styles/colors';
@@ -178,33 +179,35 @@ export default function MuckitNotes() {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView>
-          <View style={styles.headingContainer}>
-            <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
-          </View>
-          <View style={{paddingHorizontal: 24}}>
-            <FlatList
-              data={items}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderItem}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="새로운 먹킷"
-              value={newItemText}
-              onChangeText={handleTextInputChange}
-              onSubmitEditing={handleTextInputSubmit}
-              returnKeyType="done"
-              blurOnSubmit={false}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView>
+            <View style={styles.headingContainer}>
+              <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
+            </View>
+            <View style={{paddingHorizontal: 24}}>
+              <FlatList
+                data={items}
+                keyExtractor={item => item.id.toString()}
+                renderItem={renderItem}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="새로운 먹킷"
+                value={newItemText}
+                onChangeText={handleTextInputChange}
+                onSubmitEditing={handleTextInputSubmit}
+                returnKeyType="done"
+                blurOnSubmit={false}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 

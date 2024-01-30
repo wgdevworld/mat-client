@@ -4,7 +4,6 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  ScrollView,
   View,
   TouchableOpacity,
   Image,
@@ -21,17 +20,21 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import colors from '../styles/colors';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {useDispatch} from 'react-redux';
+import {updateUsernameAction} from '../store/modules/user';
+import Header from '../components/Header';
 
 export default function ProfileMain() {
+  const dispatch = useDispatch();
   const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
-  const [isEdit, setIsEdit] = React.useState(false);
-  const toggleEdit = () => setIsEdit(true);
-  const [nickname, setNickname] = React.useState(user.username);
-  const [isEditAddr, setIsEditAddr] = React.useState(false);
-  const toggleEditAddr = () => setIsEditAddr(true);
-  const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
+  const [isPressedChangeNickname, setIsPressedChangeNickname] = useState(false);
+  const [nickname, setNickname] = React.useState('');
+  // const [isEditAddr, setIsEditAddr] = React.useState(false);
+  // const toggleEditAddr = () => setIsEditAddr(true);
+  // const [addr, setAddr] = React.useState('서울시 중구 길동로 32');
   const [isPressedDeleteUser, setIsPressedDeleteUser] = useState(false);
 
   const deleteUser = async () => {
@@ -47,6 +50,38 @@ export default function ProfileMain() {
     await request(deleteUserQuery, REQ_METHOD.MUTATION, variables);
     await AsyncStorage.clear();
     navigation.replace('LoginMain');
+  };
+
+  const requestUsernameChange = async () => {
+    dispatch(updateIsLoadingAction(true));
+    const updateUserVariables = {
+      updateUserInput: {
+        username: nickname,
+      },
+    };
+
+    const updateUserQuery = `
+        mutation updateUser($updateUserInput: UpdateUserInput!) {
+            updateUser(userInput: $updateUserInput) {
+              username
+        }
+    }`;
+
+    try {
+      const res = await request(
+        updateUserQuery,
+        REQ_METHOD.MUTATION,
+        updateUserVariables,
+      );
+
+      const newUserName = res?.data.data.updateUser.username;
+      dispatch(updateUsernameAction(newUserName));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+      setIsPressedChangeNickname(false);
+    }
   };
 
   return (
@@ -91,7 +126,59 @@ export default function ProfileMain() {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={isPressedChangeNickname}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isPressedChangeNickname ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View style={{...styles.popupContainer, height: 120}}>
+          <Text
+            style={{
+              color: colors.white,
+              alignSelf: 'center',
+              paddingVertical: 5,
+              fontSize: 16,
+              fontWeight: 'bold',
+            }}>
+            유저네임 변경
+          </Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={value => setNickname(value)}
+          />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 10,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                setNickname('');
+                setIsPressedChangeNickname(!isPressedChangeNickname);
+              }}>
+              <Text style={{color: colors.white}}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={requestUsernameChange}>
+              <Text style={{color: colors.white}}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+        <Header
+          onPressBack={() => navigation.goBack()}
+          color={colors.white}
+          buttonColor={colors.coral1}
+        />
         <View style={styles.containter}>
           <Text style={styles.heading}>프로필</Text>
           <View style={{paddingHorizontal: 24}}>
@@ -110,7 +197,7 @@ export default function ProfileMain() {
               </TouchableOpacity>
               <View style={{flex: 1}} />
               <View style={styles.profile}>
-                <Text style={styles.profileName}>{nickname}</Text>
+                <Text style={styles.profileName}>{user.username}</Text>
                 {/* <Text style={styles.profileUserID}>{addr}</Text> */}
                 {/* <Text style={styles.profileUserID}>가입일: 2023.06.30</Text> */}
               </View>
@@ -118,22 +205,21 @@ export default function ProfileMain() {
           </View>
           <View style={styles.section}>
             <Text style={styles.sectionHeader}>프로필 설정</Text>
-            <TouchableOpacity style={styles.row} onPress={toggleEdit}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => {
+                setIsPressedChangeNickname(true);
+              }}>
               <Ionicons name="person-outline" size={18} />
-              <Text style={styles.rowText}>닉네임</Text>
+              <Text style={styles.rowText}>유저네임</Text>
               <View style={{flex: 1}} />
-              <TextInput
-                keyboardType="default"
-                style={styles.input}
-                placeholder={user.username}
-                placeholderTextColor="grey"
-                selectionColor="black"
-                editable={isEdit}
-                onEndEditing={() => {
-                  setIsEdit(false);
-                  // TODO: change nickname text onEndEditing
-                }}
-                onChangeText={text => setNickname(text)}
+              <Text style={{fontSize: 17, color: '#0c0c0c'}}>
+                {user.username}
+              </Text>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={18}
+                color={'#0c0c0c'}
               />
             </TouchableOpacity>
             {/* <TouchableOpacity style={styles.row} onPress={toggleEditAddr}>
@@ -289,10 +375,15 @@ const styles = StyleSheet.create({
     color: '#989898',
   },
   input: {
-    color: '#989898',
+    // color: '#989898',
+    color: 'white',
     // borderBottomColor: '#eee',
     fontSize: 16,
-    textAlign: 'right',
+    textAlign: 'left',
+    borderColor: colors.coral2,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
   },
   delete: {
     flexDirection: 'row',

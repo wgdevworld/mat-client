@@ -48,6 +48,7 @@ import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Share from 'react-native-share';
+import Geolocation from 'react-native-geolocation-service';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -137,6 +138,19 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    const watchId = Geolocation.watchPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setCurrentLocation({latitude, longitude});
+      },
+      error => console.log(error),
+      {enableHighAccuracy: true, distanceFilter: 10},
+    );
+
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
+
+  useEffect(() => {
     const newRegion: Region = {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
@@ -210,7 +224,7 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
-  const renderSearchedItem = item => {
+  const renderSearchedItem = (item: any) => {
     return (
       <TouchableOpacity
         onPress={() => {
