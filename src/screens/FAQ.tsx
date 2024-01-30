@@ -28,11 +28,11 @@ export default function FAQs() {
           A: 설정 - 도움말 - 앱 사용법을 참고해 주세요.
         </Text>
         <Text style={styles.question}>
-          Q: 닉네임 / 비밀번호 변경은 어떻게 하나요?
+          Q: 닉네임 변경 및 탈퇴는 어떻게 하나요?
         </Text>
         <Text style={styles.answer}>
           A: "설정"에서 상단 프로필 카드를 클릭하면 "프로필 설정" 화면에서
-          닉네임 및 비밀번호 변경이 가능해요.
+          닉네임 변경 및 탈퇴가 가능해요.
         </Text>
       </ScrollView>
     </SafeAreaView>

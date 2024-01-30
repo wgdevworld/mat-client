@@ -139,22 +139,18 @@ export default function Settings() {
         </View> */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>알림</Text>
-          <View style={styles.row}>
+          <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="notifications-outline" size={18} />
             <Text style={styles.rowText}>푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
-            <TouchableOpacity onPress={openSettings}>
-              <Ionicons name="settings-outline" size={18} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.row}>
+            <Ionicons name="settings-outline" size={18} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="earth-outline" size={18} />
             <Text style={styles.rowText}>위치 기반 푸시 알림 활성화</Text>
             <View style={{flex: 1}} />
-            <TouchableOpacity onPress={openSettings}>
-              <Ionicons name="settings-outline" size={18} />
-            </TouchableOpacity>
-          </View>
+            <Ionicons name="settings-outline" size={18} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>

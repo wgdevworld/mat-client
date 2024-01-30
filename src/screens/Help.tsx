@@ -1,23 +1,34 @@
 import React from 'react';
 import {SafeAreaView, StyleSheet, Text, ScrollView, View} from 'react-native';
 import colors from '../styles/colors';
+import Header from '../components/Header';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {ScreenParamList} from '../types/navigation';
 
 export default function Helps() {
+  const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+      <Header
+        onPressBack={() => navigation.goBack()}
+        color={colors.white}
+        buttonColor={colors.coral1}
+      />
       <ScrollView contentContainerStyle={styles.containter}>
         <Text style={styles.heading}>앱 사용법</Text>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>주변 맛집 검색 및 저장하기</Text>
           <Text style={styles.step}>Step 1: 위치 정보 공유 허용</Text>
           <Text style={styles.instruction}>
-            실시간으로 정확한 맛집 정보를 받아볼 수 있도록 "허용"으로 설정해
-            주세요.
+            실시간으로 정확한 맛집 정보를 받아볼 수 있도록 "항상 허용"으로
+            설정해 주세요.
           </Text>
           <Text style={styles.step}>Step 2: 주변 맛집 검색</Text>
           <Text style={styles.instruction}>
             메인 화면에서 상단의 검색창을 이용해 원하는 맛집을 검색해 볼 수
-            있어요.
+            있어요. 나만의 맛맵에 저장하고 싶은 맛집이 있다면 우측 상단에 위치한
+            더하기 버튼을 눌러주세요.
           </Text>
           <Text style={styles.step}>Step 3: 주변 맛집 리스트</Text>
           <Text style={styles.instruction}>
@@ -27,48 +38,48 @@ export default function Helps() {
           <Text style={styles.step}>Step 4: 주변 맛집 저장</Text>
           <Text style={styles.instruction}>
             "근처 나의 맛집들" 중 원하는 맛집을 클릭하면 상세페이지로 이동할 수
-            있어요. 이름 옆 저장 버튼을 통해 쉽게 저장할 수 있고, 저장한
-            맛집들은 "설정 - 팔로우 - 저장한 맛집들"에서 확인할 수 있어요.
+            있어요. 이름 옆 체크 표시 버튼을 통해 쉽게 방문 여부를 기록할 수
+            있어요.
           </Text>
           <Text style={styles.step}>Step 5: 주변 맛집 리뷰</Text>
           <Text style={styles.instruction}>
-            상세페이지로 하단에서 다른 사용자들이 작성한 리뷰를 볼 수 있고, 직접
-            별점 밒 리뷰를 등록할 수 있어요.
+            상세페이지 하단에서 다른 사용자들이 작성한 리뷰를 볼 수 있고, 직접
+            별점 및 리뷰를 등록할 수 있어요.
           </Text>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>맛집 리스트 구독</Text>
-          <Text style={styles.step}>Step 1: "지도 모음집"으로 이동</Text>
+          <Text style={styles.sectionHeader}>맛맵 구독</Text>
+          <Text style={styles.step}>Step 1: 맛맵 모음집으로 이동</Text>
           <Text style={styles.instruction}>
             하단 메뉴에서 두번째 탭을 선택하세요.
           </Text>
-          <Text style={styles.step}>Step 2: 다양한 맛집 리스트 보기</Text>
+          <Text style={styles.step}>Step 2: 다양한 맛맵들 보기</Text>
           <Text style={styles.instruction}>
             유튜브, 인스타 등에서 소개된 맛집들이 각각의 리스트로 정리되어
-            한눈에 볼 수 있어요.
+            한눈에 볼 수 있어요. 다른 유저들이 만든 맛맵도 확인해보세요!
           </Text>
-          <Text style={styles.step}>Step 3: 맛집 리스트 구독하기</Text>
+          <Text style={styles.step}>Step 3: 맛맵 팔로우하기</Text>
           <Text style={styles.instruction}>
-            관심 있는 먹킷리스트가 있다면 더하기 버튼을 눌러 구독할 수 있어요.
-            구독한 리스트는 "설정 - 팔로우 - 팔로우한 유저"에서 확인할 수
+            관심 있는 맛맵이 있다면 팔로우 버튼을 눌러 구독할 수 있어요.
+            팔로우한 맛맵은 하단 메뉴 첫번째 탭 드롭다운 메뉴에서 확인해볼 수
             있어요.
           </Text>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>나만의 먹킷리스트 만들기</Text>
-          <Text style={styles.step}>Step 1: "나만의 먹킷리스트"로 이동</Text>
+          <Text style={styles.step}>Step 1: 나만의 먹킷리스트로 이동</Text>
           <Text style={styles.instruction}>
             하단 메뉴에서 세번째 탭을 선택하세요.
           </Text>
-          <Text style={styles.step}>Step 2: 먹킷리스트 업데이트</Text>
+          <Text style={styles.step}>Step 2: 먹킷리스트 추가</Text>
           <Text style={styles.instruction}>
-            맛집 이름과 메뉴, 추가 설명을 입력한 후 "먹킷 추가하기" 버튼을 눌러
-            새로운 먹킷을 리스트에 추가하세요.
+            꼭 먹고 싶은 메뉴를 입력한 후 키보드의 "완료" 버튼을 눌러 새로운
+            먹킷을 추가하세요.
           </Text>
-          <Text style={styles.step}>Step 3: 먹킷리스트 완료</Text>
+          <Text style={styles.step}>Step 3: 먹킷리스트 기록</Text>
           <Text style={styles.instruction}>
-            각 먹킷 우측에 있는 체크 버튼을 통해 먹킷리스트 진행 과정을 기록해
-            보세요.
+            각 먹킷 우측에 있는 동그라미 버튼을 눌러서 먹킷리스트 진행 과정을
+            기록해 보세요. 먹킷을 삭제 하고 싶다면 왼쪽으로 스와이프 해보세요!
           </Text>
         </View>
         <View style={styles.section}>
