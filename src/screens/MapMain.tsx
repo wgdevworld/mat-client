@@ -554,6 +554,8 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
+  // console.log(dropDownItems);
+
   const onPressShareMatMap = async () => {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
@@ -1102,6 +1104,13 @@ function App(): JSX.Element {
                     </Text>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
+                      // dropDownContainerStyle={{
+                      //   zIndex: 10000,
+                      //   elevation: 10000,
+                      // }}
+                      scrollViewProps={{
+                        showsVerticalScrollIndicator: false,
+                      }}
                       placeholder="맛맵 선택"
                       open={dropDownOpen}
                       setOpen={setDropDownOpen}
