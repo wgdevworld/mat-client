@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,7 +8,7 @@ import {
   FlatList,
   RefreshControl,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
@@ -23,6 +23,13 @@ import colors from '../styles/colors';
 export default function ListMaps() {
   const dispatch = useDispatch();
   const publicMaps = useAppSelector(state => state.publicMaps.maps);
+
+  useFocusEffect(
+    useCallback(() => {
+      onRefreshPublicMaps();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
