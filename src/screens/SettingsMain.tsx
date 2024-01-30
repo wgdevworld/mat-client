@@ -57,7 +57,7 @@ export default function Settings() {
   };
 
   const sendEmail = () => {
-    const to = 'example@email.com';
+    const to = 'kobonmat@gmail.com';
     const subject = 'Muckit 기능 문의';
     const body = '문의 내용을 적어주세요!';
     const url = `mailto:${to}?subject=${encodeURIComponent(
@@ -204,16 +204,6 @@ export default function Settings() {
               size={22}
             />
           </View> */}
-          <View style={styles.row}>
-            <Ionicons name="bug-outline" size={18} />
-            <Text style={styles.rowText}>버그 신고</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
           <TouchableOpacity onPress={sendEmail} style={styles.row}>
             <Ionicons name="mail-outline" size={18} />
             <Text style={styles.rowText}>문의하기</Text>

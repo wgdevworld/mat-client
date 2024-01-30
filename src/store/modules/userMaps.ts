@@ -103,6 +103,14 @@ export const userMapsSlice = createSlice({
       state.ownMaps[0].publicStatus = action.payload;
       return state;
     },
+    updateOwnMapImgAction: (state, action: PayloadAction<string>) => {
+      state.ownMaps[0].imageSrc = action.payload;
+      return state;
+    },
+    updateOwnMapNameAction: (state, action: PayloadAction<string>) => {
+      state.ownMaps[0].name = action.payload;
+      return state;
+    },
   },
 });
 
@@ -118,5 +126,7 @@ export const {
   removeFromOwnMatMapAction,
   incrementReviewCountAndAverageAction,
   updatePublicStatusAction,
+  updateOwnMapImgAction,
+  updateOwnMapNameAction,
 } = userMapsSlice.actions;
 export default userMapsSlice.reducer;

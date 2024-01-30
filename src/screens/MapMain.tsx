@@ -6,6 +6,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Modal,
   Platform,
   StyleSheet,
   Switch,
@@ -37,6 +38,8 @@ import {useDispatch} from 'react-redux';
 import {
   removeFromOwnMatMapAction,
   replaceOwnMatMapZipListAction,
+  updateOwnMapImgAction,
+  updateOwnMapNameAction,
   updatePublicStatusAction,
 } from '../store/modules/userMaps';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -49,6 +52,12 @@ import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Share from 'react-native-share';
 import Geolocation from 'react-native-geolocation-service';
+import {
+  ImageLibraryOptions,
+  ImagePickerResponse,
+  launchImageLibrary,
+} from 'react-native-image-picker';
+import {v4 as uuidv4} from 'uuid';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -80,6 +89,10 @@ function App(): JSX.Element {
     curMatMap.zipList,
   );
   const [isLocationLoaded, setIsLocationLoaded] = useState(false);
+  const [isEditPublicMapVisible, setIsEditPublicMapVisible] = useState(false);
+  const [newPublicMapName, setNewPublicMapName] = useState(userOwnMaps[0].name);
+  const [imgLibraryResponse, setImgLibraryResponse] =
+    useState<ImagePickerResponse>();
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -592,7 +605,108 @@ function App(): JSX.Element {
       console.log(e);
     } finally {
       dispatch(updateIsLoadingAction(false));
+      if (curMatMap.publicStatus === false) {
+        setIsEditPublicMapVisible(true);
+      }
     }
+  };
+
+  const requestPublicMapChange = async () => {
+    setIsEditPublicMapVisible(false);
+    dispatch(updateIsLoadingAction(true));
+    let mapPhoto;
+    if (imgLibraryResponse) {
+      const imgSrcString = await uploadImageToServer(imgLibraryResponse);
+      const uploadImageString = imgSrcString.map(
+        (item: string) => 'https://storage.googleapis.com/' + item,
+      );
+      mapPhoto = {
+        imageSrc: uploadImageString[0],
+      };
+      setImgLibraryResponse(undefined);
+    }
+
+    //TODO: have a default map image if user doesn't pick
+    const variables = {
+      mapInfo: {
+        name: newPublicMapName,
+        ...(mapPhoto ? mapPhoto : ''),
+      },
+      id: userOwnMaps[0].id,
+    };
+
+    const query = `
+    mutation updateMap($mapInfo: UpdateMapInput! $id: String!) {
+      updateMap(mapInfo: $mapInfo id: $id) {
+        id
+      }
+    }`;
+
+    try {
+      await request(query, REQ_METHOD.MUTATION, variables);
+    } catch (e) {
+      console.log(e);
+    }
+
+    dispatch(updateOwnMapImgAction(mapPhoto ? mapPhoto.imageSrc : ''));
+    dispatch(updateOwnMapNameAction(newPublicMapName));
+    dispatch(updateIsLoadingAction(false));
+  };
+
+  const onPressChoosePhoto = async () => {
+    const options: ImageLibraryOptions = {
+      maxWidth: 1280,
+      maxHeight: 1280,
+      mediaType: 'photo',
+      selectionLimit: 1,
+    };
+    await launchImageLibrary(options, response => {
+      if (!response.assets) {
+        console.log(response.errorMessage);
+      } else {
+        setImgLibraryResponse(response);
+      }
+    });
+  };
+
+  const uploadImageToServer = async (response?: ImagePickerResponse) => {
+    if (response?.assets?.length === 0) {
+      return;
+    }
+
+    let formData = new FormData();
+
+    const map: {[key: string]: string[]} = {};
+    response?.assets?.forEach((asset, index) => {
+      map[String(index)] = [`variables.files.${index}`];
+    });
+
+    formData.append(
+      'operations',
+      JSON.stringify({
+        query: `
+            mutation ($files: [Upload!]!) {
+                upload(files: $files)
+            }
+        `,
+        variables: {
+          files: response?.assets?.map((_, _index) => null),
+        },
+      }),
+    );
+
+    formData.append('map', JSON.stringify(map));
+
+    response?.assets?.forEach((asset, index) => {
+      formData.append(String(index), {
+        uri: asset.uri,
+        type: 'image/jpeg',
+        name: `${uuidv4()}.jpeg`,
+      });
+    });
+
+    const res = await request('', REQ_METHOD.MUTATION, formData);
+    return res?.data.data.upload;
   };
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -668,9 +782,84 @@ function App(): JSX.Element {
       </>
     );
   };
-
   return (
     <View style={{flex: 1}}>
+      <Modal
+        visible={isEditPublicMapVisible}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isEditPublicMapVisible ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View style={styles.popupContainer}>
+          <Text
+            style={{
+              color: colors.white,
+              alignSelf: 'center',
+              paddingVertical: 5,
+              fontSize: 16,
+              fontWeight: 'bold',
+              paddingBottom: 10,
+            }}>
+            다른 유저들의 이목을 이끌만한 맛맵 이름과 사진을 정해주세요!
+          </Text>
+          <Text style={{color: colors.white, paddingBottom: 10, fontSize: 16}}>
+            맛맵 이름
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder={'믿고 한번 눌러봐'}
+            placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
+            onChangeText={value => setNewPublicMapName(value)}
+          />
+          <TouchableOpacity
+            style={{flexDirection: 'row', paddingVertical: 10}}
+            onPress={onPressChoosePhoto}>
+            <Text style={{color: colors.white, fontSize: 16}}>사진 선택</Text>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={14}
+              color={'white'}
+              style={{alignSelf: 'center'}}
+            />
+          </TouchableOpacity>
+          {imgLibraryResponse && imgLibraryResponse.assets ? (
+            <Image
+              style={{width: 100, height: 100, alignSelf: 'center'}}
+              source={{uri: imgLibraryResponse.assets[0].uri}}
+              resizeMode="contain"
+            />
+          ) : null}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 12,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                setNewPublicMapName('');
+                setIsEditPublicMapVisible(!isEditPublicMapVisible);
+                setImgLibraryResponse(undefined);
+              }}>
+              <Text style={{color: colors.white, fontSize: 16}}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={requestPublicMapChange}>
+              <Text
+                style={{color: colors.white, fontSize: 16, fontWeight: 'bold'}}>
+                확인
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <GestureHandlerRootView style={{flex: 1}}>
         <View
           style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
@@ -972,13 +1161,13 @@ function App(): JSX.Element {
                           <Switch
                             thumbColor={'white'}
                             trackColor={{
-                              false: colors.coral2,
+                              false: 'grey',
                               true: colors.coral1,
                             }}
                             onValueChange={onPublicStatusChange}
                             value={curMatMap.publicStatus}
                             style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
-                            ios_backgroundColor={colors.coral2}
+                            ios_backgroundColor={colors.grey}
                           />
                         </View>
                       ) : null}
@@ -1227,6 +1416,37 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     borderBottomWidth: 0.17,
     alignContent: 'center',
+  },
+  modalContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'grey',
+    opacity: 0.85,
+    zIndex: 10000,
+    justifyContent: 'center',
+  },
+  popupContainer: {
+    position: 'absolute',
+    zIndex: 10000,
+    top: Dimensions.get('window').height / 2 - 150,
+    alignSelf: 'center',
+    backgroundColor: colors.coral1,
+    width: 250,
+    padding: 12,
+    borderRadius: 10,
+    justifyContent: 'space-between',
+  },
+  input: {
+    // color: '#989898',
+    color: 'white',
+    // borderBottomColor: '#eee',
+    fontSize: 16,
+    textAlign: 'left',
+    borderColor: colors.coral2,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
   },
 });
 

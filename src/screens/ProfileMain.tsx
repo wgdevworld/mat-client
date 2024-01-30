@@ -280,7 +280,7 @@ export default function ProfileMain() {
 
 const styles = StyleSheet.create({
   containter: {
-    paddingVertical: 24,
+    paddingBottom: 24,
   },
   modalContainer: {
     position: 'absolute',
