@@ -554,6 +554,8 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
+  // console.log(dropDownItems);
+
   const onPressShareMatMap = async () => {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
@@ -713,6 +715,9 @@ function App(): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
+    const distance = calculateDistance(matZip.coordinate, currentLocation);
+    const distanceDisplay =
+      distance > 1000 ? `${(distance / 1000).toFixed(1)}km` : `${distance}m`;
     return (
       <>
         <SwipeableRow
@@ -765,8 +770,7 @@ function App(): JSX.Element {
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text style={styles.itemSubtext}>
-                  나와의 거리{' '}
-                  {calculateDistance(matZip.coordinate, currentLocation)}m
+                  나와의 거리 {distanceDisplay}
                 </Text>
                 {visitedZips.find(zip => zip.id === matZip.id) && (
                   <Ionicons
@@ -1100,6 +1104,13 @@ function App(): JSX.Element {
                     </Text>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
+                      // dropDownContainerStyle={{
+                      //   zIndex: 10000,
+                      //   elevation: 10000,
+                      // }}
+                      scrollViewProps={{
+                        showsVerticalScrollIndicator: false,
+                      }}
                       placeholder="맛맵 선택"
                       open={dropDownOpen}
                       setOpen={setDropDownOpen}
