@@ -224,7 +224,7 @@ function App(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
-  const renderSearchedItem = item => {
+  const renderSearchedItem = (item: any) => {
     return (
       <TouchableOpacity
         onPress={() => {

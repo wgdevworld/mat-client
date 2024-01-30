@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
 import {
   SafeAreaView,
@@ -130,7 +131,7 @@ export default function SignupUser() {
       <View style={styles.container}>
         <TextInput
           style={[styles.input, styles.placeholderBackground]}
-          onChangeText={setUsername}
+          onChangeText={value => setUsername(value)}
           value={username}
           placeholder="유저네임 입력"
         />
