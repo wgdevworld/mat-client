@@ -23,6 +23,7 @@ export const initBGLocation = async () => {
       debug: false,
       startOnBoot: false,
       stopOnTerminate: true,
+      saveBatteryOnBackground: true,
       locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,
       interval: 10000,
       fastestInterval: 5000,
