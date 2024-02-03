@@ -16,8 +16,8 @@ export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 50,
-      distanceFilter: 50,
+      stationaryRadius: 500,
+      distanceFilter: 500,
       notificationTitle: 'Background tracking',
       notificationText: 'enabled',
       debug: false,
