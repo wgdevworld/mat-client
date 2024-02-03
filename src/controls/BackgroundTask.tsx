@@ -15,7 +15,7 @@ import {REQ_METHOD, request} from './RequestControl';
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
-      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      desiredAccuracy: BackgroundGeolocation.LOW_ACCURACY,
       stationaryRadius: 500,
       distanceFilter: 500,
       notificationTitle: 'Background tracking',
