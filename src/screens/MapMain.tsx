@@ -1108,10 +1108,6 @@ function App(): JSX.Element {
                         minHeight: 40,
                         borderRadius: 5,
                       }}
-                      // dropDownContainerStyle={{
-                      //   zIndex: 10000,
-                      //   elevation: 10000,
-                      // }}
                       scrollViewProps={{
                         showsVerticalScrollIndicator: false,
                       }}

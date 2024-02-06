@@ -6,6 +6,7 @@ import {calculateDistance} from '../tools/CommonFunc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
+import notifee from '@notifee/react-native';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -22,9 +23,9 @@ export const initBGLocation = async () => {
       notificationText: 'enabled',
       debug: false,
       startOnBoot: false,
-      stopOnTerminate: true,
+      stopOnTerminate: false,
       saveBatteryOnBackground: true,
-      locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,
+      locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
       interval: 10000,
       fastestInterval: 5000,
       activitiesInterval: 10000,
@@ -47,24 +48,26 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         latitude: location.latitude,
         longitude: location.longitude,
       };
+      notifee.displayNotification({
+        title: 'Location update',
+        body: `Location update: ${curLocation.latitude}, ${curLocation.longitude}`,
+      });
       BackgroundGeolocation.startTask(taskKey => {
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
-          if (
-            (calculateDistance(zip.coordinate, curLocation) < 5000 &&
-              zip.notificationSent === false) ||
-            zip.notificationSent === undefined
-          ) {
+          if (calculateDistance(zip.coordinate, curLocation) < 5000) {
             closeMatZips.push(zip.name);
-            //TODO: make this persistent
-            zip.notificationSent = true;
           }
         });
         const numCloseMatZips = closeMatZips ? closeMatZips.length : 0;
         if (numCloseMatZips) {
           AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(
             async value => {
+              await notifee.displayNotification({
+                title: 'Sending notification',
+                body: `Sending notification for ${closeMatZips.length} matzips, including ${closeMatZips[0]}`,
+              });
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
