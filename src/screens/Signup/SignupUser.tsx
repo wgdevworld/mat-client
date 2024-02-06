@@ -42,7 +42,7 @@ export default function SignupUser() {
     if (!isFromSocial) {
       try {
         dispatch(updateIsLoadingAction(true));
-        const usernameForQuery = user.username;
+        const usernameForQuery = username;
         const emailForQuery = user.email;
         const pwdForQuery = user.password;
 
@@ -83,7 +83,7 @@ export default function SignupUser() {
     } else {
       try {
         dispatch(updateIsLoadingAction(true));
-        const usernameForQuery = user.username;
+        const usernameForQuery = username;
         const updateUserVariables = {
           updateUserInput: {
             username: usernameForQuery,
