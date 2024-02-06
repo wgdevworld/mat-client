@@ -462,7 +462,7 @@ function App(): JSX.Element {
     }
   };
 
-  const snapPoints = useMemo(() => ['30%', '80%'], []);
+  const snapPoints = useMemo(() => ['3%', '30%', '80%'], []);
 
   const findAndSetCurMatMapByID = (givenId: string) => {
     const newMatMap = [...userOwnMaps, ...userFollowingMaps].find(
@@ -1104,6 +1104,10 @@ function App(): JSX.Element {
                     </Text>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
+                      style={{
+                        minHeight: 40,
+                        borderRadius: 5,
+                      }}
                       // dropDownContainerStyle={{
                       //   zIndex: 10000,
                       //   elevation: 10000,
@@ -1206,7 +1210,10 @@ function App(): JSX.Element {
                       ...styles.dropDownPickerContainer,
                       paddingRight: 10,
                     }}
-                    dropDownContainerStyle={{height: 150}}
+                    style={{
+                      minHeight: 40,
+                      borderRadius: 5,
+                    }}
                     placeholder="맛맵 선택"
                     open={dropDownOpen}
                     setOpen={setDropDownOpen}
@@ -1270,7 +1277,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    bottom: 60,
+    bottom: 15,
   },
   navBtnContainer: {
     position: 'absolute',
