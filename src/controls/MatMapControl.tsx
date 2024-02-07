@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {REQ_METHOD, request} from './RequestControl';
 
 export const fetchAllMaps = async () => {
@@ -38,7 +37,27 @@ export const addUserFollower = async (id: string) => {
       mapId: id,
     };
     const res = await request(query, REQ_METHOD.MUTATION, variables);
-    console.log(res.data);
+    console.log(res?.data);
+    return res?.data.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const removeUserFollower = async (id: string) => {
+  try {
+    const query = `
+    mutation removeUserFollower($mapId: String!) {
+        removeUserFollower(mapId: $mapId) {
+          id
+        }
+    }
+  `;
+    const variables = {
+      mapId: id,
+    };
+    const res = await request(query, REQ_METHOD.MUTATION, variables);
+    console.log(res?.data);
     return res?.data.data;
   } catch (err) {
     console.log(err);
