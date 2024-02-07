@@ -36,6 +36,7 @@ import {Coordinate, MatMap, MatZip} from '../types/store';
 import {useAppSelector} from '../store/hooks';
 import {useDispatch} from 'react-redux';
 import {
+  removeFollowingMatMapAction,
   removeFromOwnMatMapAction,
   replaceOwnMatMapZipListAction,
   updateOwnMapImgAction,
@@ -58,6 +59,7 @@ import {
   launchImageLibrary,
 } from 'react-native-image-picker';
 import {v4 as uuidv4} from 'uuid';
+import {removeUserFollower} from '../controls/MatMapControl';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -712,6 +714,15 @@ function App(): JSX.Element {
     return res?.data.data.upload;
   };
 
+  const unfollowCurMatMap = async () => {
+    dispatch(updateIsLoadingAction(true));
+    await removeUserFollower(curMatMap.id);
+    dispatch(removeFollowingMatMapAction(curMatMap.id));
+    findAndSetCurMatMapByID(userOwnMaps[0].id);
+    setDropDownValue(dropDownItems[0].value);
+    dispatch(updateIsLoadingAction(false));
+  };
+
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
@@ -1083,7 +1094,7 @@ function App(): JSX.Element {
             </View>
           </TouchableOpacity>
 
-          <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
+          <BottomSheet ref={sheetRef} snapPoints={snapPoints} index={1}>
             {orderedMatZips && orderedMatZips.length !== 0 ? (
               <BottomSheetFlatList
                 data={orderedMatZips}
@@ -1183,6 +1194,28 @@ function App(): JSX.Element {
                           />
                         </View>
                       ) : null}
+                      {curMatMap.authorId !== curUser.id ? (
+                        <View style={{flexDirection: 'row'}}>
+                          <TouchableOpacity
+                            style={{alignSelf: 'center'}}
+                            onPress={unfollowCurMatMap}>
+                            <Text
+                              style={{
+                                alignSelf: 'center',
+                                color: colors.coral1,
+                                fontSize: 16,
+                              }}>
+                              언팔로우
+                            </Text>
+                          </TouchableOpacity>
+                          <Ionicons
+                            name="person-remove-outline"
+                            color={colors.coral1}
+                            size={20}
+                            style={{alignSelf: 'center', paddingLeft: 3}}
+                          />
+                        </View>
+                      ) : null}
                     </View>
                     <View style={{height: 50}} />
                   </>
@@ -1191,7 +1224,7 @@ function App(): JSX.Element {
               />
             ) : (
               <>
-                <View style={styles.bottomSheetHeader}>
+                <View style={{...styles.bottomSheetHeader, paddingTop: 1}}>
                   <Text
                     style={{
                       fontSize: 20,
@@ -1246,6 +1279,58 @@ function App(): JSX.Element {
                     {'저장하고 싶은 맛집을 \n검색해서 추가하세요!'}
                   </Text>
                 </View>
+                <View
+                  style={{
+                    paddingTop: 20,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                    }}>
+                    <Text
+                      style={{
+                        alignSelf: 'center',
+                        color: colors.coral1,
+                        fontSize: 16,
+                      }}>
+                      {curMatMap.authorId === curUser.id
+                        ? '내 맛맵 공유'
+                        : '맛맵 공유'}
+                    </Text>
+                    <TouchableOpacity onPress={onPressShareMatMap}>
+                      <Ionicons
+                        name="share-outline"
+                        size={24}
+                        color={colors.coral1}
+                        style={{paddingLeft: 3}}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {curMatMap.authorId !== curUser.id ? (
+                    <View style={{flexDirection: 'row'}}>
+                      <TouchableOpacity
+                        style={{alignSelf: 'center'}}
+                        onPress={unfollowCurMatMap}>
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            color: colors.coral1,
+                            fontSize: 16,
+                          }}>
+                          언팔로우
+                        </Text>
+                      </TouchableOpacity>
+                      <Ionicons
+                        name="person-remove-outline"
+                        color={colors.coral1}
+                        size={20}
+                        style={{alignSelf: 'center', paddingLeft: 3}}
+                      />
+                    </View>
+                  ) : null}
+                </View>
               </>
             )}
           </BottomSheet>
@@ -1267,6 +1352,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: colors.white,
     paddingBottom: 10,
+    zIndex: 10000,
   },
   map: {
     position: 'absolute',

@@ -42,6 +42,12 @@ export const userMapsSlice = createSlice({
       state.followingMaps.push(action.payload);
       return state;
     },
+    removeFollowingMatMapAction: (state, action: PayloadAction<string>) => {
+      state.followingMaps = state.followingMaps.filter(
+        map => map.id !== action.payload,
+      );
+      return state;
+    },
     addMatZipAction: (
       state,
       action: PayloadAction<{mapId?: string; zip: MatZip}>,
@@ -104,7 +110,7 @@ export const userMapsSlice = createSlice({
       return state;
     },
     updateOwnMapImgAction: (state, action: PayloadAction<string>) => {
-      state.ownMaps[0].imageSrc = action.payload;
+      state.ownMaps[0].imageSrc = [action.payload];
       return state;
     },
     updateOwnMapNameAction: (state, action: PayloadAction<string>) => {
@@ -123,6 +129,7 @@ export const {
   updateDistanceForMatMapAction,
   replaceFollowingMatMapAction,
   addFollowingMatMapAction,
+  removeFollowingMatMapAction,
   removeFromOwnMatMapAction,
   incrementReviewCountAndAverageAction,
   updatePublicStatusAction,
