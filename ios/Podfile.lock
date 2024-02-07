@@ -944,10 +944,10 @@ SPEC CHECKSUMS:
   react-native-config: 86038147314e2e6d10ea9972022aa171e6b1d4d8
   react-native-geolocation-service: 608e1da71a1ac31b4de64d9ef2815f697978c55b
   react-native-get-random-values: 384787fd76976f5aec9465aff6fa9e9129af1e74
-  react-native-google-maps: 240f61e3c31b7b5f2cb8234f39f255a22fc74aac
+  react-native-google-maps: dd12cdd86b8e3fedbbb671676aedaa2f656e2ccd
   react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
-  react-native-maps: 1a4a33e8141cf1062c794a1cfc26612606dd8cd2
-  react-native-safe-area-context: 2f4cee1dc8828f67fcc33cc865a9093dfedab446
+  react-native-maps: 667f9b975549c6fa9b1631bf859440f68ebd3b8f
+  react-native-safe-area-context: b8979f5eda6ed5903d4dbc885be3846ea3daa753
   React-perflogger: d21f182895de9d1b077f8a3cd00011095c8c9100
   React-RCTActionSheet: 0151f83ef92d2a7139bba7dfdbc8066632a6d47b
   React-RCTAnimation: 5ec9c0705bb2297549c120fe6473aa3e4a01e215
@@ -963,12 +963,12 @@ SPEC CHECKSUMS:
   ReactCommon: 85c98ab0a509e70bf5ee5d9715cf68dbf495b84c
   RNAppleAuthentication: 0571c08da8c327ae2afc0261b48b4a515b0286a6
   RNBackgroundFetch: 501c34ad6e880818ba17e7840b23f20a2d112923
-  RNCAsyncStorage: a1f23ee3242ca9ae372fa324b14d0add3f57d129
-  RNCPushNotificationIOS: 4a7aac5430e7a1e997b21f4fa4db224127606e5a
+  RNCAsyncStorage: 4b98ac3c64efa4e35c1197cb0c5ca5e9f5d4c666
+  RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNFBApp: 830185bbb8df42e07d6a7d6976730782040695a3
   RNFBMessaging: 47f1dbed2fb6dc9f4a79adc33bd32e52c901e4d4
   RNGestureHandler: 026038a97d4c8649ce397a22e162ca58b4e6c230
-  RNGoogleSignin: d8c6e70ad37cd9dc69f4f34b36433feec749ad63
+  RNGoogleSignin: ccaa4a81582cf713eea562c5dd9dc1961a715fd0
   RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
   RNPermissions: 265600cdd53b2d330cf39f4dafefaa993e33bc44
   RNReanimated: f186e85d9f28c9383d05ca39e11dd194f59093ec

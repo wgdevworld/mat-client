@@ -30,6 +30,7 @@ import AccessGrant from './screens/Onboarding/AccessGrant';
 import SplashScreen from './screens/SplashScreen';
 import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
+import Muckiters from './screens/Muckiters';
 
 const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
@@ -199,6 +200,13 @@ const App = () => {
                   gestureEnabled: false,
                   animationEnabled: false,
                 }}
+              />
+              <Stack.Screen
+              name="Muckiters"
+              component={Muckiters}
+              options={{
+                headerShown: false,
+              }}
               />
             </Stack.Navigator>
             <GlobalLoading />
