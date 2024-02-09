@@ -116,7 +116,6 @@ export default function MatZipMain() {
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
   const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const matZipFromZipId = async () => {
     try {
@@ -313,10 +312,7 @@ export default function MatZipMain() {
             color={colors.coral1}
           />
         </TouchableOpacity>
-        <Swiper
-          activeDotColor={colors.coral1}
-          index={currentImageIndex}
-          loop={false}>
+        <Swiper activeDotColor={colors.coral1} loop={false}>
           {images!.map((uri: any, _index) => (
             <View key={_index} style={styles.fullScreenImage}>
               <Image

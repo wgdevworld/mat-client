@@ -28,6 +28,8 @@ PODS:
     - AppCenter/Core (= 5.0.4)
   - Base64 (1.1.2)
   - boost (1.76.0)
+  - BugsnagReactNative (7.22.4):
+    - React-Core
   - CocoaAsyncSocket (7.6.5)
   - CodePush (8.2.1):
     - Base64 (~> 1.1)
@@ -665,6 +667,7 @@ DEPENDENCIES:
   - appcenter-core (from `../node_modules/appcenter`)
   - appcenter-crashes (from `../node_modules/appcenter-crashes`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - "BugsnagReactNative (from `../node_modules/@bugsnag/react-native`)"
   - CodePush (from `../node_modules/react-native-code-push`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -806,6 +809,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/appcenter-crashes"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  BugsnagReactNative:
+    :path: "../node_modules/@bugsnag/react-native"
   CodePush:
     :path: "../node_modules/react-native-code-push"
   DoubleConversion:
@@ -940,6 +945,7 @@ SPEC CHECKSUMS:
   AppCenterReactNativeShared: 22aea9046e80c449137f4e574ae1f229616e2358
   Base64: cecfb41a004124895a7bcee567a89bae5a89d49b
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  BugsnagReactNative: 67c786fe8e55e3a4c831f82db5acc0d8222a5fe8
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CodePush: 84c9a5792cb3c8e311197d595610c803f0b01739
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54

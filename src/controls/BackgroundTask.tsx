@@ -44,6 +44,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         longitude: location.longitude,
       };
       BackgroundGeolocation.startTask(taskKey => {
+        console.log("let's go");
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
@@ -55,10 +56,6 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         if (numCloseMatZips) {
           AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(
             async value => {
-              await notifee.displayNotification({
-                title: 'Sending notification',
-                body: `Sending notification for ${closeMatZips.length} matzips, including ${closeMatZips[0]}`,
-              });
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
