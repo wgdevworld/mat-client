@@ -11,6 +11,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		260D77E32B74999900663016 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 260D77E22B74999900663016 /* AppCenter-Config.plist */; };
 		26258B392AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */; };
 		2643EFBC2A67C0DA00450F35 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */; };
 		26BABD532A517D76009784BC /* bridging_header.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BABD522A517D76009784BC /* bridging_header.swift */; };
@@ -46,6 +47,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = mat_client/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = mat_client/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = mat_client/main.m; sourceTree = "<group>"; };
+		260D77E22B74999900663016 /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "AppCenter-Config.plist"; path = "mat_client/AppCenter-Config.plist"; sourceTree = "<group>"; };
 		26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		266D1CA42AF578B6005847F2 /* RCTBackgroundGeolocation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBackgroundGeolocation.xcodeproj; path = "../node_modules/@mauron85/react-native-background-geolocation/ios/RCTBackgroundGeolocation.xcodeproj"; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 		13B07FAE1A68108700A75B9A /* mat_client */ = {
 			isa = PBXGroup;
 			children = (
+				260D77E22B74999900663016 /* AppCenter-Config.plist */,
 				26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */,
 				2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */,
 				2686185D2A52BE91004B5464 /* mat_client.entitlements */,
@@ -290,6 +293,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				260D77E32B74999900663016 /* AppCenter-Config.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				2643EFBC2A67C0DA00450F35 /* GoogleService-Info.plist in Resources */,
 			);
