@@ -8,7 +8,6 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Button} from 'react-native-elements';
 import colors from '../styles/colors';
 import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';

@@ -10,6 +10,8 @@ import {
   FlatList,
   Animated,
   ScrollView,
+  Modal,
+  Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
@@ -30,6 +32,8 @@ import {
 } from '../store/modules/visitedZips';
 import Header from '../components/Header';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Swiper from 'react-native-swiper';
 
 const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
   expanded = false,
@@ -103,6 +107,7 @@ export default function MatZipMain() {
   const zipId = route.params.zipID;
 
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
 
   // const zipDataFromStore = useAppSelector(state =>
   //   state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
@@ -110,6 +115,8 @@ export default function MatZipMain() {
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
   const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
+  const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const matZipFromZipId = async () => {
     try {
@@ -288,6 +295,39 @@ export default function MatZipMain() {
   const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <Modal
+        visible={isImageFullScreen}
+        transparent={false}
+        onRequestClose={() => setIsImageFullScreen(false)}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            right: 10,
+            top: insets.top,
+            zIndex: 1,
+          }}
+          onPress={() => setIsImageFullScreen(false)}>
+          <Ionicons
+            name="close-circle-outline"
+            size={30}
+            color={colors.coral1}
+          />
+        </TouchableOpacity>
+        <Swiper
+          activeDotColor={colors.coral1}
+          index={currentImageIndex}
+          loop={false}>
+          {images!.map((uri: any, _index) => (
+            <View key={_index} style={styles.fullScreenImage}>
+              <Image
+                style={{width: '100%', height: '100%'}}
+                resizeMode="contain"
+                source={{uri: uri}}
+              />
+            </View>
+          ))}
+        </Swiper>
+      </Modal>
       <Header
         onPressBack={onPressBack}
         color={'white'}
@@ -297,7 +337,13 @@ export default function MatZipMain() {
         bounces={false}
         contentContainerStyle={styles.containter}
         showsVerticalScrollIndicator={false}>
-        <ImageCarousel images={images} />
+        <TouchableOpacity
+          onPress={() => {
+            setIsImageFullScreen(true);
+          }}>
+          <ImageCarousel images={images} />
+        </TouchableOpacity>
+
         {/* {images?.length === 0 ? (
           <Image
             source={assets.images.placeholder}
@@ -402,6 +448,11 @@ const styles = StyleSheet.create({
   containter: {},
   matZipContainer: {
     paddingHorizontal: 24,
+  },
+  fullScreenImage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   zipNameText: {
     fontSize: 30,
