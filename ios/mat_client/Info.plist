@@ -13,6 +13,8 @@
 	<key>CFBundleDisplayName</key>
 	<string>Muckit</string>
 	<key>CFBundleExecutable</key>
+	<key>CodePushDeploymentKey</key>
+	<string>09wpW439C04L_6T6uflNY_8jvZXjTZqrHSIPb</string>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>

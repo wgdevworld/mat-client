@@ -30,6 +30,7 @@ import AccessGrant from './screens/Onboarding/AccessGrant';
 import SplashScreen from './screens/SplashScreen';
 import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
+import codePush from 'react-native-code-push';
 
 const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
@@ -209,4 +210,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default codePush(App);
