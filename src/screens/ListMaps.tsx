@@ -19,21 +19,96 @@ import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import colors from '../styles/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ListMaps() {
   const dispatch = useDispatch();
   const publicMaps = useAppSelector(state => state.publicMaps.maps);
 
-  useFocusEffect(
-    useCallback(() => {
-      onRefreshPublicMaps();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
+  const FETCH_COOLDOWN = 1 * 60 * 1000;
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const checkNeedToFetch = async () => {
+    const now = new Date().getTime();
+    const lastFetch = await AsyncStorage.getItem('lastFetchTime');
+    const lastFetchTime = lastFetch ? parseInt(lastFetch, 10) : 0;
+
+    return now - lastFetchTime > FETCH_COOLDOWN;
+  };
+
+  const updateFetchTime = async () => {
+    const now = new Date().getTime();
+    await AsyncStorage.setItem('lastFetchTime', now.toString());
+  };
+
+  const onRefreshPublicMaps = useCallback(async () => {
+    if (await checkNeedToFetch()) {
+      setIsRefreshing(true);
+      try {
+        const fetchAllMapsQuery = `{
+            fetchAllMaps {
+              id
+              name
+              description
+              createdAt
+              publicStatus
+              followerList {
+                id
+              }
+              creator {
+                id
+                name
+              }
+              images {
+                src
+              }
+              zipList {
+                id
+                name
+                address
+                images {
+                  src
+                }
+                reviewCount
+                reviewAvgRating
+                parentMap {
+                  id
+                }
+                category
+                latitude
+                longitude
+              }
+            }
+          }`;
+        const publicMapsRes = await request(
+          fetchAllMapsQuery,
+          REQ_METHOD.QUERY,
+        );
+        const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
+        if (publicMapsData) {
+          const serializedPublicMaps: MatMap[] = await matMapSerializer(
+            publicMapsData,
+          );
+          dispatch(replacePublicMapsAction(serializedPublicMaps));
+        }
+        updateFetchTime(); // Update the timestamp after a successful fetch
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setIsRefreshing(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkNeedToFetch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      onRefreshPublicMaps();
+    }, [onRefreshPublicMaps]),
+  );
 
   const orderMaps = () => {
     const newOrdered = [...publicMaps];
@@ -47,60 +122,6 @@ export default function ListMaps() {
     setOrderedMaps(orderMaps());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicMaps]);
-
-  const onRefreshPublicMaps = async () => {
-    setIsRefreshing(true);
-    try {
-      const fetchAllMapsQuery = `{
-        fetchAllMaps {
-          id
-          name
-          description
-          createdAt
-          publicStatus
-          followerList {
-            id
-          }
-          creator {
-            id
-            name
-          }
-          images {
-            src
-          }
-          zipList {
-            id
-            name
-            address
-            images {
-              src
-            }
-            reviewCount
-            reviewAvgRating
-            parentMap {
-              id
-            }
-            category
-            latitude
-            longitude
-          }
-        }
-      }`;
-      const publicMapsRes = await request(fetchAllMapsQuery, REQ_METHOD.QUERY);
-      const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
-      if (publicMapsData) {
-        const serializedPublicMaps: MatMap[] = await matMapSerializer(
-          publicMapsData,
-        );
-        dispatch(replacePublicMapsAction(serializedPublicMaps));
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={styles.containter}>
