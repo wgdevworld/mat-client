@@ -16,19 +16,14 @@ import notifee from '@notifee/react-native';
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
-      desiredAccuracy: BackgroundGeolocation.LOW_ACCURACY,
+      desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
       stationaryRadius: 100,
       distanceFilter: 100,
-      notificationTitle: 'Background tracking',
-      notificationText: 'enabled',
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
       locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
-      interval: 10000,
-      fastestInterval: 5000,
-      activitiesInterval: 10000,
       stopOnStillActivity: false,
     });
   } catch {
@@ -48,10 +43,6 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         latitude: location.latitude,
         longitude: location.longitude,
       };
-      notifee.displayNotification({
-        title: 'Location update',
-        body: `Location update: ${curLocation.latitude}, ${curLocation.longitude}`,
-      });
       BackgroundGeolocation.startTask(taskKey => {
         let closeMatZips: string[];
         closeMatZips = [];

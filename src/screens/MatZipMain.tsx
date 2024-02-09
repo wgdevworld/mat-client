@@ -226,7 +226,7 @@ export default function MatZipMain() {
           };
         });
         return {
-          author: review.writer.name,
+          author: review.writer === null ? review.writer.name : '탈퇴한 사용자',
           rating: review.rating,
           content: review.content,
           date: new Date(review.createdAt),
