@@ -58,44 +58,41 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
             <Text style={styles.mapName}>{map.name}</Text>
             <Text style={styles.mapAuthor}>by {map.author}</Text>
           </View>
-          <View style={{}}>
-            <Button
-              icon={{
-                name: 'people',
-                type: 'ionicon',
-                color: 'white',
-                size: 15,
-              }}
-              title="팔로우"
-              buttonStyle={styles.bellButton}
-              titleStyle={styles.buttonTitle}
-              onPress={() => {
-                // console.log(map.id);
-                if (map.authorId && map.authorId === user.id) {
-                  Alert.alert('본인 지도입니다!');
-                } else if (
-                  userFollowingMaps.find(
-                    followingMap => followingMap.id === map.id,
-                  )
-                ) {
-                  Alert.alert('이미 팔로우하신 지도입니다!');
-                } else {
-                  dispatch(updateIsLoadingAction(true));
-                  addUserFollower(map.id)
-                    .then(() => {
-                      dispatch(addFollowingMatMapAction(map));
-                      dispatch(addPublicMapFollowerCountAction(map.id));
-                    })
-                    .catch(error => {
-                      console.error('Error adding follower:', error);
-                    })
-                    .finally(() => {
-                      dispatch(updateIsLoadingAction(false));
-                    });
-                }
-              }}
+          <TouchableOpacity
+            style={styles.bellButton}
+            onPress={() => {
+              // console.log(map.id);
+              if (map.authorId && map.authorId === user.id) {
+                Alert.alert('본인 지도입니다!');
+              } else if (
+                userFollowingMaps.find(
+                  followingMap => followingMap.id === map.id,
+                )
+              ) {
+                Alert.alert('이미 팔로우하신 지도입니다!');
+              } else {
+                dispatch(updateIsLoadingAction(true));
+                addUserFollower(map.id)
+                  .then(() => {
+                    dispatch(addFollowingMatMapAction(map));
+                    dispatch(addPublicMapFollowerCountAction(map.id));
+                  })
+                  .catch(error => {
+                    console.error('Error adding follower:', error);
+                  })
+                  .finally(() => {
+                    dispatch(updateIsLoadingAction(false));
+                  });
+              }
+            }}>
+            <Ionicons
+              name="people"
+              color={'white'}
+              size={15}
+              style={{alignSelf: 'center'}}
             />
-          </View>
+            <Text style={styles.buttonTitle}>팔로우</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
@@ -123,13 +120,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral1,
     height: 35,
     padding: 10,
-    paddingRight: 14,
+    // paddingRight: 14,
     // marginTop: 45,
+    flexDirection: 'row',
     alignSelf: 'flex-end',
     borderRadius: 20,
   },
   buttonTitle: {
     fontSize: 12,
+    alignSelf: 'center',
+    color: 'white',
+    paddingLeft: 4,
   },
   mapName: {
     fontSize: 18,

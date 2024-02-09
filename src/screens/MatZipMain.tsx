@@ -226,7 +226,7 @@ export default function MatZipMain() {
           };
         });
         return {
-          author: review.writer === null ? review.writer.name : '탈퇴한 사용자',
+          author: review.writer !== null ? review.writer.name : '탈퇴한 사용자',
           rating: review.rating,
           content: review.content,
           date: new Date(review.createdAt),
@@ -293,7 +293,10 @@ export default function MatZipMain() {
         color={'white'}
         buttonColor={colors.coral1}
       />
-      <ScrollView bounces={false} contentContainerStyle={styles.containter}>
+      <ScrollView
+        bounces={false}
+        contentContainerStyle={styles.containter}
+        showsVerticalScrollIndicator={false}>
         <ImageCarousel images={images} />
         {/* {images?.length === 0 ? (
           <Image
