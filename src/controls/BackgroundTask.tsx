@@ -6,7 +6,7 @@ import {calculateDistance} from '../tools/CommonFunc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
-import notifee from '@notifee/react-native';
+import Bugsnag from '@bugsnag/react-native';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -44,6 +44,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         longitude: location.longitude,
       };
       BackgroundGeolocation.startTask(taskKey => {
+        Bugsnag.leaveBreadcrumb('Location update task started');
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
@@ -52,13 +53,10 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
           }
         });
         const numCloseMatZips = closeMatZips ? closeMatZips.length : 0;
+        Bugsnag.leaveBreadcrumb('Close mat zips:' + numCloseMatZips);
         if (numCloseMatZips) {
-          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(
-            async value => {
-              await notifee.displayNotification({
-                title: 'Sending notification',
-                body: `Sending notification for ${closeMatZips.length} matzips, including ${closeMatZips[0]}`,
-              });
+          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
+            .then(async value => {
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
@@ -81,8 +79,15 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
               };
 
               await request(notificationQuery, REQ_METHOD.MUTATION, variables);
-            },
-          );
+              Bugsnag.notify(
+                new Error(
+                  'Sent notification request for' + notificationMessage,
+                ),
+              );
+            })
+            .catch(e => {
+              Bugsnag.notify(new Error(e));
+            });
         }
 
         BackgroundGeolocation.endTask(taskKey);
@@ -170,6 +175,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
     });
     BackgroundGeolocation.removeAllListeners();
   } catch (error) {
+    Bugsnag.notify(new Error(error as string));
     console.error('Error performing background task', error);
   }
 };

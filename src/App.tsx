@@ -31,6 +31,7 @@ import SplashScreen from './screens/SplashScreen';
 import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 import codePush from 'react-native-code-push';
+import Bugsnag from '@bugsnag/react-native';
 
 const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
