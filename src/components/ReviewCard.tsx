@@ -15,7 +15,6 @@ import {
 import {Review} from '../types/store';
 import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getStatusBarHeight} from 'react-native-status-bar-height';
 import colors from '../styles/colors';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 interface ReviewCardProps {

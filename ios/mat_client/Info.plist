@@ -18,6 +18,8 @@
 	<string>Muckit</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CodePushDeploymentKey</key>
+	<string>09wpW439C04L_6T6uflNY_8jvZXjTZqrHSIPb</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -133,5 +135,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>bugsnag</key>
+	<dict>
+		<key>apiKey</key>
+		<string>3e92a68600d84011d91075ce1aef501b</string>
+	</dict>
 </dict>
 </plist>

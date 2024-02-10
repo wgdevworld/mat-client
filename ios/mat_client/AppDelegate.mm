@@ -1,3 +1,4 @@
+#import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
@@ -6,6 +7,10 @@
 #import <RNKakaoLogins.h>
 #import <React/RCTLinkingManager.h>
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
+#import <CodePush/CodePush.h>
+#import <AppCenterReactNative.h>
+#import <AppCenterReactNativeAnalytics.h>
+#import <AppCenterReactNativeCrashes.h>
 
 
 @implementation AppDelegate
@@ -13,6 +18,11 @@
 - (BOOL)application:(UIApplication *)application
 didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+      [Bugsnag start];
+
+[AppCenterReactNative register];
+    [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
+    [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
     // [REQUIRED] Register BackgroundFetch
     [[TSBackgroundFetch sharedInstance] didFinishLaunching];
     [FIRApp configure];
@@ -38,7 +48,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
-  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+  return [CodePush bundleURL];
 #endif
 }
 
