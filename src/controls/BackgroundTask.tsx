@@ -16,10 +16,10 @@ import Bugsnag from '@bugsnag/react-native';
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
-      desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
-      stationaryRadius: 100,
-      distanceFilter: 100,
-      debug: false,
+      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      stationaryRadius: 10,
+      distanceFilter: 10,
+      debug: true,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -44,7 +44,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         longitude: location.longitude,
       };
       BackgroundGeolocation.startTask(taskKey => {
-        Bugsnag.leaveBreadcrumb('Location update task started');
+        // Bugsnag.leaveBreadcrumb('Location update task started');
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
@@ -52,11 +52,22 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
             closeMatZips.push(zip.name);
           }
         });
-        const numCloseMatZips = closeMatZips ? closeMatZips.length : 0;
-        Bugsnag.leaveBreadcrumb('Close mat zips:' + numCloseMatZips);
+        const numCloseMatZips = closeMatZips.length;
         if (numCloseMatZips) {
           AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
             .then(async value => {
+              const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
+              // Test notification for debugging purposes
+              const testQuery = `
+                          mutation sendNotification($deviceToken: String!, $message: String!) {
+                              sendNotification(deviceToken: $deviceToken, message: $message)
+                          }
+                          `;
+              const testVariables = {
+                deviceToken: value,
+                message: testNoti,
+              };
+              request(testQuery, REQ_METHOD.MUTATION, testVariables);
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
@@ -79,11 +90,6 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
               };
 
               await request(notificationQuery, REQ_METHOD.MUTATION, variables);
-              Bugsnag.notify(
-                new Error(
-                  'Sent notification request for' + notificationMessage,
-                ),
-              );
             })
             .catch(e => {
               Bugsnag.notify(new Error(e));
