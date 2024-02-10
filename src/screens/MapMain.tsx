@@ -1239,6 +1239,7 @@ function App(): JSX.Element {
                       ...styles.dropDownPickerContainer,
                       paddingRight: 10,
                     }}
+                    dropDownContainerStyle={{height: 120}}
                     style={{
                       minHeight: 40,
                       borderRadius: 5,

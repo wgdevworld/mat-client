@@ -12,6 +12,7 @@ export type RootStackParamList = {
   EmailRegisterMain: undefined;
   FAQ: undefined;
   Help: undefined;
+  Muckiters: undefined;
   SignupEmail: undefined;
   SignupUser: undefined;
   SignupPwd: undefined;
