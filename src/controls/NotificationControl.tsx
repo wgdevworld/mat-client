@@ -2,7 +2,6 @@ import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
-import {REQ_METHOD, request} from './RequestControl';
 
 export const initPushNotification = async () => {
   // Register the device with FCM
@@ -11,24 +10,6 @@ export const initPushNotification = async () => {
     const token = await messaging().getToken();
     console.log('ℹ️ Notification token: ' + token);
     await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN, token);
-    const tokenFromStorage = await AsyncStorage.getItem(
-      ASYNC_STORAGE_ENUM.NOTI_TOKEN,
-    );
-
-    const testNoti = '테스트 알림';
-    // Test notification for debugging purposes
-    const notificationQuery = `
-                mutation sendNotification($deviceToken: String!, $message: String!) {
-                    sendNotification(deviceToken: $deviceToken, message: $message)
-                }
-                `;
-    const variables = {
-      deviceToken: tokenFromStorage,
-      message: testNoti,
-    };
-
-    request(notificationQuery, REQ_METHOD.MUTATION, variables);
-
     // Register background handler
     messaging().setBackgroundMessageHandler(async remoteMessage => {
       onDisplayNotification(

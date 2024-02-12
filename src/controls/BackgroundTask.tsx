@@ -19,7 +19,7 @@ export const initBGLocation = async () => {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 10,
       distanceFilter: 10,
-      debug: true,
+      debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -57,20 +57,20 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         if (numCloseMatZips) {
           AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
             .then(value => {
-              const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
-              // Test notification for debugging purposes
-              const testQuery = `
-                          mutation sendNotification($deviceToken: String!, $message: String!) {
-                              sendNotification(deviceToken: $deviceToken, message: $message)
-                          }
-                          `;
-              const testVariables = {
-                deviceToken: value,
-                message: testNoti,
-              };
-              request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
-                Bugsnag.notify(new Error(e)),
-              );
+              // const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
+              // // Test notification for debugging purposes
+              // const testQuery = `
+              //             mutation sendNotification($deviceToken: String!, $message: String!) {
+              //                 sendNotification(deviceToken: $deviceToken, message: $message)
+              //             }
+              //             `;
+              // const testVariables = {
+              //   deviceToken: value,
+              //   message: testNoti,
+              // };
+              // request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
+              //   Bugsnag.notify(new Error(e)),
+              // );
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
