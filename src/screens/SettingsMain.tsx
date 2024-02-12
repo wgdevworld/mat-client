@@ -204,6 +204,25 @@ export default function Settings() {
               size={22}
             />
           </View> */}
+          <View style={styles.row}>
+            <Ionicons name="bug-outline" size={18} />
+            <Text style={styles.rowText}>버그 신고</Text>
+            <View style={{flex: 1}} />
+            <Ionicons
+              name="chevron-forward-outline"
+              color="#0c0c0c"
+              size={22}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Muckiters');
+            }}
+            style={styles.row}>
+            <Ionicons name="reader-outline" size={18} />
+            <Text style={styles.rowText}>개발자 정보</Text>
+            <View style={{flex: 1}} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={sendEmail} style={styles.row}>
             <Ionicons name="mail-outline" size={18} />
             <Text style={styles.rowText}>문의하기</Text>
