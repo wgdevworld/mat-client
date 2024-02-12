@@ -10,6 +10,9 @@ import globalComponents, {
 import visitedZips, {
   initialState as visitedZipsInitialState,
 } from './visitedZips';
+import notificationCooldown, {
+  initialState as notificationCooldownInitialState,
+} from './notificationCooldown';
 
 const rootReducer = combineReducers({
   user,
@@ -19,6 +22,7 @@ const rootReducer = combineReducers({
   publicMaps,
   globalComponents,
   visitedZips,
+  notificationCooldown,
 });
 
 export const initialStateObject: {
@@ -31,6 +35,7 @@ export const initialStateObject: {
   publicMaps: publicMapsInitialState,
   globalComponents: globalComponentsInitialState,
   visitedZips: visitedZipsInitialState,
+  notificationCooldown: notificationCooldownInitialState,
 };
 
 export default rootReducer;

@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 import Bugsnag from '@bugsnag/react-native';
+import store from '../store/store';
+import {setLastNotified} from '../store/modules/notificationCooldown';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -17,8 +19,8 @@ export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 10,
-      distanceFilter: 10,
+      stationaryRadius: 300,
+      distanceFilter: 300,
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
@@ -35,70 +37,70 @@ export const initBGLocation = async () => {
 
 export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
   try {
-    // background information configuration
     BackgroundGeolocation.on('location', location => {
-      // handle your locations here
-      // to perform long running operation on iOS
-      // you need to create background task
       BackgroundGeolocation.startTask(taskKey => {
         const curLocation: Coordinate = {
           latitude: location.latitude,
           longitude: location.longitude,
         };
-        Bugsnag.leaveBreadcrumb('Location update task started');
-        let closeMatZips: string[];
-        closeMatZips = [];
-        allSavedZips.forEach((zip: MatZip) => {
-          if (calculateDistance(zip.coordinate, curLocation) < 5000) {
-            closeMatZips.push(zip.name);
-          }
-        });
-        const numCloseMatZips = closeMatZips.length;
-        if (numCloseMatZips) {
-          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
-            .then(value => {
-              // const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
-              // // Test notification for debugging purposes
-              // const testQuery = `
-              //             mutation sendNotification($deviceToken: String!, $message: String!) {
-              //                 sendNotification(deviceToken: $deviceToken, message: $message)
-              //             }
-              //             `;
-              // const testVariables = {
-              //   deviceToken: value,
-              //   message: testNoti,
-              // };
-              // request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
-              //   Bugsnag.notify(new Error(e)),
-              // );
-              let notificationMessage;
-              if (numCloseMatZips > 2) {
-                notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
-                  closeMatZips[1]
-                } 외 ${numCloseMatZips - 2}개의 맛집이 있어요!`;
-              } else if (numCloseMatZips > 1) {
-                notificationMessage = `500m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
-              } else {
-                notificationMessage = `500m 근처에 ${closeMatZips[0]} 가 있어요!`;
+        const state = store.getState();
+        const {lastNotified} = state.notificationCooldown;
+        AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
+          .then((radius: string | null) => {
+            const parsedRadius = radius ? parseInt(radius, 10) : 2000;
+            // get list of restaurants we already sent notification to
+            // check if their cooldown has passed
+            // if it did, then remove
+            // after request runs, put closeMatZips back in
+            let closeMatZips: string[];
+            closeMatZips = [];
+            allSavedZips.forEach((zip: MatZip) => {
+              const lastNotifiedTime = lastNotified[zip.name];
+              if (
+                calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
+                (!lastNotifiedTime || Date.now() - lastNotifiedTime > 3600000)
+              ) {
+                closeMatZips.push(zip.name);
+                store.dispatch(
+                  setLastNotified({zipName: zip.name, timestamp: Date.now()}),
+                );
               }
-
-              const notificationQuery = `
-                mutation sendNotification($deviceToken: String!, $message: String!) {
-                    sendNotification(deviceToken: $deviceToken, message: $message)
-                }
-                `;
-              const variables = {
-                deviceToken: value,
-                message: notificationMessage,
-              };
-
-              request(notificationQuery, REQ_METHOD.MUTATION, variables);
-            })
-            .catch(e => {
-              Bugsnag.notify(new Error(e));
             });
-        }
+            const numCloseMatZips = closeMatZips.length;
+            if (numCloseMatZips) {
+              AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
+                .then(value => {
+                  let notificationMessage;
+                  if (numCloseMatZips > 2) {
+                    notificationMessage = `${parsedRadius}m 근처에 ${
+                      closeMatZips[0]
+                    }, ${closeMatZips[1]} 외 ${
+                      numCloseMatZips - 2
+                    }개의 맛집이 있어요!`;
+                  } else if (numCloseMatZips > 1) {
+                    notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
+                  } else {
+                    notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]} 가 있어요!`;
+                  }
 
+                  const notificationQuery = `
+                    mutation sendNotification($deviceToken: String!, $message: String!) {
+                        sendNotification(deviceToken: $deviceToken, message: $message)
+                    }
+                    `;
+                  const variables = {
+                    deviceToken: value,
+                    message: notificationMessage,
+                  };
+
+                  request(notificationQuery, REQ_METHOD.MUTATION, variables);
+                })
+                .catch(e => {
+                  Bugsnag.notify(new Error(e));
+                });
+            }
+          })
+          .catch(e => Bugsnag.notify(new Error(e)));
         BackgroundGeolocation.endTask(taskKey);
       });
     });

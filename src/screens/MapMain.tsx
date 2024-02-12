@@ -64,7 +64,7 @@ import BackgroundGeolocation from '@mauron85/react-native-background-geolocation
 
 const screenWidth = Dimensions.get('window').width;
 
-// let isBackgroundNotiSent = false;
+let isBackgroundNotiSent = false;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -133,23 +133,23 @@ function App(): JSX.Element {
   //TODO: add following maps as well
   const allSavedZips: MatZip[] = [
     ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
   ];
 
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
   useEffect(() => {
-    // if (isBackgroundNotiSent) {
-    //   // to prevent the background task to be run again on mount
-    //   return;
-    // }
-    // isBackgroundNotiSent = true;
+    if (isBackgroundNotiSent) {
+      // to prevent the background task to be run again on mount
+      return;
+    }
+    isBackgroundNotiSent = true;
     updateLocationAndSendNoti(allSavedZips);
+    isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
-    // isBackgroundNotiSent = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -19,12 +21,17 @@ import {REQ_METHOD, request} from '../controls/RequestControl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Linking, Platform} from 'react-native';
 import {ScreenParamList} from '../types/navigation';
-import {useAppSelector} from '../store/hooks';
+import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import Slider from '@react-native-community/slider';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const [isSetRadiusModalVisible, setIsSetRadiusModalVisible] = useState(false);
+  const [radius, setRadius] = useState(1000);
+  const dispatch = useAppDispatch();
 
   const logout = async () => {
     try {
@@ -41,6 +48,16 @@ export default function Settings() {
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const updateNotificationRadius = async () => {
+    dispatch(updateIsLoadingAction(true));
+    await AsyncStorage.setItem(
+      ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
+      radius.toString(),
+    );
+    dispatch(updateIsLoadingAction(false));
+    setIsSetRadiusModalVisible(false);
   };
 
   const openSettings = () => {
@@ -78,6 +95,69 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <Modal
+        visible={isSetRadiusModalVisible}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isSetRadiusModalVisible ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View style={styles.popupContainer}>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 20,
+              alignSelf: 'center',
+              paddingBottom: 6,
+              fontWeight: 'bold',
+            }}>
+            알림 반경
+          </Text>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 14,
+              paddingBottom: 6,
+              alignSelf: 'center',
+              textAlign: 'center',
+            }}>
+            {`저장하신 식당이 최대 ${radius}m \n근처에 있으면 알림을 보내드려요.`}
+          </Text>
+          <Slider
+            style={{width: '100%', height: 40}}
+            minimumValue={500}
+            maximumValue={5000}
+            step={100}
+            value={radius}
+            onValueChange={value => setRadius(value)}
+            minimumTrackTintColor={colors.coral2}
+            maximumTrackTintColor={'white'}
+            thumbTintColor="#b9e4c9"
+          />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 10,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() =>
+                setIsSetRadiusModalVisible(!isSetRadiusModalVisible)
+              }>
+              <Text style={{color: colors.white}}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={updateNotificationRadius}>
+              <Text style={{color: colors.white}}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <ScrollView
         bounces={false}
         contentContainerStyle={styles.containter}
@@ -138,7 +218,7 @@ export default function Settings() {
           </View>
         </View> */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>알림</Text>
+          <Text style={styles.sectionHeader}>어플 설정</Text>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="notifications-outline" size={18} />
             <Text style={styles.rowText}>푸시 알림 활성화</Text>
@@ -148,6 +228,20 @@ export default function Settings() {
           <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="earth-outline" size={18} />
             <Text style={styles.rowText}>위치 기반 푸시 알림 활성화</Text>
+            <View style={{flex: 1}} />
+            <Ionicons name="settings-outline" size={18} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={async () => {
+              const userSetRadius = await AsyncStorage.getItem(
+                ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
+              );
+              setRadius(userSetRadius ? parseInt(userSetRadius, 10) : 2000);
+              setIsSetRadiusModalVisible(true);
+            }}>
+            <Ionicons name="phone-portrait-outline" size={18} />
+            <Text style={styles.rowText}>위치 기반 알림 반경</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
@@ -192,7 +286,7 @@ export default function Settings() {
             <Ionicons name="construct-outline" size={18} />
             <Text style={styles.rowText}>버전 정보</Text>
             <View style={{flex: 1}} />
-            <Text>0.0.1g</Text>
+            <Text>1.1.0</Text>
           </View>
           {/* <View style={styles.row}>
             <Ionicons name="newspaper-outline" size={18} />
@@ -204,16 +298,6 @@ export default function Settings() {
               size={22}
             />
           </View> */}
-          <View style={styles.row}>
-            <Ionicons name="bug-outline" size={18} />
-            <Text style={styles.rowText}>버그 신고</Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name="chevron-forward-outline"
-              color="#0c0c0c"
-              size={22}
-            />
-          </View>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('Muckiters');
@@ -222,6 +306,11 @@ export default function Settings() {
             <Ionicons name="reader-outline" size={18} />
             <Text style={styles.rowText}>개발자 정보</Text>
             <View style={{flex: 1}} />
+            <Ionicons
+              name="chevron-forward-outline"
+              color="#0c0c0c"
+              size={22}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={sendEmail} style={styles.row}>
             <Ionicons name="mail-outline" size={18} />
@@ -334,5 +423,26 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: 'white',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'grey',
+    opacity: 0.85,
+    zIndex: 10000,
+    justifyContent: 'center',
+  },
+  popupContainer: {
+    position: 'absolute',
+    zIndex: 10000,
+    top: Dimensions.get('window').height / 2 - 50,
+    alignSelf: 'center',
+    backgroundColor: colors.coral1,
+    width: 250,
+    padding: 10,
+    paddingTop: 15,
+    borderRadius: 10,
+    justifyContent: 'space-between',
   },
 });
