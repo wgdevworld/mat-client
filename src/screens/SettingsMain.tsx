@@ -306,6 +306,11 @@ export default function Settings() {
             <Ionicons name="reader-outline" size={18} />
             <Text style={styles.rowText}>개발자 정보</Text>
             <View style={{flex: 1}} />
+            <Ionicons
+              name="chevron-forward-outline"
+              color="#0c0c0c"
+              size={22}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={sendEmail} style={styles.row}>
             <Ionicons name="mail-outline" size={18} />
