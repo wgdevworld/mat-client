@@ -53,7 +53,7 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
-                console.log(curUserRes?.data.data.fetchLoggedIn);
+                // console.log(curUserRes?.data.data.fetchLoggedIn);
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =
@@ -180,8 +180,8 @@ const SplashScreen = () => {
                 );
                 const fetchUserSavedZipsData =
                   fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
-                console.log(fetchUserSavedZipsData);
-                console.log(fetchUserSavedZipsData.length);
+                // console.log(fetchUserSavedZipsData);
+                // console.log(fetchUserSavedZipsData.length);
                 if (
                   fetchUserSavedZipsData &&
                   fetchUserSavedZipsData.length !== 0

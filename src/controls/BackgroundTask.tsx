@@ -19,12 +19,11 @@ export const initBGLocation = async () => {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 10,
       distanceFilter: 10,
-      debug: true,
+      debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
       locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
-      stopOnStillActivity: false,
     });
   } catch {
     (error: string) =>
@@ -39,12 +38,12 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
       // handle your locations here
       // to perform long running operation on iOS
       // you need to create background task
-      const curLocation: Coordinate = {
-        latitude: location.latitude,
-        longitude: location.longitude,
-      };
       BackgroundGeolocation.startTask(taskKey => {
-        // Bugsnag.leaveBreadcrumb('Location update task started');
+        const curLocation: Coordinate = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        };
+        Bugsnag.leaveBreadcrumb('Location update task started');
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
@@ -55,7 +54,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         const numCloseMatZips = closeMatZips.length;
         if (numCloseMatZips) {
           AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
-            .then(async value => {
+            .then(value => {
               const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
               // Test notification for debugging purposes
               const testQuery = `
@@ -89,7 +88,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
                 message: notificationMessage,
               };
 
-              await request(notificationQuery, REQ_METHOD.MUTATION, variables);
+              request(notificationQuery, REQ_METHOD.MUTATION, variables);
             })
             .catch(e => {
               Bugsnag.notify(new Error(e));
@@ -159,6 +158,9 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
 
     BackgroundGeolocation.on('http_authorization', () => {
       console.log('[INFO] App needs to authorize the http requests');
+      Bugsnag.notify(
+        new Error('[INFO] App needs to authorize the http requests'),
+      );
     });
 
     BackgroundGeolocation.checkStatus(status => {
@@ -181,6 +183,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
     });
     BackgroundGeolocation.removeAllListeners();
   } catch (error) {
+    Bugsnag.leaveBreadcrumb('Error performing background task');
     Bugsnag.notify(new Error(error as string));
     console.error('Error performing background task', error);
   }
