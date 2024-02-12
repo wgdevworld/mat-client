@@ -27,6 +27,8 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {matZipSerializer} from '../serializer/MatZipSrlzr';
 import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
+import {cleanupCooldowns} from '../store/modules/notificationCooldown';
+import store from '../store/store';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -53,7 +55,7 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
-                // console.log(curUserRes?.data.data.fetchLoggedIn);
+                store.dispatch(cleanupCooldowns());
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =

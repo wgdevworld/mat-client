@@ -7,4 +7,5 @@ export enum ASYNC_STORAGE_ENUM {
   USER_ID = 'USER_ID',
   IS_LOGGED_IN = 'IS_LOGGED_IN',
   IS_ONBOARDING_DONE = 'IS_ONBOARDING_DONE',
+  NOTIFICATION_RADIUS = 'notification_radius',
 }
