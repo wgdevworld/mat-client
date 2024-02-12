@@ -192,7 +192,7 @@ export default function Settings() {
             <Ionicons name="construct-outline" size={18} />
             <Text style={styles.rowText}>버전 정보</Text>
             <View style={{flex: 1}} />
-            <Text>0.0.1g</Text>
+            <Text>0.0.1</Text>
           </View>
           {/* <View style={styles.row}>
             <Ionicons name="newspaper-outline" size={18} />
