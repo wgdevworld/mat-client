@@ -10,7 +10,7 @@ export const initPushNotification = async () => {
     // Get the token
     const token = await messaging().getToken();
     console.log('ℹ️ Notification token: ' + token);
-    AsyncStorage.setItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN, token);
+    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN, token);
     const tokenFromStorage = await AsyncStorage.getItem(
       ASYNC_STORAGE_ENUM.NOTI_TOKEN,
     );

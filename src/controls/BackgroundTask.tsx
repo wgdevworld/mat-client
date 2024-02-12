@@ -19,15 +19,17 @@ export const initBGLocation = async () => {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 10,
       distanceFilter: 10,
-      debug: false,
+      debug: true,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
       locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
     });
   } catch {
-    (error: string) =>
+    (error: string) => {
       console.log('⛔️ Background location configuration error' + error);
+      Bugsnag.notify(error);
+    };
   }
 };
 
@@ -66,7 +68,9 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
                 deviceToken: value,
                 message: testNoti,
               };
-              request(testQuery, REQ_METHOD.MUTATION, testVariables);
+              request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
+                Bugsnag.notify(new Error(e)),
+              );
               let notificationMessage;
               if (numCloseMatZips > 2) {
                 notificationMessage = `500m 근처에 ${closeMatZips[0]}, ${
@@ -181,7 +185,6 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         BackgroundGeolocation.start(); //triggers start on start event
       }
     });
-    BackgroundGeolocation.removeAllListeners();
   } catch (error) {
     Bugsnag.leaveBreadcrumb('Error performing background task');
     Bugsnag.notify(new Error(error as string));

@@ -60,6 +60,7 @@ import {
 } from 'react-native-image-picker';
 import {v4 as uuidv4} from 'uuid';
 import {removeUserFollower} from '../controls/MatMapControl';
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -145,6 +146,9 @@ function App(): JSX.Element {
     // }
     // isBackgroundNotiSent = true;
     updateLocationAndSendNoti(allSavedZips);
+    return () => {
+      BackgroundGeolocation.removeAllListeners();
+    };
     // isBackgroundNotiSent = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
