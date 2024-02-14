@@ -183,7 +183,7 @@ export const updateLocationAndSendNoti = (allSavedZips: MatZip[]) => {
       // );
 
       // you don't need to check status before start (this is just the example)
-      if (status.isRunning) {
+      if (!status.isRunning) {
         BackgroundGeolocation.start(); //triggers start on start event
       }
     });

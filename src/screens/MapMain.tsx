@@ -64,7 +64,7 @@ import BackgroundGeolocation from '@mauron85/react-native-background-geolocation
 
 const screenWidth = Dimensions.get('window').width;
 
-let isBackgroundNotiSent = false;
+// let isBackgroundNotiSent = false;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -148,7 +148,9 @@ function App(): JSX.Element {
     updateLocationAndSendNoti(allSavedZips);
     // isBackgroundNotiSent = false;
     return () => {
-      BackgroundGeolocation.removeAllListeners();
+      BackgroundGeolocation.events.forEach(event =>
+        BackgroundGeolocation.removeAllListeners(event),
+      );
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
