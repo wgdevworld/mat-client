@@ -46,24 +46,25 @@ export const updateLocationAndSendNoti = (allSavedZips: MatZip[]) => {
           latitude: location.latitude,
           longitude: location.longitude,
         };
-        const state = store.getState();
-        const {lastNotified} = state.notificationCooldown;
+        // const state = store.getState();
+        // const {lastNotified} = state.notificationCooldown;
         AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
           .then((radius: string | null) => {
             const parsedRadius = radius ? parseInt(radius, 10) : 2000;
             let closeMatZips: string[];
             closeMatZips = [];
             allSavedZips.forEach((zip: MatZip) => {
-              const lastNotifiedTime = lastNotified[zip.name];
+              // const lastNotifiedTime = lastNotified[zip.name];
               if (
-                calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
-                (!lastNotifiedTime ||
-                  Date.now() - lastNotifiedTime > COOLDOWN_TIME)
+                calculateDistance(zip.coordinate, curLocation) < parsedRadius
+                // &&
+                // (!lastNotifiedTime ||
+                //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
               ) {
                 closeMatZips.push(zip.name);
-                store.dispatch(
-                  setLastNotified({zipName: zip.name, timestamp: Date.now()}),
-                );
+                // store.dispatch(
+                //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
+                // );
               }
             });
             const numCloseMatZips = closeMatZips.length;
