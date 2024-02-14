@@ -133,10 +133,8 @@ function App(): JSX.Element {
   //TODO: add following maps as well
   const allSavedZips: MatZip[] = [
     ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
   ];
-
-  console.log(allSavedZips);
 
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
@@ -150,9 +148,7 @@ function App(): JSX.Element {
     updateLocationAndSendNoti(allSavedZips);
     // isBackgroundNotiSent = false;
     return () => {
-      BackgroundGeolocation.events.forEach(event =>
-        BackgroundGeolocation.removeAllListeners(event),
-      );
+      BackgroundGeolocation.removeAllListeners();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
