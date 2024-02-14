@@ -27,8 +27,8 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {matZipSerializer} from '../serializer/MatZipSrlzr';
 import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
-import {cleanupCooldowns} from '../store/modules/notificationCooldown';
-import store from '../store/store';
+// import {cleanupCooldowns} from '../store/modules/notificationCooldown';
+// import store from '../store/store';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -55,7 +55,7 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
-                store.dispatch(cleanupCooldowns());
+                // store.dispatch(cleanupCooldowns());
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =
@@ -156,46 +156,6 @@ const SplashScreen = () => {
                   };
                   dispatch(replaceOwnMatMapAction([createMap]));
                 }
-                const fetchUserSavedZipsQuery = `{
-                  fetchUser(email: "${curUserEmail}") {
-                    savedZips {
-                      id
-                      name
-                      address
-                      images {
-                        src
-                      }
-                      reviewCount
-                      reviewAvgRating
-                      parentMap {
-                        id
-                      }
-                      category
-                      latitude
-                      longitude
-                    }
-                  }
-                }`;
-                const fetchUserSavedZipsRes = await request(
-                  fetchUserSavedZipsQuery,
-                  REQ_METHOD.QUERY,
-                );
-                const fetchUserSavedZipsData =
-                  fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
-                // console.log(fetchUserSavedZipsData);
-                // console.log(fetchUserSavedZipsData.length);
-                if (
-                  fetchUserSavedZipsData &&
-                  fetchUserSavedZipsData.length !== 0
-                ) {
-                  const visitedMatZips = await matZipSerializer(
-                    fetchUserSavedZipsData,
-                  );
-                  // console.log('visited: ' + fetchUserSavedZipsData.length);
-                  dispatch(replaceVisitedMatZipsAction(visitedMatZips));
-                } else {
-                  dispatch(replaceVisitedMatZipsAction([]));
-                }
                 const fetchFollowingMapQuery = `{
                   fetchMapsFollowed {
                     id
@@ -239,6 +199,46 @@ const SplashScreen = () => {
                     userFollowingMapData,
                   );
                   dispatch(replaceFollowingMatMapAction(userFollowingMap));
+                }
+                const fetchUserSavedZipsQuery = `{
+                  fetchUser(email: "${curUserEmail}") {
+                    savedZips {
+                      id
+                      name
+                      address
+                      images {
+                        src
+                      }
+                      reviewCount
+                      reviewAvgRating
+                      parentMap {
+                        id
+                      }
+                      category
+                      latitude
+                      longitude
+                    }
+                  }
+                }`;
+                const fetchUserSavedZipsRes = await request(
+                  fetchUserSavedZipsQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const fetchUserSavedZipsData =
+                  fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
+                // console.log(fetchUserSavedZipsData);
+                // console.log(fetchUserSavedZipsData.length);
+                if (
+                  fetchUserSavedZipsData &&
+                  fetchUserSavedZipsData.length !== 0
+                ) {
+                  const visitedMatZips = await matZipSerializer(
+                    fetchUserSavedZipsData,
+                  );
+                  // console.log('visited: ' + fetchUserSavedZipsData.length);
+                  dispatch(replaceVisitedMatZipsAction(visitedMatZips));
+                } else {
+                  dispatch(replaceVisitedMatZipsAction([]));
                 }
                 navigation.replace('TabNavContainer', {
                   screen: 'Map',

@@ -145,6 +145,7 @@ function App(): JSX.Element {
       return;
     }
     isBackgroundNotiSent = true;
+    // updateLocationAndSendNoti(allSavedZips, lastNotified);
     updateLocationAndSendNoti(allSavedZips);
     isBackgroundNotiSent = false;
     return () => {

@@ -7,11 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 import Bugsnag from '@bugsnag/react-native';
-import store from '../store/store';
-import {
-  COOLDOWN_TIME,
-  setLastNotified,
-} from '../store/modules/notificationCooldown';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -22,9 +17,9 @@ export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 5,
-      distanceFilter: 5,
-      debug: true,
+      stationaryRadius: 10,
+      distanceFilter: 10,
+      debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -38,7 +33,10 @@ export const initBGLocation = async () => {
   }
 };
 
-export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
+export const updateLocationAndSendNoti = async (
+  allSavedZips: MatZip[],
+  // lastNotified: {[zipName: string]: number},
+) => {
   try {
     BackgroundGeolocation.on('location', location => {
       BackgroundGeolocation.startTask(taskKey => {
@@ -46,24 +44,24 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
           latitude: location.latitude,
           longitude: location.longitude,
         };
-        const state = store.getState();
-        const {lastNotified} = state.notificationCooldown;
         AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
           .then((radius: string | null) => {
             const parsedRadius = radius ? parseInt(radius, 10) : 2000;
             let closeMatZips: string[];
             closeMatZips = [];
             allSavedZips.forEach((zip: MatZip) => {
-              const lastNotifiedTime = lastNotified[zip.name];
+              // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
+              // const lastNotifiedTime = lastNotified[zip.name];
               if (
-                calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
-                (!lastNotifiedTime ||
-                  Date.now() - lastNotifiedTime > COOLDOWN_TIME)
+                calculateDistance(zip.coordinate, curLocation) < parsedRadius
+                //  &&
+                // (!lastNotifiedTime ||
+                //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
               ) {
                 closeMatZips.push(zip.name);
-                store.dispatch(
-                  setLastNotified({zipName: zip.name, timestamp: Date.now()}),
-                );
+                // store.dispatch(
+                //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
+                // );
               }
             });
             const numCloseMatZips = closeMatZips.length;
@@ -105,28 +103,29 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
       });
     });
 
-    BackgroundGeolocation.on('stationary', location => {
-      console.log('[DEBUG] BackgroundGeolocation stationary', location);
-      BackgroundGeolocation.startTask(taskKey => {
-        AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(token => {
-          const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
-          // Test notification for debugging purposes
-          const testQuery = `
-                    mutation sendNotification($deviceToken: String!, $message: String!) {
-                        sendNotification(deviceToken: $deviceToken, message: $message)
-                    }
-                    `;
-          const testVariables = {
-            deviceToken: token,
-            message: testNoti,
-          };
-          request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
-            Bugsnag.notify(new Error(e)),
-          );
-          BackgroundGeolocation.endTask(taskKey);
-        });
-      });
-    });
+    // TODO: Use when debugging BG notification
+    // BackgroundGeolocation.on('stationary', location => {
+    //   console.log('[DEBUG] BackgroundGeolocation stationary', location);
+    //   BackgroundGeolocation.startTask(taskKey => {
+    //     AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(token => {
+    //       const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
+    //       // Test notification for debugging purposes
+    //       const testQuery = `
+    //                 mutation sendNotification($deviceToken: String!, $message: String!) {
+    //                     sendNotification(deviceToken: $deviceToken, message: $message)
+    //                 }
+    //                 `;
+    //       const testVariables = {
+    //         deviceToken: token,
+    //         message: testNoti,
+    //       };
+    //       request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
+    //         Bugsnag.notify(new Error(e)),
+    //       );
+    //       BackgroundGeolocation.endTask(taskKey);
+    //     });
+    //   });
+    // });
 
     BackgroundGeolocation.on('error', error => {
       console.log('[ERROR] BackgroundGeolocation error:', error);

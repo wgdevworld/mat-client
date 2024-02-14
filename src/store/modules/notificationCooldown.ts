@@ -25,7 +25,6 @@ const notificationCooldownSlice = createSlice({
       const now = Date.now();
       Object.keys(state.lastNotified).forEach(zipName => {
         if (now - state.lastNotified[zipName] > COOLDOWN_TIME) {
-          // 5 minute cooldown rn for debugging purposes
           delete state.lastNotified[zipName];
         }
       });
