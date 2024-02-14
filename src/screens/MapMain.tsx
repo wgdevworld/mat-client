@@ -136,6 +136,8 @@ function App(): JSX.Element {
     ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
   ];
 
+  console.log(allSavedZips);
+
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.

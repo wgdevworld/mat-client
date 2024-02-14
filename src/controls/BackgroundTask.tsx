@@ -18,13 +18,13 @@ import {
 // 15분마다 한번씩 돌아가게 <- 무조건 이게 아님
 // 모름 아무도 모름 이게 돌아가는 원리
 
-export const initBGLocation = () => {
+export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 10,
-      distanceFilter: 10,
-      debug: false,
+      stationaryRadius: 5,
+      distanceFilter: 5,
+      debug: true,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -38,7 +38,7 @@ export const initBGLocation = () => {
   }
 };
 
-export const updateLocationAndSendNoti = (allSavedZips: MatZip[]) => {
+export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
   try {
     BackgroundGeolocation.on('location', location => {
       BackgroundGeolocation.startTask(taskKey => {
@@ -103,6 +103,29 @@ export const updateLocationAndSendNoti = (allSavedZips: MatZip[]) => {
           })
           .catch(e => Bugsnag.notify(new Error(e)));
         BackgroundGeolocation.endTask(taskKey);
+      });
+    });
+
+    BackgroundGeolocation.on('stationary', location => {
+      console.log('[DEBUG] BackgroundGeolocation stationary', location);
+      BackgroundGeolocation.startTask(taskKey => {
+        AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN).then(token => {
+          const testNoti = `거리 디버깅 알림: ${location.latitude}, ${location.longitude}`;
+          // Test notification for debugging purposes
+          const testQuery = `
+                    mutation sendNotification($deviceToken: String!, $message: String!) {
+                        sendNotification(deviceToken: $deviceToken, message: $message)
+                    }
+                    `;
+          const testVariables = {
+            deviceToken: token,
+            message: testNoti,
+          };
+          request(testQuery, REQ_METHOD.MUTATION, testVariables).catch(e =>
+            Bugsnag.notify(new Error(e)),
+          );
+          BackgroundGeolocation.endTask(taskKey);
+        });
       });
     });
 
