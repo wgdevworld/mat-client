@@ -18,12 +18,12 @@ import {
 // 15분마다 한번씩 돌아가게 <- 무조건 이게 아님
 // 모름 아무도 모름 이게 돌아가는 원리
 
-export const initBGLocation = async () => {
+export const initBGLocation = () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 50,
-      distanceFilter: 50,
+      stationaryRadius: 10,
+      distanceFilter: 10,
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
