@@ -19,8 +19,8 @@ export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
-      stationaryRadius: 300,
-      distanceFilter: 300,
+      stationaryRadius: 50,
+      distanceFilter: 50,
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
@@ -48,17 +48,13 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
         AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
           .then((radius: string | null) => {
             const parsedRadius = radius ? parseInt(radius, 10) : 2000;
-            // get list of restaurants we already sent notification to
-            // check if their cooldown has passed
-            // if it did, then remove
-            // after request runs, put closeMatZips back in
             let closeMatZips: string[];
             closeMatZips = [];
             allSavedZips.forEach((zip: MatZip) => {
               const lastNotifiedTime = lastNotified[zip.name];
               if (
                 calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
-                (!lastNotifiedTime || Date.now() - lastNotifiedTime > 3600000)
+                (!lastNotifiedTime || Date.now() - lastNotifiedTime > 300000)
               ) {
                 closeMatZips.push(zip.name);
                 store.dispatch(
