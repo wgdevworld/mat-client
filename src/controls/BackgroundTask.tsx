@@ -19,7 +19,7 @@ export const initBGLocation = async () => {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 10,
       distanceFilter: 10,
-      debug: false,
+      debug: true,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -44,61 +44,62 @@ export const updateLocationAndSendNoti = async (
           latitude: location.latitude,
           longitude: location.longitude,
         };
-        AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
-          .then((radius: string | null) => {
-            const parsedRadius = radius ? parseInt(radius, 10) : 2000;
-            let closeMatZips: string[];
-            closeMatZips = [];
-            allSavedZips.forEach((zip: MatZip) => {
-              // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
-              // const lastNotifiedTime = lastNotified[zip.name];
-              if (
-                calculateDistance(zip.coordinate, curLocation) < parsedRadius
-                //  &&
-                // (!lastNotifiedTime ||
-                //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
-              ) {
-                closeMatZips.push(zip.name);
-                // store.dispatch(
-                //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
-                // );
+        // AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
+        //   .then((radius: string | null) => {
+        //     const parsedRadius = radius ? parseInt(radius, 10) : 2000;
+        const parsedRadius = 2000;
+        let closeMatZips: string[];
+        closeMatZips = [];
+        allSavedZips.forEach((zip: MatZip) => {
+          // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
+          // const lastNotifiedTime = lastNotified[zip.name];
+          if (
+            calculateDistance(zip.coordinate, curLocation) < parsedRadius
+            //  &&
+            // (!lastNotifiedTime ||
+            //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
+          ) {
+            closeMatZips.push(zip.name);
+            // store.dispatch(
+            //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
+            // );
+          }
+        });
+        const numCloseMatZips = closeMatZips.length;
+        if (numCloseMatZips) {
+          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
+            .then(value => {
+              let notificationMessage;
+              if (numCloseMatZips > 2) {
+                notificationMessage = `${parsedRadius}m 근처에 ${
+                  closeMatZips[0]
+                }, ${closeMatZips[1]} 외 ${
+                  numCloseMatZips - 2
+                }개의 맛집이 있어요!`;
+              } else if (numCloseMatZips > 1) {
+                notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
+              } else {
+                notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]} 가 있어요!`;
               }
-            });
-            const numCloseMatZips = closeMatZips.length;
-            if (numCloseMatZips) {
-              AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
-                .then(value => {
-                  let notificationMessage;
-                  if (numCloseMatZips > 2) {
-                    notificationMessage = `${parsedRadius}m 근처에 ${
-                      closeMatZips[0]
-                    }, ${closeMatZips[1]} 외 ${
-                      numCloseMatZips - 2
-                    }개의 맛집이 있어요!`;
-                  } else if (numCloseMatZips > 1) {
-                    notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
-                  } else {
-                    notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]} 가 있어요!`;
-                  }
 
-                  const notificationQuery = `
+              const notificationQuery = `
                     mutation sendNotification($deviceToken: String!, $message: String!) {
                         sendNotification(deviceToken: $deviceToken, message: $message)
                     }
                     `;
-                  const variables = {
-                    deviceToken: value,
-                    message: notificationMessage,
-                  };
+              const variables = {
+                deviceToken: value,
+                message: notificationMessage,
+              };
 
-                  request(notificationQuery, REQ_METHOD.MUTATION, variables);
-                })
-                .catch(e => {
-                  Bugsnag.notify(new Error(e));
-                });
-            }
-          })
-          .catch(e => Bugsnag.notify(new Error(e)));
+              request(notificationQuery, REQ_METHOD.MUTATION, variables);
+            })
+            .catch(e => {
+              Bugsnag.notify(new Error(e));
+            });
+        }
+        // })
+        // .catch(e => Bugsnag.notify(new Error(e)));
         BackgroundGeolocation.endTask(taskKey);
       });
     });

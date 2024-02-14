@@ -133,7 +133,7 @@ function App(): JSX.Element {
   //TODO: add following maps as well
   const allSavedZips: MatZip[] = [
     ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
   ];
 
   //TODO: think about if allSavedZips should be a dependency
