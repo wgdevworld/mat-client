@@ -8,6 +8,8 @@ export const initialState: NotificationState = {
   lastNotified: {},
 };
 
+export const COOLDOWN_TIME = 1 * 60 * 1000; // 1 minute
+
 const notificationCooldownSlice = createSlice({
   name: 'notificationCooldown',
   initialState,
@@ -22,7 +24,7 @@ const notificationCooldownSlice = createSlice({
     cleanupCooldowns(state) {
       const now = Date.now();
       Object.keys(state.lastNotified).forEach(zipName => {
-        if (now - state.lastNotified[zipName] > 300000) {
+        if (now - state.lastNotified[zipName] > COOLDOWN_TIME) {
           // 5 minute cooldown rn for debugging purposes
           delete state.lastNotified[zipName];
         }

@@ -8,7 +8,10 @@ import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 import Bugsnag from '@bugsnag/react-native';
 import store from '../store/store';
-import {setLastNotified} from '../store/modules/notificationCooldown';
+import {
+  COOLDOWN_TIME,
+  setLastNotified,
+} from '../store/modules/notificationCooldown';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -35,7 +38,7 @@ export const initBGLocation = async () => {
   }
 };
 
-export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
+export const updateLocationAndSendNoti = (allSavedZips: MatZip[]) => {
   try {
     BackgroundGeolocation.on('location', location => {
       BackgroundGeolocation.startTask(taskKey => {
@@ -54,7 +57,8 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
               const lastNotifiedTime = lastNotified[zip.name];
               if (
                 calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
-                (!lastNotifiedTime || Date.now() - lastNotifiedTime > 300000)
+                (!lastNotifiedTime ||
+                  Date.now() - lastNotifiedTime > COOLDOWN_TIME)
               ) {
                 closeMatZips.push(zip.name);
                 store.dispatch(
@@ -179,7 +183,7 @@ export const updateLocationAndSendNoti = async (allSavedZips: MatZip[]) => {
       // );
 
       // you don't need to check status before start (this is just the example)
-      if (!status.isRunning) {
+      if (status.isRunning) {
         BackgroundGeolocation.start(); //triggers start on start event
       }
     });
