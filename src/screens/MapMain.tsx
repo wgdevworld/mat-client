@@ -64,7 +64,7 @@ import BackgroundGeolocation from '@mauron85/react-native-background-geolocation
 
 const screenWidth = Dimensions.get('window').width;
 
-// let isBackgroundNotiSent = false;
+let isBackgroundNotiSent = false;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -140,13 +140,13 @@ function App(): JSX.Element {
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
   useEffect(() => {
-    // if (isBackgroundNotiSent) {
-    //   // to prevent the background task to be run again on mount
-    //   return;
-    // }
-    // isBackgroundNotiSent = true;
+    if (isBackgroundNotiSent) {
+      // to prevent the background task to be run again on mount
+      return;
+    }
+    isBackgroundNotiSent = true;
     updateLocationAndSendNoti(allSavedZips);
-    // isBackgroundNotiSent = false;
+    isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
