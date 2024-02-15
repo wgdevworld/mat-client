@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 import Bugsnag from '@bugsnag/react-native';
-import store from '../store/store';
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -34,7 +33,7 @@ export const initBGLocation = async () => {
   }
 };
 
-export const updateLocationAndSendNoti = async () => {
+export const updateLocationAndSendNoti = async (userOwnMap: MatMap[]) => {
   try {
     BackgroundGeolocation.on('location', location => {
       BackgroundGeolocation.startTask(taskKey => {
@@ -42,8 +41,7 @@ export const updateLocationAndSendNoti = async () => {
           latitude: location.latitude,
           longitude: location.longitude,
         };
-        const currentState = store.getState();
-        const allSavedZips = currentState.userMaps.ownMaps.flatMap(
+        const allSavedZips = userOwnMap.flatMap(
           (allMaps: MatMap) => allMaps.zipList,
         );
         // TODO: uncomment cooldown logic once long running background tasks are supported
