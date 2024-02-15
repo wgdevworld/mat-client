@@ -130,15 +130,10 @@ function App(): JSX.Element {
     longitude: 126.923643,
   });
 
-  //TODO: add following maps as well
-  const allSavedZips: MatZip[] = [
-    ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-  ];
-
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
+  //TODO: add following maps as well once long running background tasks supported
   useEffect(() => {
     if (isBackgroundNotiSent) {
       // to prevent the background task to be run again on mount
@@ -146,13 +141,15 @@ function App(): JSX.Element {
     }
     isBackgroundNotiSent = true;
     // updateLocationAndSendNoti(allSavedZips, lastNotified);
-    updateLocationAndSendNoti(allSavedZips);
+    updateLocationAndSendNoti([
+      ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+      // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    ]);
     isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userOwnMaps]);
 
   useEffect(() => {
     requestPermissionAndGetLocation(setCurrentLocation);
