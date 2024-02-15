@@ -106,9 +106,13 @@ const SplashScreen = () => {
                 const userOwnMapData = userOwnMapRes?.data.data
                   ? userOwnMapRes?.data.data.fetchUserMap
                   : null;
+                let isUserMapPublic = false;
                 if (userOwnMapData) {
                   const userOwnMap = await matMapSerializer([userOwnMapData]);
                   dispatch(replaceOwnMatMapAction(userOwnMap));
+                  if (userOwnMap[0].publicStatus) {
+                    isUserMapPublic = true;
+                  }
                 } else {
                   //if the user doesn't have a MatMap yet, create a default one for them
                   console.log('ℹ️ no MatMap found, creating default one');
@@ -319,7 +323,14 @@ const SplashScreen = () => {
                   const publicMaps: MatMap[] = await matMapSerializer(
                     publicMapsData,
                   );
-                  dispatch(replacePublicMapsAction(publicMaps));
+                  if (!isUserMapPublic) {
+                    const publicMapsFiltered = publicMaps.filter(
+                      map => map.author === '운영자',
+                    );
+                    dispatch(replacePublicMapsAction(publicMapsFiltered));
+                  } else {
+                    dispatch(replacePublicMapsAction(publicMaps));
+                  }
                 }
               }
             })

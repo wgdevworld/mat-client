@@ -20,10 +20,16 @@ import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import colors from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ListMaps() {
   const dispatch = useDispatch();
   const publicMaps = useAppSelector(state => state.publicMaps.maps);
+  const isUserOwnMapPublic = useAppSelector(
+    state => state.userMaps.ownMaps[0].publicStatus,
+  );
+  const userName = useAppSelector(state => state.user.username);
 
   const FETCH_COOLDOWN = 1 * 60 * 1000;
 
@@ -88,9 +94,16 @@ export default function ListMaps() {
         const serializedPublicMaps: MatMap[] = await matMapSerializer(
           publicMapsData,
         );
-        dispatch(replacePublicMapsAction(serializedPublicMaps));
+        if (!isUserOwnMapPublic) {
+          const filteredPublicMaps = serializedPublicMaps.filter(
+            map => map.author === '운영자',
+          );
+          dispatch(replacePublicMapsAction(filteredPublicMaps));
+        } else {
+          dispatch(replacePublicMapsAction(serializedPublicMaps));
+        }
       }
-      updateFetchTime(); // Update the timestamp after a successful fetch
+      updateFetchTime();
     } catch (e) {
       console.log(e);
     } finally {
@@ -126,7 +139,7 @@ export default function ListMaps() {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View style={styles.containter}>
-        <View style={{paddingHorizontal: 24}}>
+        <View>
           <FlatList
             refreshControl={
               <RefreshControl
@@ -147,10 +160,43 @@ export default function ListMaps() {
               />
             )}
             ListHeaderComponent={
-              <Text style={styles.heading}>지도 탐색 🚀 </Text>
+              <Text style={styles.heading}>맛맵 탐색 🚀 </Text>
             }
             ListHeaderComponentStyle={{backgroundColor: 'white'}}
-            ListFooterComponent={<View style={{height: 100}} />}
+            ListFooterComponent={
+              isUserOwnMapPublic ? (
+                <View style={{height: 50}} />
+              ) : (
+                <View style={{flex: 1, height: 100, width: '100%'}}>
+                  <LinearGradient
+                    colors={['#ffffff', colors.coral1]}
+                    style={{flex: 1}}
+                    start={{x: 0, y: 0}}
+                    end={{x: 0, y: 3}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        paddingTop: 25,
+                      }}>
+                      <Ionicons
+                        name="information-circle-outline"
+                        size={26}
+                        color={colors.coral1}
+                        style={{alignSelf: 'center'}}
+                      />
+                      <Text
+                        style={{
+                          alignSelf: 'center',
+                          maxWidth: '80%',
+                          textAlign: 'center',
+                          color: colors.coral1,
+                        }}>{`다른 사용자들의 맛맵을 보고 싶다면 \n ${userName}님의 맛맵 공개 설정을 바꿔주세요!`}</Text>
+                    </View>
+                  </LinearGradient>
+                </View>
+              )
+            }
             stickyHeaderIndices={[0]}
           />
         </View>
@@ -161,14 +207,15 @@ export default function ListMaps() {
 
 const styles = StyleSheet.create({
   containter: {
-    paddingVertical: 24,
+    paddingTop: 24,
   },
   heading: {
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'left',
+    paddingLeft: 24,
   },
   map: {
     height: 100,
