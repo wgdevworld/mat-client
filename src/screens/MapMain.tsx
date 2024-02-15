@@ -141,15 +141,12 @@ function App(): JSX.Element {
     }
     isBackgroundNotiSent = true;
     // updateLocationAndSendNoti(allSavedZips, lastNotified);
-    updateLocationAndSendNoti([
-      ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-      // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    ]);
+    updateLocationAndSendNoti();
     isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
-  }, [userOwnMaps]);
+  }, []);
 
   useEffect(() => {
     requestPermissionAndGetLocation(setCurrentLocation);
