@@ -141,11 +141,12 @@ function App(): JSX.Element {
     }
     isBackgroundNotiSent = true;
     // updateLocationAndSendNoti(allSavedZips, lastNotified);
-    updateLocationAndSendNoti();
+    updateLocationAndSendNoti(userOwnMaps);
     isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
