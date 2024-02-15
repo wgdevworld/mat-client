@@ -48,7 +48,7 @@ export default function SignupUser() {
 
         const createUserVariables = {
           createUserInput: {
-            name: '홍길동',
+            name: usernameForQuery,
             username: usernameForQuery,
             email: emailForQuery,
             pwd: pwdForQuery,

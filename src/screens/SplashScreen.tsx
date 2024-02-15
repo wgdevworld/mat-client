@@ -55,6 +55,7 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
+                console.log(curUserRes?.data.data.fetchLoggedIn);
                 // store.dispatch(cleanupCooldowns());
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
@@ -75,7 +76,7 @@ const SplashScreen = () => {
                     publicStatus
                     creator {
                       id
-                      name
+                      username
                     }
                     images {
                       src
@@ -129,7 +130,7 @@ const SplashScreen = () => {
                       publicStatus
                       creator {
                         id
-                        name
+                        username
                       }
                       images {
                         src
@@ -148,7 +149,7 @@ const SplashScreen = () => {
                     name: createMapData.name,
                     description: createMapData.description,
                     publicStatus: createMapData.publicStatus,
-                    author: createMapData.creator.name,
+                    author: createMapData.creator.username,
                     authorId: createMapData.creator.id,
                     imageSrc: createMapData.images,
                     zipList: [],
@@ -165,7 +166,7 @@ const SplashScreen = () => {
                     publicStatus
                     creator {
                       id
-                      name
+                      username
                     }
                     images {
                       src
@@ -286,7 +287,7 @@ const SplashScreen = () => {
                     }
                     creator {
                       id
-                      name
+                      username
                     }
                     images {
                       src

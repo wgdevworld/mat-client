@@ -4,15 +4,13 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../styles/colors';
 import {MatZip} from '../types/store';
-import {ratingAverage} from '../tools/CommonFunc';
-
 type Props = {
   marker: MatZip;
 };
 
 const PlaceInfoMapCard = (props: Props) => {
   const {marker} = props;
-  const averageRating = ratingAverage(marker.reviews);
+  const averageRating = marker.reviewAvgRating;
   return (
     <TouchableOpacity style={styles.container}>
       <View style={styles.nameRatingContainer}>
@@ -22,9 +20,7 @@ const PlaceInfoMapCard = (props: Props) => {
             <Ionicons name="star" size={10} color={'white'} />
             <Text style={styles.ratingText}>{averageRating}</Text>
           </View>
-          <Text style={styles.reviewText}>
-            리뷰 {marker.reviews ? marker.reviews.length : 0} 개
-          </Text>
+          <Text style={styles.reviewText}>리뷰 {marker.reviewCount} 개</Text>
         </View>
       </View>
       <Ionicons
@@ -45,6 +41,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     backgroundColor: colors.coral1,
     borderRadius: 5,
+  },
+  closeCard: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   nameRatingContainer: {
     flexDirection: 'column',

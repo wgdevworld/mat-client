@@ -231,7 +231,9 @@ export default function Settings() {
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* //TODO: add in feature for users to change radius when we figure out
+          how to handle longer running background tasks */}
+          {/* <TouchableOpacity
             style={styles.row}
             onPress={async () => {
               const userSetRadius = await AsyncStorage.getItem(
@@ -244,7 +246,7 @@ export default function Settings() {
             <Text style={styles.rowText}>위치 기반 알림 반경</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.section}>

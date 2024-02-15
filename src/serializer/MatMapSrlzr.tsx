@@ -73,7 +73,7 @@ export const matMapSerializer = async (matMaps: any[]) => {
         areaCode: data.areaCode,
         zipList: serializedZipList,
         imageSrc: imgSrcArr,
-        author: data.creator ? data.creator.name : '탈퇴한 유저',
+        author: data.creator ? data.creator.username : '탈퇴한 유저',
         authorId: data.creator ? data.creator.id : '탈퇴한 유저',
         numFollower: data.followerList ? data.followerList.length : 0,
       };

@@ -45,10 +45,9 @@ export default function ListMaps() {
   };
 
   const onRefreshPublicMaps = useCallback(async () => {
-    if (await checkNeedToFetch()) {
-      setIsRefreshing(true);
-      try {
-        const fetchAllMapsQuery = `{
+    setIsRefreshing(true);
+    try {
+      const fetchAllMapsQuery = `{
             fetchAllMaps {
               id
               name
@@ -60,7 +59,7 @@ export default function ListMaps() {
               }
               creator {
                 id
-                name
+                username
               }
               images {
                 src
@@ -83,30 +82,32 @@ export default function ListMaps() {
               }
             }
           }`;
-        const publicMapsRes = await request(
-          fetchAllMapsQuery,
-          REQ_METHOD.QUERY,
+      const publicMapsRes = await request(fetchAllMapsQuery, REQ_METHOD.QUERY);
+      const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
+      if (publicMapsData) {
+        const serializedPublicMaps: MatMap[] = await matMapSerializer(
+          publicMapsData,
         );
-        const publicMapsData = publicMapsRes?.data?.data?.fetchAllMaps;
-        if (publicMapsData) {
-          const serializedPublicMaps: MatMap[] = await matMapSerializer(
-            publicMapsData,
-          );
-          dispatch(replacePublicMapsAction(serializedPublicMaps));
-        }
-        updateFetchTime(); // Update the timestamp after a successful fetch
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setIsRefreshing(false);
+        dispatch(replacePublicMapsAction(serializedPublicMaps));
       }
+      updateFetchTime(); // Update the timestamp after a successful fetch
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsRefreshing(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkNeedToFetch]);
 
   useFocusEffect(
     useCallback(() => {
-      onRefreshPublicMaps();
+      const fetchData = async () => {
+        if (await checkNeedToFetch()) {
+          onRefreshPublicMaps();
+        }
+      };
+      fetchData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onRefreshPublicMaps]),
   );
 

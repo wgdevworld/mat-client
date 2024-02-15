@@ -15,7 +15,9 @@ export default function Helps() {
         color={colors.white}
         buttonColor={colors.coral1}
       />
-      <ScrollView contentContainerStyle={styles.containter}>
+      <ScrollView
+        contentContainerStyle={styles.containter}
+        showsVerticalScrollIndicator={false}>
         <Text style={styles.heading}>앱 사용법</Text>
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>주변 맛집 검색 및 저장하기</Text>

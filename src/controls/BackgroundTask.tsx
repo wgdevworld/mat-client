@@ -16,10 +16,10 @@ import Bugsnag from '@bugsnag/react-native';
 export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
-      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
       stationaryRadius: 10,
-      distanceFilter: 10,
-      debug: true,
+      distanceFilter: 200,
+      debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
       saveBatteryOnBackground: true,
@@ -44,10 +44,11 @@ export const updateLocationAndSendNoti = async (
           latitude: location.latitude,
           longitude: location.longitude,
         };
+        // TODO: uncomment cooldown logic once long running background tasks are supported
         // AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
         //   .then((radius: string | null) => {
         //     const parsedRadius = radius ? parseInt(radius, 10) : 2000;
-        const parsedRadius = 2000;
+        const parsedRadius = 1000;
         let closeMatZips: string[];
         closeMatZips = [];
         allSavedZips.forEach((zip: MatZip) => {
