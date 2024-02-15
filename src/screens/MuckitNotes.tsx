@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {
   FlatList,
@@ -196,7 +197,7 @@ export default function MuckitNotes() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="새로운 먹킷"
+                placeholder="탕후루가 먹고 싶어"
                 value={newItemText}
                 onChangeText={handleTextInputChange}
                 onSubmitEditing={handleTextInputSubmit}

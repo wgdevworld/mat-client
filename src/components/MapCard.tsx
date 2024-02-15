@@ -31,7 +31,7 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   const user = useAppSelector(state => state.user);
 
   return (
-    <TouchableOpacity onPress={onPressMap}>
+    <TouchableOpacity onPress={onPressMap} style={{paddingHorizontal: 24}}>
       <View style={styles.cardContainer}>
         <Image source={{uri: map.imageSrc[0]}} style={styles.image} />
         <View

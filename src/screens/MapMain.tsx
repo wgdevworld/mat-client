@@ -130,28 +130,26 @@ function App(): JSX.Element {
     longitude: 126.923643,
   });
 
-  //TODO: add following maps as well
-  const allSavedZips: MatZip[] = [
-    ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-    ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
-  ];
-
   //TODO: think about if allSavedZips should be a dependency
   // for this useEffect. This may trigger the background task
   // to be run again if the user adds new MatZips.
+  //TODO: add following maps as well once long running background tasks supported
   useEffect(() => {
     if (isBackgroundNotiSent) {
       // to prevent the background task to be run again on mount
       return;
     }
     isBackgroundNotiSent = true;
-    updateLocationAndSendNoti(allSavedZips);
+    // updateLocationAndSendNoti(allSavedZips, lastNotified);
+    updateLocationAndSendNoti([
+      ...userOwnMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+      // ...userFollowingMaps.flatMap((allMaps: MatMap) => allMaps.zipList),
+    ]);
     isBackgroundNotiSent = false;
     return () => {
       BackgroundGeolocation.removeAllListeners();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userOwnMaps]);
 
   useEffect(() => {
     requestPermissionAndGetLocation(setCurrentLocation);
@@ -171,16 +169,16 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    const newRegion: Region = {
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-    mapRef.current?.animateToRegion(newRegion, 100);
     if (!isLocationLoaded) {
       requestPermissionAndGetLocation(setCurrentLocation);
       setIsLocationLoaded(true);
+      const newRegion: Region = {
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      mapRef.current?.animateToRegion(newRegion, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
@@ -286,11 +284,6 @@ function App(): JSX.Element {
         const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
         fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
       } else {
-        // if searched with Google Maps API
-        // location = {
-        //   latitude: details.geometry.location.lat,
-        //   longitude: details.geometry.location.lng,
-        // };
         const fetchZipQuery = `{
         fetchZipByGID(gid: "${data.place_id}") {
           id
@@ -416,26 +409,6 @@ function App(): JSX.Element {
           longitude: fetchedZipData.longitude,
         };
       }
-      //   const fetchReviewQuery = `{
-      //   fetchReviewsByZipId(zipId: "${fetchedZipData.id}") {
-      //     writer {
-      //       name
-      //     }
-      //     rating
-      //     content
-      //     createdAt
-      //     images {
-      //       id
-      //       src
-      //     }
-      //   }
-      // }`;
-      //   const fetchedReviewRes = await request(
-      //     fetchReviewQuery,
-      //     REQ_METHOD.QUERY,
-      //   );
-      //   const fetchedReviewData = fetchedReviewRes?.data.data.fetchReviewsByZipId;
-
       const selectedMatZip: MatZip = {
         id: fetchedZipData.id,
         name: fetchedZipData.name,
@@ -889,6 +862,7 @@ function App(): JSX.Element {
               placeholder="구글 지도에서 장소를 검색해보세요!"
               textInputProps={{
                 placeholderTextColor: 'black',
+                caretHidden: true,
               }}
               query={{
                 key: Config.MAPS_API,
@@ -911,6 +885,7 @@ function App(): JSX.Element {
             <>
               <View style={{flexDirection: 'row'}}>
                 <TextInput
+                  caretHidden={true}
                   style={styles.ourDBSearchBar}
                   ref={textInputRef}
                   value={searchQuery}
@@ -986,20 +961,26 @@ function App(): JSX.Element {
             provider={PROVIDER_GOOGLE}
             style={styles.map}
             followsUserLocation={true}
-            onPress={() => {
-              setIsSearchGoogle(false);
+            onPress={e => {
+              if (
+                !e.nativeEvent.action ||
+                e.nativeEvent.action !== 'marker-press'
+              ) {
+                setIsSearchGoogle(false);
+                setMarker(null);
+              }
             }}>
             {marker && (
               <>
                 <Marker
                   key={`key_${marker.coordinate.latitude}_${marker.coordinate.longitude}`}
+                  coordinate={marker.coordinate}
                   onPress={() => {
                     dispatch(updateIsLoadingAction(true));
                     navigation.navigate('MatZipMain', {
                       zipID: marker?.id,
                     });
-                  }}
-                  coordinate={marker.coordinate}>
+                  }}>
                   <View style={styles.markerContentContainer}>
                     <PlaceInfoMapCard marker={marker} />
                     <Ionicons name="location" size={26} color={colors.coral1} />
@@ -1058,6 +1039,13 @@ function App(): JSX.Element {
             style={styles.mapBtn}
             onPress={() => {
               requestPermissionAndGetLocation(setCurrentLocation);
+              const newRegion: Region = {
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              };
+              mapRef.current?.animateToRegion(newRegion, 100);
             }}>
             <View
               style={{

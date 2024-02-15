@@ -48,6 +48,7 @@
     "react-native-get-random-values": "^1.9.0",
     "react-native-google-places-autocomplete": "^2.5.1",
     "react-native-image-picker": "^7.0.0",
+    "react-native-linear-gradient": "^2.8.3",
     "react-native-maps": "^1.7.1",
     "react-native-permissions": "^4.0.1",
     "react-native-push-notification": "^8.1.1",

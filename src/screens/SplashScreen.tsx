@@ -27,8 +27,8 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {matZipSerializer} from '../serializer/MatZipSrlzr';
 import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
-import {cleanupCooldowns} from '../store/modules/notificationCooldown';
-import store from '../store/store';
+// import {cleanupCooldowns} from '../store/modules/notificationCooldown';
+// import store from '../store/store';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
@@ -55,7 +55,8 @@ const SplashScreen = () => {
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
-                store.dispatch(cleanupCooldowns());
+                console.log(curUserRes?.data.data.fetchLoggedIn);
+                // store.dispatch(cleanupCooldowns());
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =
@@ -75,7 +76,7 @@ const SplashScreen = () => {
                     publicStatus
                     creator {
                       id
-                      name
+                      username
                     }
                     images {
                       src
@@ -105,9 +106,13 @@ const SplashScreen = () => {
                 const userOwnMapData = userOwnMapRes?.data.data
                   ? userOwnMapRes?.data.data.fetchUserMap
                   : null;
+                let isUserMapPublic = false;
                 if (userOwnMapData) {
                   const userOwnMap = await matMapSerializer([userOwnMapData]);
                   dispatch(replaceOwnMatMapAction(userOwnMap));
+                  if (userOwnMap[0].publicStatus) {
+                    isUserMapPublic = true;
+                  }
                 } else {
                   //if the user doesn't have a MatMap yet, create a default one for them
                   console.log('ℹ️ no MatMap found, creating default one');
@@ -129,7 +134,7 @@ const SplashScreen = () => {
                       publicStatus
                       creator {
                         id
-                        name
+                        username
                       }
                       images {
                         src
@@ -148,13 +153,57 @@ const SplashScreen = () => {
                     name: createMapData.name,
                     description: createMapData.description,
                     publicStatus: createMapData.publicStatus,
-                    author: createMapData.creator.name,
+                    author: createMapData.creator.username,
                     authorId: createMapData.creator.id,
                     imageSrc: createMapData.images,
                     zipList: [],
                     areaCode: '',
                   };
                   dispatch(replaceOwnMatMapAction([createMap]));
+                }
+                const fetchFollowingMapQuery = `{
+                  fetchMapsFollowed {
+                    id
+                    name
+                    description
+                    createdAt
+                    publicStatus
+                    creator {
+                      id
+                      username
+                    }
+                    images {
+                      src
+                    }
+                    zipList {
+                      id
+                      name
+                      address
+                      images {
+                        src
+                      }
+                      reviewCount
+                      reviewAvgRating
+                      parentMap {
+                        id
+                      }
+                      category
+                      latitude
+                      longitude
+                    }
+                  }
+                }`;
+                const userFollowingMapRes = await request(
+                  fetchFollowingMapQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const userFollowingMapData =
+                  userFollowingMapRes?.data.data.fetchMapsFollowed;
+                if (userFollowingMapData) {
+                  const userFollowingMap = await matMapSerializer(
+                    userFollowingMapData,
+                  );
+                  dispatch(replaceFollowingMatMapAction(userFollowingMap));
                 }
                 const fetchUserSavedZipsQuery = `{
                   fetchUser(email: "${curUserEmail}") {
@@ -195,50 +244,6 @@ const SplashScreen = () => {
                   dispatch(replaceVisitedMatZipsAction(visitedMatZips));
                 } else {
                   dispatch(replaceVisitedMatZipsAction([]));
-                }
-                const fetchFollowingMapQuery = `{
-                  fetchMapsFollowed {
-                    id
-                    name
-                    description
-                    createdAt
-                    publicStatus
-                    creator {
-                      id
-                      name
-                    }
-                    images {
-                      src
-                    }
-                    zipList {
-                      id
-                      name
-                      address
-                      images {
-                        src
-                      }
-                      reviewCount
-                      reviewAvgRating
-                      parentMap {
-                        id
-                      }
-                      category
-                      latitude
-                      longitude
-                    }
-                  }
-                }`;
-                const userFollowingMapRes = await request(
-                  fetchFollowingMapQuery,
-                  REQ_METHOD.QUERY,
-                );
-                const userFollowingMapData =
-                  userFollowingMapRes?.data.data.fetchMapsFollowed;
-                if (userFollowingMapData) {
-                  const userFollowingMap = await matMapSerializer(
-                    userFollowingMapData,
-                  );
-                  dispatch(replaceFollowingMatMapAction(userFollowingMap));
                 }
                 navigation.replace('TabNavContainer', {
                   screen: 'Map',
@@ -286,7 +291,7 @@ const SplashScreen = () => {
                     }
                     creator {
                       id
-                      name
+                      username
                     }
                     images {
                       src
@@ -318,7 +323,14 @@ const SplashScreen = () => {
                   const publicMaps: MatMap[] = await matMapSerializer(
                     publicMapsData,
                   );
-                  dispatch(replacePublicMapsAction(publicMaps));
+                  if (!isUserMapPublic) {
+                    const publicMapsFiltered = publicMaps.filter(
+                      map => map.author === '운영자',
+                    );
+                    dispatch(replacePublicMapsAction(publicMapsFiltered));
+                  } else {
+                    dispatch(replacePublicMapsAction(publicMaps));
+                  }
                 }
               }
             })
