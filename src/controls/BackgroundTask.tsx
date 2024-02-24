@@ -23,7 +23,7 @@ export const initBGLocation = async () => {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
       stationaryRadius: 10,
-      distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 3 : 1000 / 3,
+      distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
