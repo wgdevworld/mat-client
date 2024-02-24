@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
 import Bugsnag from '@bugsnag/react-native';
+import store from '../store/store';
+// import store from '../'
 
 // APPLE 에서 machine learning 알고리즘 background task 의배터리 소모량을 최소화하려고
 // 1. 맨 처음 background task 조금 걸리수도 있대 사람들 말 들어보니까
@@ -14,11 +16,14 @@ import Bugsnag from '@bugsnag/react-native';
 // 모름 아무도 모름 이게 돌아가는 원리
 
 export const initBGLocation = async () => {
+  const notiRadius = await AsyncStorage.getItem(
+    ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
+  );
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
       stationaryRadius: 10,
-      distanceFilter: 200,
+      distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 3 : 1000 / 3,
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
@@ -33,75 +38,82 @@ export const initBGLocation = async () => {
   }
 };
 
-export const updateLocationAndSendNoti = async (userOwnMap: MatMap[]) => {
+export const updateLocationAndSendNoti = async () => {
   try {
     BackgroundGeolocation.on('location', location => {
-      BackgroundGeolocation.startTask(taskKey => {
-        const curLocation: Coordinate = {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        };
-        const allSavedZips = userOwnMap.flatMap(
-          (allMaps: MatMap) => allMaps.zipList,
-        );
-        // TODO: uncomment cooldown logic once long running background tasks are supported
-        // AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS)
-        //   .then((radius: string | null) => {
-        //     const parsedRadius = radius ? parseInt(radius, 10) : 2000;
-        const parsedRadius = 1000;
-        let closeMatZips: string[];
-        closeMatZips = [];
-        allSavedZips.forEach((zip: MatZip) => {
-          // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
-          // const lastNotifiedTime = lastNotified[zip.name];
-          if (
-            calculateDistance(zip.coordinate, curLocation) < parsedRadius
-            //  &&
-            // (!lastNotifiedTime ||
-            //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
-          ) {
-            closeMatZips.push(zip.name);
-            // store.dispatch(
-            //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
-            // );
-          }
-        });
-        const numCloseMatZips = closeMatZips.length;
-        if (numCloseMatZips) {
-          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
-            .then(value => {
-              let notificationMessage;
-              if (numCloseMatZips > 2) {
-                notificationMessage = `${parsedRadius}m 근처에 ${
-                  closeMatZips[0]
-                }, ${closeMatZips[1]} 외 ${
-                  numCloseMatZips - 2
-                }개의 맛집이 있어요!`;
-              } else if (numCloseMatZips > 1) {
-                notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
-              } else {
-                notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]} 가 있어요!`;
-              }
-
-              const notificationQuery = `
-                    mutation sendNotification($deviceToken: String!, $message: String!) {
-                        sendNotification(deviceToken: $deviceToken, message: $message)
+      BackgroundGeolocation.startTask(async taskKey => {
+        try {
+          const curLocation: Coordinate = {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          };
+          const currentState = store.getState();
+          const userOwnMap = currentState.userMaps.ownMaps;
+          const followingMap = currentState.userMaps.followingMaps;
+          const allSavedZips = [
+            ...userOwnMap.flatMap((allMaps: MatMap) => allMaps.zipList),
+            ...followingMap.flatMap((allMaps: MatMap) => allMaps.zipList),
+          ];
+          // TODO: uncomment cooldown logic once long running background tasks are supported
+          AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
+            (radius: string | null) => {
+              const parsedRadius = radius ? parseInt(radius, 10) : 2000;
+              let closeMatZips: string[];
+              closeMatZips = [];
+              allSavedZips.forEach((zip: MatZip) => {
+                // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
+                // const lastNotifiedTime = lastNotified[zip.name];
+                if (
+                  calculateDistance(zip.coordinate, curLocation) < parsedRadius
+                  //  &&
+                  // (!lastNotifiedTime ||
+                  //   Date.now() - lastNotifiedTime > COOLDOWN_TIME)
+                ) {
+                  closeMatZips.push(zip.name);
+                  // store.dispatch(
+                  //   setLastNotified({zipName: zip.name, timestamp: Date.now()}),
+                  // );
+                }
+              });
+              const numCloseMatZips = closeMatZips.length;
+              if (numCloseMatZips) {
+                AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTI_TOKEN)
+                  .then(value => {
+                    let notificationMessage;
+                    if (numCloseMatZips > 2) {
+                      notificationMessage = `${parsedRadius}m 근처에 ${
+                        closeMatZips[0]
+                      }, ${closeMatZips[1]} 외 ${
+                        numCloseMatZips - 2
+                      }개의 맛집이 있어요!`;
+                    } else if (numCloseMatZips > 1) {
+                      notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}가 있어요!`;
+                    } else {
+                      notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]} 가 있어요!`;
                     }
-                    `;
-              const variables = {
-                deviceToken: value,
-                message: notificationMessage,
-              };
 
-              request(notificationQuery, REQ_METHOD.MUTATION, variables);
-            })
-            .catch(e => {
-              Bugsnag.notify(new Error(e));
-            });
+                    const notificationQuery = `
+                      mutation sendNotification($deviceToken: String!, $message: String!) {
+                          sendNotification(deviceToken: $deviceToken, message: $message)
+                      }
+                      `;
+                    const variables = {
+                      deviceToken: value,
+                      message: notificationMessage,
+                    };
+
+                    request(notificationQuery, REQ_METHOD.MUTATION, variables);
+                  })
+                  .catch(e => {
+                    Bugsnag.notify(new Error(e));
+                  });
+              }
+            },
+          );
+        } finally {
+          BackgroundGeolocation.endTask(taskKey);
         }
-        // })
         // .catch(e => Bugsnag.notify(new Error(e)));
-        BackgroundGeolocation.endTask(taskKey);
       });
     });
 
@@ -194,19 +206,17 @@ export const updateLocationAndSendNoti = async (userOwnMap: MatMap[]) => {
     });
 
     BackgroundGeolocation.checkStatus(status => {
-      // console.log(
-      //   '[INFO] BackgroundGeolocation service is running',
-      //   status.isRunning,
-      // );
-      // console.log(
-      //   '[INFO] BackgroundGeolocation services enabled',
-      //   status.locationServicesEnabled,
-      // );
-      // console.log(
-      //   '[INFO] BackgroundGeolocation auth status: ' + status.authorization,
-      // );
-
-      // you don't need to check status before start (this is just the example)
+      console.log(
+        '[INFO] BackgroundGeolocation service is running',
+        status.isRunning,
+      );
+      console.log(
+        '[INFO] BackgroundGeolocation services enabled',
+        status.locationServicesEnabled,
+      );
+      console.log(
+        '[INFO] BackgroundGeolocation auth status: ' + status.authorization,
+      );
       if (!status.isRunning) {
         BackgroundGeolocation.start(); //triggers start on start event
       }
