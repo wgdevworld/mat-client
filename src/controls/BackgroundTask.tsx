@@ -22,7 +22,7 @@ export const initBGLocation = async () => {
   try {
     BackgroundGeolocation.configure({
       desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
-      stationaryRadius: 10,
+      stationaryRadius: notiRadius ? parseInt(notiRadius, 10) / 20 : 2000 / 20,
       distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
       debug: false,
       startOnBoot: false,
@@ -40,6 +40,19 @@ export const initBGLocation = async () => {
 
 export const updateLocationAndSendNoti = async () => {
   try {
+    const notiRadius = await AsyncStorage.getItem(
+      ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
+    );
+    BackgroundGeolocation.configure({
+      desiredAccuracy: BackgroundGeolocation.MEDIUM_ACCURACY,
+      stationaryRadius: notiRadius ? parseInt(notiRadius, 10) / 20 : 2000 / 20,
+      distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
+      debug: false,
+      startOnBoot: false,
+      stopOnTerminate: false,
+      saveBatteryOnBackground: true,
+      locationProvider: BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
+    });
     BackgroundGeolocation.on('location', location => {
       BackgroundGeolocation.startTask(async taskKey => {
         try {
