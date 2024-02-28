@@ -1,6 +1,4 @@
 PODS:
-  - "@mauron85_react-native-background-geolocation (0.6.3)":
-    - React
   - Alamofire (5.8.0)
   - AppAuth (1.6.2):
     - AppAuth/Core (= 1.6.2)
@@ -667,7 +665,6 @@ PODS:
     - Yoga (~> 1.14)
 
 DEPENDENCIES:
-  - "@mauron85_react-native-background-geolocation (from `../node_modules/@mauron85/react-native-background-geolocation`)"
   - appcenter-analytics (from `../node_modules/appcenter-analytics`)
   - appcenter-core (from `../node_modules/appcenter`)
   - appcenter-crashes (from `../node_modules/appcenter-crashes`)
@@ -806,8 +803,6 @@ SPEC REPOS:
     - YogaKit
 
 EXTERNAL SOURCES:
-  "@mauron85_react-native-background-geolocation":
-    :path: "../node_modules/@mauron85/react-native-background-geolocation"
   appcenter-analytics:
     :path: "../node_modules/appcenter-analytics"
   appcenter-core:
@@ -946,7 +941,6 @@ CHECKOUT OPTIONS:
     :git: https://github.com/Simon-TechForm/google-maps-ios-utils.git
 
 SPEC CHECKSUMS:
-  "@mauron85_react-native-background-geolocation": fa34ab82e94212be16ef6e75c32bcb707b0a1524
   Alamofire: 0e92e751b3e9e66d7982db43919d01f313b8eb91
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   AppCenter: 85c92db0759d2792a65eb61d6842d2e86611a49a
@@ -1054,4 +1048,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: eedb5ed852c2689ba2e64fdd0131da5463d26a03
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.15.2
