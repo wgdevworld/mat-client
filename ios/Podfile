@@ -48,6 +48,7 @@ target 'mat_client' do
   pod 'react-native-google-maps', :path => rn_maps_path
   config = use_native_modules!
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+  pod 'react-native-restart', :path => '../node_modules/react-native-restart'
   pod 'GoogleUtilities', :modular_headers => true
   pod 'FirebaseCore', :modular_headers => true
   config = use_native_modules!
