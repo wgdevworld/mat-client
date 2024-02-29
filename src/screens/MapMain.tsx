@@ -168,7 +168,8 @@ function App(): JSX.Element {
           // Activity Recognition
           stopTimeout: 5,
           // Application config
-          debug: true,
+          debug: false,
+          showsBackgroundLocationIndicator: false,
           stopOnTerminate: false,
           startOnBoot: true,
         }).then(_state => {

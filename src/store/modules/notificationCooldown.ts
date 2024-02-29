@@ -8,7 +8,7 @@ export const initialState: NotificationState = {
   lastNotified: {},
 };
 
-export const COOLDOWN_TIME = 5 * 60 * 1000; // 5 minutes - very short for debugging purposes
+export const COOLDOWN_TIME = 3 * 60 * 60 * 1000; // 3 hours
 
 const notificationCooldownSlice = createSlice({
   name: 'notificationCooldown',
