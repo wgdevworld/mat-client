@@ -17,6 +17,7 @@ import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {updateUserIdAction, updateUsernameAction} from '../store/modules/user';
 import {
+  Alert,
   Animated,
   Dimensions,
   ImageBackground,
@@ -27,7 +28,9 @@ import assets from '../../assets';
 import colors from '../styles/colors';
 import {matZipSerializer} from '../serializer/MatZipSrlzr';
 import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
-// import {cleanupCooldowns} from '../store/modules/notificationCooldown';
+import {cleanupCooldowns} from '../store/modules/notificationCooldown';
+import store from '../store/store';
+import RNRestart from 'react-native-restart';
 // import store from '../store/store';
 
 const SplashScreen = () => {
@@ -44,19 +47,19 @@ const SplashScreen = () => {
                 navigation.replace('LoginMain');
               } else {
                 const fetchLoggedInQuery = `{
-                  fetchLoggedIn {
-                    id
-                    email
-                    username
+                    fetchLoggedIn {
+                      id
+                      email
+                      username
+                    }
                   }
-                }
-                `;
+                  `;
                 const curUserRes = await request(
                   fetchLoggedInQuery,
                   REQ_METHOD.QUERY,
                 );
                 console.log(curUserRes?.data.data.fetchLoggedIn);
-                // store.dispatch(cleanupCooldowns());
+                store.dispatch(cleanupCooldowns());
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =
@@ -67,6 +70,7 @@ const SplashScreen = () => {
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
                   curUserEmail,
                 );
+
                 const fetchUserMapQuery = `{
                   fetchUserMap {
                     id
@@ -335,10 +339,23 @@ const SplashScreen = () => {
               }
             })
             .catch(e => {
+              Alert.alert(
+                '세션 만료',
+                '로그인 정보가 만료 되었습니다. 다시 로그인해주세요!',
+                [
+                  {
+                    text: '확인',
+                    onPress: async () => {
+                      await AsyncStorage.removeItem(
+                        ASYNC_STORAGE_ENUM.IS_LOGGED_IN,
+                      );
+                      RNRestart.restart();
+                    },
+                  },
+                ],
+                {cancelable: false},
+              );
               console.log(e.response ? e.response.data : e.message);
-            })
-            .catch(e => {
-              console.log(e);
             }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

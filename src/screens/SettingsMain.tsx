@@ -25,7 +25,7 @@ import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import Slider from '@react-native-community/slider';
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
@@ -57,9 +57,11 @@ export default function Settings() {
       ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
       radius.toString(),
     );
-    BackgroundGeolocation.configure({
+    await BackgroundGeolocation.setConfig({
       stationaryRadius: radius / 20,
       distanceFilter: radius / 2,
+    }).then(state => {
+      console.log('[setConfig] success: ', state);
     });
     dispatch(updateIsLoadingAction(false));
     setIsSetRadiusModalVisible(false);

@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import axios from 'axios';
+import {Alert} from 'react-native';
+import RNRestart from 'react-native-restart';
 
 export const REQ_METHOD = {
   QUERY: 'query',
@@ -27,11 +29,28 @@ const getNewToken = async () => {
     const fetchNewTokenQuery = `{
       fetchNewAccessToken(refreshToken: "${refreshToken}", userEmail: "${userEmail}")
     }`;
-    const response = await request(fetchNewTokenQuery, REQ_METHOD.QUERY);
-    const idToken = response?.data.data.fetchNewAccessToken;
-    console.log('ℹ️ Token refreshed: ' + idToken);
-    await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, idToken);
-    return idToken;
+    try {
+      const response = await request(fetchNewTokenQuery, REQ_METHOD.QUERY);
+      const idToken = response?.data.data.fetchNewAccessToken;
+      console.log('ℹ️ Token refreshed: ' + idToken);
+      await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.ID_TOKEN, idToken);
+      return idToken;
+    } catch (e) {
+      Alert.alert(
+        '세션 만료',
+        '로그인 정보가 만료 되었습니다. 다시 로그인해주세요!',
+        [
+          {
+            text: '확인',
+            onPress: async () => {
+              await AsyncStorage.removeItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN);
+              RNRestart.restart();
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    }
   } catch (error) {
     throw error;
   }
@@ -128,5 +147,6 @@ export const request = async (
       '🚨 Server error:',
       error.response ? error.response.data : error.message,
     );
+    throw error;
   }
 };
