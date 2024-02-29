@@ -46,7 +46,7 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
-import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
+// import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {updateIsLoadingAction} from '../store/modules/globalComponent';
@@ -60,10 +60,17 @@ import {
 } from 'react-native-image-picker';
 import {v4 as uuidv4} from 'uuid';
 import {removeUserFollower} from '../controls/MatMapControl';
-import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import BackgroundGeolocation, {
+  Subscription,
+} from 'react-native-background-geolocation';
+import {locationBackgroundTask} from '../controls/BackgroundTask';
+import Bugsnag from '@bugsnag/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+
+// import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 const screenWidth = Dimensions.get('window').width;
-let isBackgroundNotiSent = false;
 
 function App(): JSX.Element {
   const dispatch = useDispatch();
@@ -129,22 +136,42 @@ function App(): JSX.Element {
     longitude: 126.923643,
   });
 
-  //TODO: think about if allSavedZips should be a dependency
-  // for this useEffect. This may trigger the background task
-  // to be run again if the user adds new MatZips.
-  //TODO: add following maps as well once long running background tasks supported
   useEffect(() => {
-    if (isBackgroundNotiSent) {
-      // to prevent the background task to be run again on mount
-      return;
-    }
-    isBackgroundNotiSent = true;
-    updateLocationAndSendNoti();
-    isBackgroundNotiSent = false;
+    const onLocation: Subscription = BackgroundGeolocation.onLocation(
+      async location => {
+        const taskId = await BackgroundGeolocation.startBackgroundTask();
+        try {
+          await locationBackgroundTask(location);
+          BackgroundGeolocation.stopBackgroundTask(taskId);
+        } catch (e) {
+          Bugsnag.notify(new Error(e as string));
+          BackgroundGeolocation.stopBackgroundTask(taskId);
+        }
+      },
+    );
+
+    AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
+      notiRadius => {
+        BackgroundGeolocation.ready({
+          desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_MEDIUM,
+          stationaryRadius: notiRadius
+            ? parseInt(notiRadius, 10) / 20
+            : 2000 / 20,
+          distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
+          // Activity Recognition
+          stopTimeout: 5,
+          // Application config
+          debug: true,
+          stopOnTerminate: false,
+          startOnBoot: true,
+        }).then(_state => {
+          console.log('BackgroundGeolocation is ready');
+          BackgroundGeolocation.start();
+        });
+      },
+    );
     return () => {
-      BackgroundGeolocation.events.forEach(event =>
-        BackgroundGeolocation.removeAllListeners(event),
-      );
+      onLocation.remove();
     };
   }, []);
 

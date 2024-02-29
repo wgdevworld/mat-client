@@ -11,6 +11,7 @@
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 
 @implementation AppDelegate
