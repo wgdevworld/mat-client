@@ -147,5 +147,6 @@ export const request = async (
       '🚨 Server error:',
       error.response ? error.response.data : error.message,
     );
+    throw error;
   }
 };
