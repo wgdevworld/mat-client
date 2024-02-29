@@ -139,6 +139,13 @@ function App(): JSX.Element {
   useEffect(() => {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
+        if (location.sample === true) {
+          console.log('- location is a sample');
+          return;
+        }
+        if (location.coords === undefined) {
+          return;
+        }
         const taskId = await BackgroundGeolocation.startBackgroundTask();
         try {
           await locationBackgroundTask(location);
