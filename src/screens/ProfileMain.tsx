@@ -24,6 +24,7 @@ import {updateIsLoadingAction} from '../store/modules/globalComponent';
 import {useDispatch} from 'react-redux';
 import {updateUsernameAction} from '../store/modules/user';
 import Header from '../components/Header';
+import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function ProfileMain() {
   const dispatch = useDispatch();
@@ -49,6 +50,7 @@ export default function ProfileMain() {
     };
     await request(deleteUserQuery, REQ_METHOD.MUTATION, variables);
     await AsyncStorage.clear();
+    BackgroundGeolocation.stop();
     navigation.replace('LoginMain');
   };
 

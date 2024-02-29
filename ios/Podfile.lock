@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.8.0)
+  - Alamofire (5.8.1)
   - AppAuth (1.6.2):
     - AppAuth/Core (= 1.6.2)
     - AppAuth/ExternalUserAgent (= 1.6.2)
@@ -956,8 +956,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/Simon-TechForm/google-maps-ios-utils.git
 
 SPEC CHECKSUMS:
-  "@mauron85_react-native-background-geolocation": fa34ab82e94212be16ef6e75c32bcb707b0a1524
-  Alamofire: 0e92e751b3e9e66d7982db43919d01f313b8eb91
+  Alamofire: 3ca42e259043ee0dc5c0cdd76c4bc568b8e42af7
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   AppCenter: 85c92db0759d2792a65eb61d6842d2e86611a49a
   appcenter-analytics: b3a60e025b8db7013a71053c1ced96bcf7acba75

@@ -45,6 +45,7 @@ export default function Settings() {
       await request(logoutQuery, REQ_METHOD.MUTATION, variables);
       await AsyncStorage.clear();
       await AsyncStorage.setItem(ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE, 'true');
+      BackgroundGeolocation.stop();
       navigation.replace('LoginMain');
     } catch (e) {
       console.log(e);

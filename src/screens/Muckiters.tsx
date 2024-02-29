@@ -57,10 +57,17 @@ export default function Muckiters() {
 
         {/* Developer 2: Woonggyu Jin */}
         <DeveloperInfoBox
-          name="Woonggyu Jin 🙋‍♂️"
+          name="Woonggyu Jin 👦🏻"
           role="Lead Frontend Engineer"
           instagram="woonggyujin_"
           desc="React Native를 사용한 UI/UX 개발, 백엔드 API와의 통합, 프론트엔드 아키텍처 기획 및 성능 개선을 담당하고 있습니다."
+        />
+
+        <DeveloperInfoBox
+          name="Changmin Shin 🙋🏻‍♂️"
+          role="Frontend Engineer"
+          instagram="ge419p"
+          desc="React Native를 사용한 UI/UX 개발을 담당하고 있습니다."
         />
 
         {/* Developer 3: Changmin Shin */}

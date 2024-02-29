@@ -26,6 +26,9 @@ export default function AccessGrant() {
           console.log('Notification permission status:', status);
         },
       );
+      await request(PERMISSIONS.IOS.MOTION).then(response => {
+        console.log('Motion permission is', response);
+      });
       navigation.navigate('Welcome');
     } catch (e) {
       console.log(e);
@@ -37,6 +40,10 @@ export default function AccessGrant() {
 
   const notifIcon = (
     <Ionicons name="notifications-outline" size={ICON_SIZE} color="black" />
+  );
+
+  const motionIcon = (
+    <Ionicons name="walk-outline" size={ICON_SIZE} color="black" />
   );
   return (
     <View style={styles.container}>
@@ -63,9 +70,18 @@ export default function AccessGrant() {
         <View style={styles.textInnerContainer}>
           <Text style={styles.subtitle}>알림</Text>
           <Text style={styles.detail}>
-            근처에 맛집이 있을 때 알림을{'\n'}
-            받을 수 있도록 알림 설정을{'\n'}
-            <Text style={styles.boldText}>허용</Text>으로 변경해주세요.
+            근처에 맛집이 있을 때 알림을 받을 수 있도록 알림 설정을
+            <Text style={styles.boldText}> 허용</Text>으로 변경해주세요.
+          </Text>
+        </View>
+      </View>
+      <View style={styles.textContainer}>
+        <View style={styles.iconContainer}>{motionIcon}</View>
+        <View style={styles.textInnerContainer}>
+          <Text style={styles.subtitle}>모션</Text>
+          <Text style={styles.detail}>
+            <Text style={styles.boldText}>배터리 절약</Text>을 위하여 iOS 모션
+            센서를 통해 움직임이 있을때만 회원님의 위치가 업데이트 돼요.
           </Text>
         </View>
       </View>
@@ -95,12 +111,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'left',
     alignSelf: 'flex-start',
-    marginTop: 100,
-    marginBottom: 40,
+    marginTop: 80,
+    marginBottom: 16,
     //paddingHorizontal: 30,
   },
   redtitle: {
     fontSize: 18,
+    marginBottom: 5,
     textAlign: 'left',
     alignSelf: 'flex-start',
     //paddingHorizontal: 30,
@@ -110,7 +127,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    marginTop: 30,
+    marginTop: 15,
   },
   iconContainer: {
     width: ICON_SIZE,
