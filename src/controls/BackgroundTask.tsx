@@ -9,7 +9,6 @@ import {calculateDistance} from '../tools/CommonFunc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {REQ_METHOD, request} from './RequestControl';
-import Bugsnag from '@bugsnag/react-native';
 import store from '../store/store';
 // import store from '../'
 
@@ -255,7 +254,6 @@ export const locationBackgroundTask = async (location: Location) => {
       ...followingMap.flatMap((allMaps: MatMap) => allMaps.zipList),
     ];
     const lastNotified = currentState.notificationCooldown.lastNotified;
-    // TODO: uncomment cooldown logic once long running background tasks are supported
     const radius = await AsyncStorage.getItem(
       ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
     );
@@ -263,7 +261,6 @@ export const locationBackgroundTask = async (location: Location) => {
     let closeMatZips: string[];
     closeMatZips = [];
     allSavedZips.forEach((zip: MatZip) => {
-      // TODO: implement cooldown feature in the future; does not work in background as is (only in foreground)
       const lastNotifiedTime = lastNotified[zip.name];
       if (
         calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
@@ -302,6 +299,6 @@ export const locationBackgroundTask = async (location: Location) => {
       await request(notificationQuery, REQ_METHOD.MUTATION, variables);
     }
   } catch (e) {
-    Bugsnag.notify(new Error(e as string));
+    throw e;
   }
 };
