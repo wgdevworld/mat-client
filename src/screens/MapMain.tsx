@@ -97,7 +97,6 @@ function App(): JSX.Element {
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
     curMatMap.zipList,
   );
-  const [isLocationLoaded, setIsLocationLoaded] = useState(false);
   const [isEditPublicMapVisible, setIsEditPublicMapVisible] = useState(false);
   const [newPublicMapName, setNewPublicMapName] = useState(userOwnMaps[0].name);
   const [imgLibraryResponse, setImgLibraryResponse] =
@@ -184,7 +183,17 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    requestPermissionAndGetLocation(setCurrentLocation);
+    setTimeout(() => {
+      requestPermissionAndGetLocation(setCurrentLocation);
+      const newRegion: Region = {
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      mapRef.current?.animateToRegion(newRegion, 100);
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -199,21 +208,6 @@ function App(): JSX.Element {
 
     return () => Geolocation.clearWatch(watchId);
   }, []);
-
-  useEffect(() => {
-    if (!isLocationLoaded) {
-      requestPermissionAndGetLocation(setCurrentLocation);
-      setIsLocationLoaded(true);
-      const newRegion: Region = {
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
-      mapRef.current?.animateToRegion(newRegion, 100);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation]);
 
   useEffect(() => {
     setCurMatMap(userOwnMaps[0]);
