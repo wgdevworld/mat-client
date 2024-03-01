@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
@@ -135,8 +135,8 @@ function App(): JSX.Element {
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
   const [currentLocation, setCurrentLocation] = useState<Coordinate>({
-    latitude: 37.5571888,
-    longitude: 126.923643,
+    latitude: 0,
+    longitude: 0,
   });
 
   useEffect(() => {
@@ -194,16 +194,7 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      requestPermissionAndGetLocation(setCurrentLocation);
-      const newRegion: Region = {
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
-      mapRef.current?.animateToRegion(newRegion, 100);
-    }, 0);
+    requestPermissionAndGetLocation(setCurrentLocation, mapRef);
   }, []);
 
   useEffect(() => {
@@ -1065,14 +1056,7 @@ function App(): JSX.Element {
           <TouchableOpacity
             style={styles.mapBtn}
             onPress={() => {
-              requestPermissionAndGetLocation(setCurrentLocation);
-              const newRegion: Region = {
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              };
-              mapRef.current?.animateToRegion(newRegion, 100);
+              requestPermissionAndGetLocation(setCurrentLocation, mapRef);
             }}>
             <View
               style={{

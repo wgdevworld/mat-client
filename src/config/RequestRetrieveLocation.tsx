@@ -1,6 +1,7 @@
 import Geolocation from 'react-native-geolocation-service';
 import {Platform} from 'react-native';
-import {Dispatch, SetStateAction} from 'react';
+import {Dispatch, RefObject, SetStateAction} from 'react';
+import MapView, {Region} from 'react-native-maps';
 
 export async function requestPermission() {
   try {
@@ -16,6 +17,7 @@ export function requestPermissionAndGetLocation(
   setCurrentLocation: Dispatch<
     SetStateAction<{latitude: number; longitude: number}>
   >,
+  mapRef: RefObject<MapView>,
 ) {
   requestPermission().then(result => {
     if (result === 'granted') {
@@ -27,6 +29,16 @@ export function requestPermissionAndGetLocation(
             latitude: latitude,
             longitude: longitude,
           }));
+          if (!mapRef.current) {
+            return;
+          }
+          const newRegion: Region = {
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          };
+          mapRef.current.animateToRegion(newRegion, 100);
         },
         error => {
           console.log(error);
