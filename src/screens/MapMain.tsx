@@ -273,7 +273,15 @@ function App(): JSX.Element {
           onPressSearchResult(item.item.id, item.item.address);
         }}
         style={styles.searchResultEntry}>
-        <Text>{item.item.name}</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text>{item.item.name}</Text>
+          <Text
+            style={{fontSize: 12, maxWidth: '70%', alignSelf: 'center'}}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {item.item.address}
+          </Text>
+        </View>
       </TouchableOpacity>
     );
   };
