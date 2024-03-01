@@ -1031,13 +1031,6 @@ function App(): JSX.Element {
                     coordinate={zip.coordinate}
                     id={zip.id}
                     onPress={() => {
-                      const newRegion: Region = {
-                        latitude: zip.coordinate.latitude,
-                        longitude: zip.coordinate.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                      };
-                      mapRef.current?.animateToRegion(newRegion, 0);
                       setMarker(zip);
                       setIsMarkerSavedMatZip(true);
                     }}>
