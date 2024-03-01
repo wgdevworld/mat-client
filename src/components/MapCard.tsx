@@ -13,7 +13,10 @@ import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
 import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {MatMap} from '../types/store';
-import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  updateIsJustFollowed,
+  updateIsLoadingAction,
+} from '../store/modules/globalComponent';
 import {useAppSelector} from '../store/hooks';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {addPublicMapFollowerCountAction} from '../store/modules/publicMaps';
@@ -71,6 +74,7 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
                 Alert.alert('이미 팔로우하신 지도입니다!');
               } else {
                 dispatch(updateIsLoadingAction(true));
+                dispatch(updateIsJustFollowed(true));
                 addUserFollower(map.id)
                   .then(() => {
                     dispatch(addFollowingMatMapAction(map));

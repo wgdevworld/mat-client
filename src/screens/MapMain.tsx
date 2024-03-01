@@ -50,7 +50,10 @@ import Config from 'react-native-config';
 // import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
 import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
-import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  updateIsJustFollowed,
+  updateIsLoadingAction,
+} from '../store/modules/globalComponent';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Share from 'react-native-share';
 import Geolocation from 'react-native-geolocation-service';
@@ -84,6 +87,9 @@ function App(): JSX.Element {
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const isRefuseNotifications = useAppSelector(
     state => state.globalComponents.isRefuseNotifications,
+  );
+  const isJustFollowed = useAppSelector(
+    state => state.globalComponents.isJustFollowed,
   );
 
   const sheetRef = useRef<BottomSheet>(null);
@@ -564,8 +570,6 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
-  // console.log(dropDownItems);
-
   const onPressShareMatMap = async () => {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
@@ -574,13 +578,13 @@ function App(): JSX.Element {
           ? `먹킷 어플에서 만든 제 맛맵을 팔로우 해보세요!
           \nMuckit 어플 미설치시 ${
             Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
-          }화면으로 자동으로 이동합니다.`
+          }에서 Muckit을 설치해주세요.`
           : `${curMatMap.author} 유저가 만든 ${
               curMatMap.name
             } 맛맵을 팔로우 해보세요!
             \nMuckit 어플 미설치시 ${
               Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
-            }화면으로 자동으로 이동합니다.`,
+            }에서 Muckit을 설치해주세요.`,
       url: deepLinkUrl,
     })
       .then(res => console.log(res))
@@ -1128,6 +1132,11 @@ function App(): JSX.Element {
                       근처 맛집들 📍
                     </Text>
                     <DropDownPicker
+                      onOpen={() => {
+                        if (isJustFollowed) {
+                          dispatch(updateIsJustFollowed(false));
+                        }
+                      }}
                       containerStyle={styles.dropDownPickerContainer}
                       selectedItemContainerStyle={{
                         backgroundColor: colors.coral4,
@@ -1141,11 +1150,25 @@ function App(): JSX.Element {
                       textStyle={{color: colors.coral1}}
                       // eslint-disable-next-line react/no-unstable-nested-components
                       ArrowDownIconComponent={() => (
-                        <Ionicons
-                          name="caret-down-circle"
-                          size={20}
-                          color={colors.coral1}
-                        />
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                          <Ionicons
+                            name="caret-down-circle"
+                            size={20}
+                            color={colors.coral1}
+                            style={{alignSelf: 'center'}}
+                          />
+                          <View
+                            style={{
+                              marginLeft: 3,
+                              height: 6,
+                              width: 6,
+                              alignSelf: 'center',
+                              backgroundColor: '#40FF00',
+                              borderRadius: 50,
+                              display: isJustFollowed ? 'flex' : 'none',
+                            }}
+                          />
+                        </View>
                       )}
                       // eslint-disable-next-line react/no-unstable-nested-components
                       ArrowUpIconComponent={() => (
@@ -1191,17 +1214,19 @@ function App(): JSX.Element {
                         style={{
                           flexDirection: 'row',
                         }}>
-                        <Text
-                          style={{
-                            alignSelf: 'center',
-                            color: colors.coral1,
-                            fontSize: 16,
-                          }}>
-                          {curMatMap.authorId === curUser.id
-                            ? '내 맛맵 공유'
-                            : '맛맵 공유'}
-                        </Text>
-                        <TouchableOpacity onPress={onPressShareMatMap}>
+                        <TouchableOpacity
+                          onPress={onPressShareMatMap}
+                          style={{flexDirection: 'row'}}>
+                          <Text
+                            style={{
+                              alignSelf: 'center',
+                              color: colors.coral1,
+                              fontSize: 16,
+                            }}>
+                            {curMatMap.authorId === curUser.id
+                              ? '내 맛맵 공유'
+                              : '맛맵 공유'}
+                          </Text>
                           <Ionicons
                             name="share-outline"
                             size={24}
@@ -1239,7 +1264,7 @@ function App(): JSX.Element {
                       {curMatMap.authorId !== curUser.id ? (
                         <View style={{flexDirection: 'row'}}>
                           <TouchableOpacity
-                            style={{alignSelf: 'center'}}
+                            style={{alignSelf: 'center', flexDirection: 'row'}}
                             onPress={unfollowCurMatMap}>
                             <Text
                               style={{
@@ -1249,13 +1274,13 @@ function App(): JSX.Element {
                               }}>
                               언팔로우
                             </Text>
+                            <Ionicons
+                              name="person-remove-outline"
+                              color={colors.coral1}
+                              size={20}
+                              style={{alignSelf: 'center', paddingLeft: 3}}
+                            />
                           </TouchableOpacity>
-                          <Ionicons
-                            name="person-remove-outline"
-                            color={colors.coral1}
-                            size={20}
-                            style={{alignSelf: 'center', paddingLeft: 3}}
-                          />
                         </View>
                       ) : null}
                     </View>
@@ -1277,6 +1302,11 @@ function App(): JSX.Element {
                     근처 맛집들 📍
                   </Text>
                   <DropDownPicker
+                    onOpen={() => {
+                      if (isJustFollowed) {
+                        dispatch(updateIsJustFollowed(false));
+                      }
+                    }}
                     containerStyle={{
                       ...styles.dropDownPickerContainer,
                       paddingRight: 10,
@@ -1293,11 +1323,25 @@ function App(): JSX.Element {
                     textStyle={{color: colors.coral1}}
                     // eslint-disable-next-line react/no-unstable-nested-components
                     ArrowDownIconComponent={() => (
-                      <Ionicons
-                        name="caret-down-circle"
-                        size={20}
-                        color={colors.coral1}
-                      />
+                      <View style={{flex: 1, flexDirection: 'row'}}>
+                        <Ionicons
+                          name="caret-down-circle"
+                          size={20}
+                          color={colors.coral1}
+                          style={{alignSelf: 'center'}}
+                        />
+                        <View
+                          style={{
+                            marginLeft: 3,
+                            height: 6,
+                            width: 6,
+                            alignSelf: 'center',
+                            backgroundColor: '#40FF00',
+                            borderRadius: 50,
+                            display: isJustFollowed ? 'flex' : 'none',
+                          }}
+                        />
+                      </View>
                     )}
                     // eslint-disable-next-line react/no-unstable-nested-components
                     ArrowUpIconComponent={() => (
@@ -1335,7 +1379,7 @@ function App(): JSX.Element {
                   }}>
                   <Ionicons
                     name="information-circle-outline"
-                    size={26}
+                    size={curMatMap.authorId === curUser.id ? 26 : 16}
                     color={colors.coral1}
                     style={{alignSelf: 'center'}}
                   />
@@ -1346,7 +1390,9 @@ function App(): JSX.Element {
                       color: colors.coral1,
                       paddingLeft: 3,
                     }}>
-                    {'저장하고 싶은 맛집을 \n검색해서 추가하세요!'}
+                    {curMatMap.authorId === curUser.id
+                      ? '저장하고 싶은 맛집을 \n검색해서 추가하세요!'
+                      : '추가된 맛집이 없는 지도에요!'}
                   </Text>
                 </View>
                 <View
@@ -1359,17 +1405,19 @@ function App(): JSX.Element {
                     style={{
                       flexDirection: 'row',
                     }}>
-                    <Text
-                      style={{
-                        alignSelf: 'center',
-                        color: colors.coral1,
-                        fontSize: 16,
-                      }}>
-                      {curMatMap.authorId === curUser.id
-                        ? '내 맛맵 공유'
-                        : '맛맵 공유'}
-                    </Text>
-                    <TouchableOpacity onPress={onPressShareMatMap}>
+                    <TouchableOpacity
+                      onPress={onPressShareMatMap}
+                      style={{flexDirection: 'row'}}>
+                      <Text
+                        style={{
+                          alignSelf: 'center',
+                          color: colors.coral1,
+                          fontSize: 16,
+                        }}>
+                        {curMatMap.authorId === curUser.id
+                          ? '내 맛맵 공유'
+                          : '맛맵 공유'}
+                      </Text>
                       <Ionicons
                         name="share-outline"
                         size={24}
@@ -1381,7 +1429,7 @@ function App(): JSX.Element {
                   {curMatMap.authorId !== curUser.id ? (
                     <View style={{flexDirection: 'row'}}>
                       <TouchableOpacity
-                        style={{alignSelf: 'center'}}
+                        style={{alignSelf: 'center', flexDirection: 'row'}}
                         onPress={unfollowCurMatMap}>
                         <Text
                           style={{
@@ -1391,13 +1439,13 @@ function App(): JSX.Element {
                           }}>
                           언팔로우
                         </Text>
+                        <Ionicons
+                          name="person-remove-outline"
+                          color={colors.coral1}
+                          size={20}
+                          style={{alignSelf: 'center', paddingLeft: 3}}
+                        />
                       </TouchableOpacity>
-                      <Ionicons
-                        name="person-remove-outline"
-                        color={colors.coral1}
-                        size={20}
-                        style={{alignSelf: 'center', paddingLeft: 3}}
-                      />
                     </View>
                   ) : null}
                 </View>

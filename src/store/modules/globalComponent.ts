@@ -5,6 +5,7 @@ export const initialState: GlobalComponent = {
   isLoading: false,
   isFromSocial: false,
   isRefuseNotifications: true,
+  isJustFollowed: false,
 };
 
 export const zipSlice = createSlice({
@@ -23,6 +24,10 @@ export const zipSlice = createSlice({
       state.isRefuseNotifications = action.payload;
       return state;
     },
+    updateIsJustFollowed: (state, action: PayloadAction<boolean>) => {
+      state.isJustFollowed = action.payload;
+      return state;
+    },
   },
 });
 
@@ -30,5 +35,6 @@ export const {
   updateIsLoadingAction,
   updateIsFromSocialAction,
   updateIsReceiveNotifications,
+  updateIsJustFollowed,
 } = zipSlice.actions;
 export default zipSlice.reducer;

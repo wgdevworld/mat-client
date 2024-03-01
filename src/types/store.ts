@@ -73,4 +73,5 @@ export interface GlobalComponent {
   isLoading: boolean;
   isFromSocial: boolean;
   isRefuseNotifications: boolean;
+  isJustFollowed: boolean;
 }

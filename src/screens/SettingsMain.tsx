@@ -236,13 +236,13 @@ export default function Settings() {
           <Text style={styles.sectionHeader}>어플 설정</Text>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="notifications-outline" size={18} />
-            <Text style={styles.rowText}>푸시 알림 활성화</Text>
+            <Text style={styles.rowText}>푸시 알림 권한 설정</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="navigate-circle-outline" size={20} />
-            <Text style={styles.rowText}>위치 권한 활성화</Text>
+            <Text style={styles.rowText}>위치 권한 설정</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
