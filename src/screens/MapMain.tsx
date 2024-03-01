@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
@@ -94,7 +94,6 @@ function App(): JSX.Element {
   const [marker, setMarker] = useState<MatZip | null>();
   const [isSearchGoogle, setIsSearchGoogle] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isMarkerSavedMatZip, setIsMarkerSavedMatZip] = useState(false);
   const [isSearchResultLoading, setIsSearchResultLoading] = useState(false);
   const [searchedMatZips, setSearchedMatZips] =
     useState<{zipId: number; name: string; address: string}[]>();
@@ -448,7 +447,6 @@ function App(): JSX.Element {
         category: fetchedZipData.category,
       };
       setMarker(selectedMatZip);
-      setIsMarkerSavedMatZip(false);
       mapRef.current?.animateToRegion(
         {
           latitude: location.latitude,
@@ -744,7 +742,14 @@ function App(): JSX.Element {
             key={matZip.id}
             style={styles.itemContainer}
             onPress={() => {
-              navigation.navigate('MatZipMain', {zipID: matZip.id});
+              setMarker(matZip);
+              const newRegion: Region = {
+                latitude: matZip.coordinate.latitude,
+                longitude: matZip.coordinate.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              };
+              mapRef.current?.animateToRegion(newRegion, 0);
             }}>
             <View style={styles.itemImageContainer}>
               <Image
@@ -1013,7 +1018,6 @@ function App(): JSX.Element {
                 </Marker>
               </>
             )}
-
             {curMatMap &&
               curMatMap.zipList.map(zip => {
                 return (
@@ -1023,7 +1027,6 @@ function App(): JSX.Element {
                     id={zip.id}
                     onPress={() => {
                       setMarker(zip);
-                      setIsMarkerSavedMatZip(true);
                     }}>
                     <View style={styles.markerContentContainer}>
                       <Ionicons
@@ -1077,7 +1080,7 @@ function App(): JSX.Element {
               ...styles.mapBtn,
               display:
                 marker &&
-                !isMarkerSavedMatZip &&
+                !userOwnMaps[0].zipList.find(zip => zip.id === marker.id) &&
                 curMatMap.authorId === curUser.id
                   ? 'flex'
                   : 'none',
