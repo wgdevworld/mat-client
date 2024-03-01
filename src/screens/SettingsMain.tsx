@@ -13,6 +13,7 @@ import {
   Alert,
   Modal,
   Dimensions,
+  Switch,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -23,12 +24,18 @@ import {Linking, Platform} from 'react-native';
 import {ScreenParamList} from '../types/navigation';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
-import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  updateIsLoadingAction,
+  updateIsReceiveNotifications,
+} from '../store/modules/globalComponent';
 import Slider from '@react-native-community/slider';
 import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
+  const isRefuseNotifications = useAppSelector(
+    state => state.globalComponents.isRefuseNotifications,
+  );
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isSetRadiusModalVisible, setIsSetRadiusModalVisible] = useState(false);
   const [radius, setRadius] = useState(1000);
@@ -234,13 +241,11 @@ export default function Settings() {
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
-            <Ionicons name="earth-outline" size={18} />
-            <Text style={styles.rowText}>위치 기반 푸시 알림 활성화</Text>
+            <Ionicons name="navigate-circle-outline" size={20} />
+            <Text style={styles.rowText}>위치 권한 활성화</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
-          {/* //TODO: add in feature for users to change radius when we figure out
-          how to handle longer running background tasks */}
           <TouchableOpacity
             style={styles.row}
             onPress={async () => {
@@ -250,11 +255,34 @@ export default function Settings() {
               setRadius(userSetRadius ? parseInt(userSetRadius, 10) : 2000);
               setIsSetRadiusModalVisible(true);
             }}>
-            <Ionicons name="phone-portrait-outline" size={18} />
+            <Ionicons name="radio-outline" size={18} />
             <Text style={styles.rowText}>위치 기반 알림 반경</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
+          <View style={{...styles.row, paddingRight: 5}}>
+            <Ionicons name="phone-portrait-outline" size={18} />
+            <Text style={styles.rowText}>근처 맛집 알림 받기</Text>
+            <View style={{flex: 1}} />
+            <Switch
+              thumbColor={'white'}
+              trackColor={{
+                false: 'grey',
+                true: colors.coral1,
+              }}
+              onValueChange={() => {
+                if (!isRefuseNotifications) {
+                  BackgroundGeolocation.stop();
+                } else {
+                  BackgroundGeolocation.start();
+                }
+                dispatch(updateIsReceiveNotifications(!isRefuseNotifications));
+              }}
+              value={!isRefuseNotifications}
+              style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
+              ios_backgroundColor={colors.grey}
+            />
+          </View>
         </View>
 
         <View style={styles.section}>

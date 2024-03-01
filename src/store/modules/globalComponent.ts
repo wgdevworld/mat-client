@@ -4,6 +4,7 @@ import {GlobalComponent} from '../../types/store';
 export const initialState: GlobalComponent = {
   isLoading: false,
   isFromSocial: false,
+  isRefuseNotifications: true,
 };
 
 export const zipSlice = createSlice({
@@ -18,9 +19,16 @@ export const zipSlice = createSlice({
       state.isFromSocial = action.payload;
       return state;
     },
+    updateIsReceiveNotifications: (state, action: PayloadAction<boolean>) => {
+      state.isRefuseNotifications = action.payload;
+      return state;
+    },
   },
 });
 
-export const {updateIsLoadingAction, updateIsFromSocialAction} =
-  zipSlice.actions;
+export const {
+  updateIsLoadingAction,
+  updateIsFromSocialAction,
+  updateIsReceiveNotifications,
+} = zipSlice.actions;
 export default zipSlice.reducer;

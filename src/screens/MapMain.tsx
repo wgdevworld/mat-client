@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
@@ -81,6 +82,9 @@ function App(): JSX.Element {
   );
   const curUser = useAppSelector(state => state.user);
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
+  const isRefuseNotifications = useAppSelector(
+    state => state.globalComponents.isRefuseNotifications,
+  );
 
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
@@ -136,6 +140,9 @@ function App(): JSX.Element {
   });
 
   useEffect(() => {
+    if (isRefuseNotifications) {
+      return;
+    }
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
         if (location.sample === true) {
@@ -143,6 +150,10 @@ function App(): JSX.Element {
           return;
         }
         if (location.coords === undefined) {
+          return;
+        }
+        //@ts-ignore
+        if (location.activity === 'in_vehicle') {
           return;
         }
         const taskId = await BackgroundGeolocation.startBackgroundTask();
@@ -193,7 +204,6 @@ function App(): JSX.Element {
       };
       mapRef.current?.animateToRegion(newRegion, 100);
     }, 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -242,7 +252,6 @@ function App(): JSX.Element {
     return fetchedZipData;
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledSearch = useCallback(
     throttle(query => {
       setIsSearchResultLoading(true);
@@ -265,7 +274,6 @@ function App(): JSX.Element {
       setIsSearchResultLoading(true);
       throttledSearch(searchQuery);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const renderSearchedItem = (item: any) => {
@@ -1129,13 +1137,41 @@ function App(): JSX.Element {
                         marginLeft: 10,
                         color: colors.coral1,
                       }}>
-                      근처 나의 맛집들 📍
+                      근처 맛집들 📍
                     </Text>
                     <DropDownPicker
                       containerStyle={styles.dropDownPickerContainer}
+                      selectedItemContainerStyle={{
+                        backgroundColor: colors.coral4,
+                      }}
+                      tickIconStyle={{display: 'none'}}
+                      dropDownContainerStyle={{
+                        borderColor: colors.coral1,
+                        borderRadius: 12,
+                        borderWidth: 1.3,
+                      }}
+                      textStyle={{color: colors.coral1}}
+                      // eslint-disable-next-line react/no-unstable-nested-components
+                      ArrowDownIconComponent={() => (
+                        <Ionicons
+                          name="caret-down-circle"
+                          size={20}
+                          color={colors.coral1}
+                        />
+                      )}
+                      // eslint-disable-next-line react/no-unstable-nested-components
+                      ArrowUpIconComponent={() => (
+                        <Ionicons
+                          name="caret-up-circle"
+                          size={20}
+                          color={colors.coral1}
+                        />
+                      )}
                       style={{
                         minHeight: 40,
-                        borderRadius: 5,
+                        borderRadius: 12,
+                        borderWidth: 1.3,
+                        borderColor: colors.coral1,
                       }}
                       scrollViewProps={{
                         showsVerticalScrollIndicator: false,
@@ -1250,17 +1286,44 @@ function App(): JSX.Element {
                       marginLeft: 20,
                       color: colors.coral1,
                     }}>
-                    근처 나의 맛집들 📍
+                    근처 맛집들 📍
                   </Text>
                   <DropDownPicker
                     containerStyle={{
                       ...styles.dropDownPickerContainer,
                       paddingRight: 10,
                     }}
-                    dropDownContainerStyle={{height: 120}}
+                    selectedItemContainerStyle={{
+                      backgroundColor: colors.coral4,
+                    }}
+                    tickIconStyle={{display: 'none'}}
+                    dropDownContainerStyle={{
+                      borderColor: colors.coral1,
+                      borderRadius: 12,
+                      borderWidth: 1.3,
+                    }}
+                    textStyle={{color: colors.coral1}}
+                    // eslint-disable-next-line react/no-unstable-nested-components
+                    ArrowDownIconComponent={() => (
+                      <Ionicons
+                        name="caret-down-circle"
+                        size={20}
+                        color={colors.coral1}
+                      />
+                    )}
+                    // eslint-disable-next-line react/no-unstable-nested-components
+                    ArrowUpIconComponent={() => (
+                      <Ionicons
+                        name="caret-up-circle"
+                        size={20}
+                        color={colors.coral1}
+                      />
+                    )}
                     style={{
                       minHeight: 40,
-                      borderRadius: 5,
+                      borderRadius: 12,
+                      borderWidth: 1.3,
+                      borderColor: colors.coral1,
                     }}
                     placeholder="맛맵 선택"
                     open={dropDownOpen}

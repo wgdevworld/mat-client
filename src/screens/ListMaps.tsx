@@ -31,7 +31,7 @@ export default function ListMaps() {
   );
   const userName = useAppSelector(state => state.user.username);
 
-  const FETCH_COOLDOWN = 1 * 60 * 1000;
+  const FETCH_COOLDOWN = 2 * 60 * 1000;
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
