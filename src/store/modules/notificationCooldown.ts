@@ -8,8 +8,6 @@ export const initialState: NotificationState = {
   lastNotified: {},
 };
 
-export const COOLDOWN_TIME = 3 * 60 * 60 * 1000; // 3 hours
-
 const notificationCooldownSlice = createSlice({
   name: 'notificationCooldown',
   initialState,
@@ -21,13 +19,14 @@ const notificationCooldownSlice = createSlice({
       const {zipName, timestamp} = action.payload;
       state.lastNotified[zipName] = timestamp;
     },
-    cleanupCooldowns(state) {
+    cleanupCooldowns(state, action: PayloadAction<number>) {
       const now = Date.now();
       Object.keys(state.lastNotified).forEach(zipName => {
-        if (now - state.lastNotified[zipName] > COOLDOWN_TIME) {
+        if (now - state.lastNotified[zipName] > action.payload) {
           delete state.lastNotified[zipName];
         }
       });
+      return state;
     },
   },
 });

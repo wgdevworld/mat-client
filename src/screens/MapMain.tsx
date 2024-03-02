@@ -143,9 +143,6 @@ function App(): JSX.Element {
   });
 
   useEffect(() => {
-    if (isRefuseNotifications) {
-      return;
-    }
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
         if (location.sample === true) {
@@ -159,6 +156,7 @@ function App(): JSX.Element {
         if (location.activity.type == 'in_vehicle') {
           return;
         }
+        console.log(location);
         const taskId = await BackgroundGeolocation.startBackgroundTask();
         try {
           await locationBackgroundTask(location);
@@ -187,10 +185,13 @@ function App(): JSX.Element {
           startOnBoot: true,
         }).then(_state => {
           console.log('BackgroundGeolocation is ready');
-          BackgroundGeolocation.start();
+          if (!isRefuseNotifications) {
+            BackgroundGeolocation.start();
+          }
         });
       },
     );
+
     return () => {
       onLocation.remove();
     };

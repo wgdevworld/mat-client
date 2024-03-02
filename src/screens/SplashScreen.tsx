@@ -59,7 +59,15 @@ const SplashScreen = () => {
                   REQ_METHOD.QUERY,
                 );
                 console.log(curUserRes?.data.data.fetchLoggedIn);
-                store.dispatch(cleanupCooldowns());
+                AsyncStorage.getItem(
+                  ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
+                ).then(interval => {
+                  const COOLDOWN_TIME = interval
+                    ? parseInt(interval, 10)
+                    : 3 * 60 * 60 * 1000;
+                  store.dispatch(cleanupCooldowns(COOLDOWN_TIME));
+                });
+
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
                 const curUserUsername =

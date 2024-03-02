@@ -39,6 +39,9 @@ export default function Settings() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isSetRadiusModalVisible, setIsSetRadiusModalVisible] = useState(false);
   const [radius, setRadius] = useState(1000);
+  const [isSetIntervalModalVisible, setIsSetIntervalModalVisible] =
+    useState(false);
+  const [interval, setInterval] = useState(3);
   const dispatch = useAppDispatch();
 
   const logout = async () => {
@@ -110,6 +113,77 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <Modal
+        visible={isSetIntervalModalVisible}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isSetIntervalModalVisible ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View style={styles.popupContainer}>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 20,
+              alignSelf: 'center',
+              paddingBottom: 6,
+              fontWeight: 'bold',
+            }}>
+            알림 간격
+          </Text>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 14,
+              paddingBottom: 6,
+              alignSelf: 'center',
+              textAlign: 'center',
+            }}>
+            {interval !== 0
+              ? `${interval}시간동안 같은 식당에 대한\n 알림을 받지 않습니다.`
+              : '모든 근처 맛집 알림을\n 항상 받습니다.'}
+          </Text>
+          <Slider
+            style={{width: '100%', height: 40}}
+            minimumValue={0}
+            maximumValue={24}
+            step={1}
+            value={interval}
+            onValueChange={value => setInterval(value)}
+            minimumTrackTintColor={colors.coral2}
+            maximumTrackTintColor={'white'}
+            thumbTintColor="#b9e4c9"
+          />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 10,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                setIsSetIntervalModalVisible(false);
+              }}>
+              <Text style={{color: colors.white}}>취소</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={async () => {
+                await AsyncStorage.setItem(
+                  ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
+                  interval.toString(),
+                );
+                setIsSetIntervalModalVisible(false);
+              }}>
+              <Text style={{color: colors.white}}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <Modal
         visible={isSetRadiusModalVisible}
         transparent
@@ -250,7 +324,21 @@ export default function Settings() {
               setIsSetRadiusModalVisible(true);
             }}>
             <Ionicons name="radio-outline" size={18} />
-            <Text style={styles.rowText}>위치 기반 알림 반경</Text>
+            <Text style={styles.rowText}>근처 맛집 알림 반경</Text>
+            <View style={{flex: 1}} />
+            <Ionicons name="settings-outline" size={18} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={async () => {
+              const userSetInterval = await AsyncStorage.getItem(
+                ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
+              );
+              setInterval(userSetInterval ? parseInt(userSetInterval, 10) : 3);
+              setIsSetIntervalModalVisible(true);
+            }}>
+            <Ionicons name="timer-outline" size={18} />
+            <Text style={styles.rowText}>근처 맛집 알림 간격</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>

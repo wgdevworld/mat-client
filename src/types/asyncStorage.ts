@@ -8,4 +8,5 @@ export enum ASYNC_STORAGE_ENUM {
   IS_LOGGED_IN = 'IS_LOGGED_IN',
   IS_ONBOARDING_DONE = 'IS_ONBOARDING_DONE',
   NOTIFICATION_RADIUS = 'notification_radius',
+  NOTIFICATION_INTERVAL = 'notification_interval',
 }

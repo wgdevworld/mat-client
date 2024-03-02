@@ -235,10 +235,7 @@ import store from '../store/store';
 // };
 
 import {Location} from 'react-native-background-geolocation';
-import {
-  COOLDOWN_TIME,
-  setLastNotified,
-} from '../store/modules/notificationCooldown';
+import {setLastNotified} from '../store/modules/notificationCooldown';
 
 export const locationBackgroundTask = async (location: Location) => {
   try {
@@ -258,13 +255,20 @@ export const locationBackgroundTask = async (location: Location) => {
       ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
     );
     const parsedRadius = radius ? parseInt(radius, 10) : 2000;
+    const interval = await AsyncStorage.getItem(
+      ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
+    );
+    const parsedInterval = interval
+      ? parseInt(interval, 10)
+      : 3 * 60 * 60 * 1000;
+
     let closeMatZips: string[];
     closeMatZips = [];
     allSavedZips.forEach((zip: MatZip) => {
       const lastNotifiedTime = lastNotified[zip.name];
       if (
         calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
-        (!lastNotifiedTime || Date.now() - lastNotifiedTime > COOLDOWN_TIME)
+        (!lastNotifiedTime || Date.now() - lastNotifiedTime > parsedInterval)
       ) {
         closeMatZips.push(zip.name);
         store.dispatch(
