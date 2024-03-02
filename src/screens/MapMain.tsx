@@ -265,7 +265,7 @@ function App(): JSX.Element {
   );
 
   useEffect(() => {
-    if (searchQuery.length > 0) {
+    if (searchQuery.length > 1) {
       setIsSearchResultLoading(true);
       throttledSearch(searchQuery);
     }
@@ -899,7 +899,8 @@ function App(): JSX.Element {
           style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
           {isSearchGoogle ? (
             <GooglePlacesAutocomplete
-              minLength={2}
+              minLength={1}
+              debounce={500}
               placeholder="구글 지도에서 장소를 검색해보세요!"
               textInputProps={{
                 placeholderTextColor: 'black',
@@ -937,6 +938,14 @@ function App(): JSX.Element {
                     setSearchQuery('');
                   }}
                 />
+                {searchQuery.length === 0 ? (
+                  <Ionicons
+                    name="search-outline"
+                    style={{position: 'absolute', right: 5, top: 9}}
+                    size={24}
+                    color={colors.coral1}
+                  />
+                ) : null}
                 {searchQuery.length > 0 ? (
                   <TouchableOpacity
                     style={{position: 'absolute', right: 5, top: 9}}
@@ -957,41 +966,54 @@ function App(): JSX.Element {
                 ) : null}
               </View>
               {searchedMatZips && searchQuery.length !== 0 ? (
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={searchedMatZips}
-                  renderItem={renderSearchedItem}
-                  contentContainerStyle={styles.searchResultContainer}
-                  ListHeaderComponent={
-                    isSearchResultLoading ? (
-                      <View
-                        style={{
-                          borderBottomColor: 'grey',
-                          borderBottomWidth: 0.17,
-                        }}>
-                        <ActivityIndicator
+                <View
+                  style={{
+                    borderColor: colors.coral1,
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    backgroundColor: 'white',
+                    marginTop: 5,
+                    maxHeight: 300,
+                  }}>
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={searchedMatZips}
+                    renderItem={renderSearchedItem}
+                    contentContainerStyle={styles.searchResultContainer}
+                    ListHeaderComponent={
+                      isSearchResultLoading ? (
+                        <View
                           style={{
-                            padding: 12,
-                            alignSelf: 'flex-start',
                             borderBottomColor: 'grey',
                             borderBottomWidth: 0.17,
-                          }}
-                          size="small"
-                          color={colors.coral1}
-                        />
-                      </View>
-                    ) : null
-                  }
-                  ListFooterComponent={
-                    <TouchableOpacity
-                      onPress={() => {
-                        setIsSearchGoogle(true);
-                      }}
-                      style={styles.searchResultEntry}>
-                      <Text>검색 결과가 없으세요?</Text>
-                    </TouchableOpacity>
-                  }
-                />
+                          }}>
+                          <ActivityIndicator
+                            style={{
+                              padding: 12,
+                              alignSelf: 'flex-start',
+                              borderBottomColor: 'grey',
+                              borderBottomWidth: 0.17,
+                            }}
+                            size="small"
+                            color={colors.coral1}
+                          />
+                        </View>
+                      ) : null
+                    }
+                    ListFooterComponent={
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSearchQuery('');
+                          setIsSearchGoogle(true);
+                        }}
+                        style={styles.searchResultEntry}>
+                        <Text style={{color: colors.coral1}}>
+                          검색 결과가 없으세요?
+                        </Text>
+                      </TouchableOpacity>
+                    }
+                  />
+                </View>
               ) : null}
             </>
           )}
@@ -1512,6 +1534,9 @@ const styles = StyleSheet.create({
   },
   searchTextInput: {
     position: 'absolute',
+    listView: {
+      borderRadius: 10,
+    },
     textInputContainer: {
       borderRadius: 10,
     },
@@ -1618,6 +1643,8 @@ const styles = StyleSheet.create({
     height: 44,
     width: '100%',
     borderRadius: 10,
+    borderColor: colors.coral1,
+    borderWidth: 1,
     backgroundColor: 'white',
     fontSize: 15,
     paddingLeft: 10,
@@ -1625,9 +1652,7 @@ const styles = StyleSheet.create({
     includeFontPadding: true,
   },
   searchResultContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-    marginTop: 5,
+    borderRadius: 10,
   },
   searchResultEntry: {
     padding: 12,

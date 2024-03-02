@@ -143,8 +143,8 @@ export default function Settings() {
               textAlign: 'center',
             }}>
             {interval !== 0
-              ? `${interval}시간동안 같은 식당에 대한\n 알림을 받지 않습니다.`
-              : '모든 근처 맛집 알림을\n 항상 받습니다.'}
+              ? `${interval}시간동안 같은 식당에\n 대한 알림을 받지 않기`
+              : '모든 근처 맛집 \n알림을 항상 받기'}
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
@@ -213,7 +213,7 @@ export default function Settings() {
               alignSelf: 'center',
               textAlign: 'center',
             }}>
-            {`저장하신 식당이 최대 ${radius}m \n근처에 있으면 알림을 보내드려요.`}
+            {`저장한 식당이 최대 ${radius}m \n근처에 있으면 알림 받기`}
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
