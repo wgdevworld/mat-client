@@ -13,6 +13,7 @@ import {
   Alert,
   Modal,
   Dimensions,
+  Switch,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import assets from '../../assets';
@@ -23,15 +24,18 @@ import {Linking, Platform} from 'react-native';
 import {ScreenParamList} from '../types/navigation';
 import {useAppDispatch, useAppSelector} from '../store/hooks';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
-import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  updateIsLoadingAction,
+  updateIsReceiveNotifications,
+} from '../store/modules/globalComponent';
 import Slider from '@react-native-community/slider';
 import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
-  // const isRefuseNotifications = useAppSelector(
-  //   state => state.globalComponents.isRefuseNotifications,
-  // );
+  const isRefuseNotifications = useAppSelector(
+    state => state.globalComponents.isRefuseNotifications,
+  );
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isSetRadiusModalVisible, setIsSetRadiusModalVisible] = useState(false);
   const [radius, setRadius] = useState(1000);
@@ -231,13 +235,7 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>어플 설정</Text>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
-            <Ionicons name="notifications-outline" size={18} />
-            <Text style={styles.rowText}>푸시 알림 권한 설정</Text>
-            <View style={{flex: 1}} />
-            <Ionicons name="settings-outline" size={18} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.row} onPress={openSettings}>
-            <Ionicons name="navigate-circle-outline" size={20} />
+            <Ionicons name="navigate-circle-outline" size={18} />
             <Text style={styles.rowText}>위치 권한 설정</Text>
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
@@ -256,8 +254,7 @@ export default function Settings() {
             <View style={{flex: 1}} />
             <Ionicons name="settings-outline" size={18} />
           </TouchableOpacity>
-          {/* TODO: Reimplement after figuring out how to restart background geolocation*/}
-          {/* <View style={{...styles.row, paddingRight: 5}}>
+          <View style={{...styles.row, paddingRight: 5}}>
             <Ionicons name="phone-portrait-outline" size={18} />
             <Text style={styles.rowText}>근처 맛집 알림 받기</Text>
             <View style={{flex: 1}} />
@@ -271,30 +268,7 @@ export default function Settings() {
                 if (!isRefuseNotifications) {
                   BackgroundGeolocation.stop();
                 } else {
-                  AsyncStorage.getItem(
-                    ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
-                  ).then(notiRadius => {
-                    BackgroundGeolocation.ready({
-                      desiredAccuracy:
-                        BackgroundGeolocation.DESIRED_ACCURACY_MEDIUM,
-                      stationaryRadius: notiRadius
-                        ? parseInt(notiRadius, 10) / 20
-                        : 2000 / 20,
-                      distanceFilter: notiRadius
-                        ? parseInt(notiRadius, 10) / 2
-                        : 2000 / 2,
-                      // Activity Recognition
-                      stopTimeout: 5,
-                      // Application config
-                      debug: false,
-                      showsBackgroundLocationIndicator: false,
-                      stopOnTerminate: false,
-                      startOnBoot: true,
-                    }).then(_state => {
-                      console.log('BackgroundGeolocation is ready');
-                      BackgroundGeolocation.start();
-                    });
-                  });
+                  BackgroundGeolocation.start();
                 }
                 dispatch(updateIsReceiveNotifications(!isRefuseNotifications));
               }}
@@ -302,7 +276,7 @@ export default function Settings() {
               style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
               ios_backgroundColor={colors.grey}
             />
-          </View> */}
+          </View>
         </View>
 
         <View style={styles.section}>

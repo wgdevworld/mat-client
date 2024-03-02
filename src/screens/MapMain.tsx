@@ -72,8 +72,6 @@ import Bugsnag from '@bugsnag/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 
-// import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
-
 const screenWidth = Dimensions.get('window').width;
 
 function App(): JSX.Element {
@@ -85,9 +83,9 @@ function App(): JSX.Element {
   );
   const curUser = useAppSelector(state => state.user);
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
-  // const isRefuseNotifications = useAppSelector(
-  //   state => state.globalComponents.isRefuseNotifications,
-  // );
+  const isRefuseNotifications = useAppSelector(
+    state => state.globalComponents.isRefuseNotifications,
+  );
   const isJustFollowed = useAppSelector(
     state => state.globalComponents.isJustFollowed,
   );
@@ -145,9 +143,9 @@ function App(): JSX.Element {
   });
 
   useEffect(() => {
-    // if (isRefuseNotifications) {
-    //   return;
-    // }
+    if (isRefuseNotifications) {
+      return;
+    }
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
         if (location.sample === true) {
@@ -157,8 +155,8 @@ function App(): JSX.Element {
         if (location.coords === undefined) {
           return;
         }
-        //@ts-ignore
-        if (location.activity === 'in_vehicle') {
+        // eslint-disable-next-line eqeqeq
+        if (location.activity.type == 'in_vehicle') {
           return;
         }
         const taskId = await BackgroundGeolocation.startBackgroundTask();
