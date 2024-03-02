@@ -660,13 +660,13 @@ function App(): JSX.Element {
 
     try {
       await request(query, REQ_METHOD.MUTATION, variables);
+      dispatch(updateOwnMapImgAction(mapPhoto ? mapPhoto.imageSrc : ''));
+      dispatch(updateOwnMapNameAction(newPublicMapName));
     } catch (e) {
       console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
     }
-
-    dispatch(updateOwnMapImgAction(mapPhoto ? mapPhoto.imageSrc : ''));
-    dispatch(updateOwnMapNameAction(newPublicMapName));
-    dispatch(updateIsLoadingAction(false));
   };
 
   const onPressChoosePhoto = async () => {
