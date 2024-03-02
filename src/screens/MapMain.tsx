@@ -85,9 +85,9 @@ function App(): JSX.Element {
   );
   const curUser = useAppSelector(state => state.user);
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
-  const isRefuseNotifications = useAppSelector(
-    state => state.globalComponents.isRefuseNotifications,
-  );
+  // const isRefuseNotifications = useAppSelector(
+  //   state => state.globalComponents.isRefuseNotifications,
+  // );
   const isJustFollowed = useAppSelector(
     state => state.globalComponents.isJustFollowed,
   );
@@ -145,9 +145,9 @@ function App(): JSX.Element {
   });
 
   useEffect(() => {
-    if (isRefuseNotifications) {
-      return;
-    }
+    // if (isRefuseNotifications) {
+    //   return;
+    // }
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
         if (location.sample === true) {
