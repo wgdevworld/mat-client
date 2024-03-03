@@ -88,11 +88,11 @@ export default function AccessGrant() {
       <View style={{position: 'absolute', bottom: 45}}>
         <Text style={styles.sentence}>
           허용에 동의하지 않으셔도 먹킷을 이용하실 수 있으나, 일부 서비스의
-          사용이 제한될 수 있습니다. ‘설정 {'>'} Muckit’에서 접근권한 변경이
+          사용이 제한될 수 있습니다. ‘설정 {'>'} Muckit에서 접근권한 변경이
           가능합니다.{' '}
         </Text>
         <TouchableOpacity style={styles.startButton} onPress={handleNext}>
-          <Text style={styles.buttonText}>권한 설정하기</Text>
+          <Text style={styles.buttonText}>확인</Text>
         </TouchableOpacity>
       </View>
     </View>
