@@ -79,7 +79,7 @@ const App = () => {
       <PersistGate persistor={persistor}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName={'SplashScreen'}>
+            <Stack.Navigator initialRouteName={'AccessGrant'}>
               <Stack.Screen
                 name="TabNavContainer"
                 component={TabNavContainer}

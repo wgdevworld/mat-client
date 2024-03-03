@@ -1,6 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import colors from '../../styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -51,40 +57,44 @@ export default function AccessGrant() {
         앱 사용을 위해 {'\n'}접근 권한을 허용해주세요.
       </Text>
       <Text style={styles.redtitle}>선택적 접근 권한</Text>
-
-      <View style={styles.textContainer}>
-        <View style={styles.iconContainer}>{locIcon}</View>
-        <View style={styles.textInnerContainer}>
-          <Text style={styles.subtitle}>위치</Text>
-          <Text style={styles.detail}>
-            현재 위치 주변에 맛집을 찾을 수{'\n'}
-            있도록 위치정보 접근 설정을
-            <Text style={styles.boldText}> 앱을 {'\n'}사용하는 동안</Text>으로
-            선택해주세요. 추후에 위치 정보 권한을 요청 드릴때
-            <Text style={styles.boldText}> 항상 허용</Text>으로 선택해주세요.
-          </Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        style={{flex: 1, width: '100%', maxHeight: '80%'}}>
+        <View style={styles.textContainer}>
+          <View style={styles.iconContainer}>{locIcon}</View>
+          <View style={styles.textInnerContainer}>
+            <Text style={styles.subtitle}>위치</Text>
+            <Text style={styles.detail}>
+              현재 위치 주변에 맛집을 찾을 수{'\n'}
+              있도록 위치정보 접근 설정을
+              <Text style={styles.boldText}> 앱을 {'\n'}사용하는 동안</Text>으로
+              선택해주세요. 추후에 위치 정보 권한을 요청 드릴때
+              <Text style={styles.boldText}> 항상 허용</Text>으로 선택해주세요.
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.textContainer}>
-        <View style={styles.iconContainer}>{notifIcon}</View>
-        <View style={styles.textInnerContainer}>
-          <Text style={styles.subtitle}>알림</Text>
-          <Text style={styles.detail}>
-            근처에 맛집이 있을 때 알림을 받을 수 있도록 알림 설정을
-            <Text style={styles.boldText}> 허용</Text>으로 변경해주세요.
-          </Text>
+        <View style={styles.textContainer}>
+          <View style={styles.iconContainer}>{notifIcon}</View>
+          <View style={styles.textInnerContainer}>
+            <Text style={styles.subtitle}>알림</Text>
+            <Text style={styles.detail}>
+              근처에 맛집이 있을 때 알림을 받을 수 있도록 알림 설정을
+              <Text style={styles.boldText}> 허용</Text>으로 변경해주세요.
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.textContainer}>
-        <View style={styles.iconContainer}>{motionIcon}</View>
-        <View style={styles.textInnerContainer}>
-          <Text style={styles.subtitle}>모션</Text>
-          <Text style={styles.detail}>
-            <Text style={styles.boldText}>배터리 절약</Text>을 위하여 iOS 모션
-            센서를 통해 움직임이 있을때만 회원님의 위치가 업데이트 돼요.
-          </Text>
+        <View style={styles.textContainer}>
+          <View style={styles.iconContainer}>{motionIcon}</View>
+          <View style={styles.textInnerContainer}>
+            <Text style={styles.subtitle}>모션</Text>
+            <Text style={styles.detail}>
+              <Text style={styles.boldText}>배터리 절약</Text>을 위하여 iOS 모션
+              센서를 통해 움직임이 있을때만 회원님의 위치가 업데이트 돼요.
+            </Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
       <View style={{position: 'absolute', bottom: 45}}>
         <Text style={styles.sentence}>
           허용에 동의하지 않으셔도 먹킷을 이용하실 수 있으나, 일부 서비스의
@@ -92,7 +102,7 @@ export default function AccessGrant() {
           가능합니다.{' '}
         </Text>
         <TouchableOpacity style={styles.startButton} onPress={handleNext}>
-          <Text style={styles.buttonText}>확인</Text>
+          <Text style={styles.buttonText}>다음</Text>
         </TouchableOpacity>
       </View>
     </View>
