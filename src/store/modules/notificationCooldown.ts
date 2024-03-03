@@ -22,7 +22,10 @@ const notificationCooldownSlice = createSlice({
     cleanupCooldowns(state, action: PayloadAction<number>) {
       const now = Date.now();
       Object.keys(state.lastNotified).forEach(zipName => {
-        if (now - state.lastNotified[zipName] > action.payload) {
+        if (
+          now - state.lastNotified[zipName] >
+          action.payload * 60 * 60 * 1000
+        ) {
           delete state.lastNotified[zipName];
         }
       });

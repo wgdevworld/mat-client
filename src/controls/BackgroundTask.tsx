@@ -259,7 +259,7 @@ export const locationBackgroundTask = async (location: Location) => {
       ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
     );
     const parsedInterval = interval
-      ? parseInt(interval, 10)
+      ? parseInt(interval, 10) * 60 * 60 * 1000
       : 3 * 60 * 60 * 1000;
 
     let closeMatZips: string[];
