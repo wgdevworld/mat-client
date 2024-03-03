@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,8 +8,6 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Linking,
-  Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
@@ -24,7 +22,13 @@ import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import colors from '../styles/colors';
 import {useDispatch} from 'react-redux';
 import {updateIsFromSocialAction} from '../store/modules/globalComponent';
-import assets from '../../assets';
+// import {
+//   login,
+//   logout,
+//   getProfile as getKakaoProfile,
+//   shippingAddresses as getKakaoShippingAddresses,
+//   unlink,
+// } from '@react-native-seoul/kakao-login';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -83,65 +87,65 @@ export default function Login() {
       .catch(e => console.log(e.response ? e.response.data : e.message));
   };
 
-  useEffect(() => {
-    const deepLinkNavigation = async (url: string) => {
-      console.log(url);
-      const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
+  // useEffect(() => {
+  //   const deepLinkNavigation = async (url: string) => {
+  //     console.log(url);
+  //     const route = url.split('?')[0]?.replace(/.*?:\/\//g, '');
 
-      if (route === 'kakao-login') {
-        // Extract the access token and refresh token
-        const accessToken = url.split('?')[1].split('=')[1];
-        const refreshToken = url.split('?')[2].split('=')[1];
-        console.log('ℹ️ Access token via kakao login: ' + accessToken);
-        console.log('ℹ️ Refresh token via kakao login: ' + refreshToken);
-        if (!accessToken || !refreshToken) {
-          Alert.alert('다른 로그인 방법을 선택해주세요.');
-        } else {
-          AsyncStorage.multiSet([
-            [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
-            [ASYNC_STORAGE_ENUM.REFRESH_TOKEN, refreshToken],
-            [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
-          ]).then(async () => {
-            dispatch(updateIsFromSocialAction(true));
-            let isOnboardingDone = await AsyncStorage.getItem(
-              ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE,
-            );
-            if (!isOnboardingDone) {
-              navigation.navigate('SignupUser');
-            } else {
-              await AsyncStorage.setItem(
-                ASYNC_STORAGE_ENUM.IS_LOGGED_IN,
-                'true',
-              );
-              navigation.navigate('SplashScreen');
-            }
-          });
-          return;
-        }
-      }
-    };
+  //     if (route === 'kakao-login') {
+  //       // Extract the access token and refresh token
+  //       const accessToken = url.split('?')[1].split('=')[1];
+  //       const refreshToken = url.split('?')[2].split('=')[1];
+  //       console.log('ℹ️ Access token via kakao login: ' + accessToken);
+  //       console.log('ℹ️ Refresh token via kakao login: ' + refreshToken);
+  //       if (!accessToken || !refreshToken) {
+  //         Alert.alert('다른 로그인 방법을 선택해주세요.');
+  //       } else {
+  //         AsyncStorage.multiSet([
+  //           [ASYNC_STORAGE_ENUM.ID_TOKEN, accessToken],
+  //           [ASYNC_STORAGE_ENUM.REFRESH_TOKEN, refreshToken],
+  //           [ASYNC_STORAGE_ENUM.TOKEN_TIME, new Date().toString()],
+  //         ]).then(async () => {
+  //           dispatch(updateIsFromSocialAction(true));
+  //           let isOnboardingDone = await AsyncStorage.getItem(
+  //             ASYNC_STORAGE_ENUM.IS_ONBOARDING_DONE,
+  //           );
+  //           if (!isOnboardingDone) {
+  //             navigation.navigate('SignupUser');
+  //           } else {
+  //             await AsyncStorage.setItem(
+  //               ASYNC_STORAGE_ENUM.IS_LOGGED_IN,
+  //               'true',
+  //             );
+  //             navigation.navigate('SplashScreen');
+  //           }
+  //         });
+  //         return;
+  //       }
+  //     }
+  //   };
 
-    Linking.getInitialURL().then(value => {
-      if (!value) {
-        return;
-      }
-      deepLinkNavigation(value);
-    });
+  //   Linking.getInitialURL().then(value => {
+  //     if (!value) {
+  //       return;
+  //     }
+  //     deepLinkNavigation(value);
+  //   });
 
-    Linking?.addEventListener('url', e => {
-      deepLinkNavigation(e.url);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   Linking?.addEventListener('url', e => {
+  //     deepLinkNavigation(e.url);
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
-  const signInWithKakao = async () => {
-    try {
-      const url = 'https://muckit-server.site/login/kakao';
-      Linking.openURL(url);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const signInWithKakao = async () => {
+  //   try {
+  //     const url = 'https://muckit-server.site/login/kakao';
+  //     Linking.openURL(url);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   async function onAppleButtonPress() {
     let user;
@@ -303,6 +307,17 @@ export default function Login() {
               이메일로 회원가입하기
             </Text>
           </TouchableOpacity>
+          {/* <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              try {
+                const token = await login();
+                console.log(JSON.stringify(token));
+              } catch (err) {
+                console.error('login err', err);
+              }
+            }}
+          /> */}
           {appleAuth.isSupported && (
             <AppleButton
               buttonStyle={AppleButton.Style.BLACK}
@@ -311,7 +326,7 @@ export default function Login() {
               cornerRadius={10}
             />
           )}
-          <TouchableOpacity onPress={signInWithKakao}>
+          {/* <TouchableOpacity onPress={signInWithKakao}>
             <View
               style={{
                 flexDirection: 'row',
@@ -327,7 +342,7 @@ export default function Login() {
                 source={assets.images.kakao_login_medium_narrow}
               />
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </SafeAreaView>
@@ -463,6 +478,16 @@ const styles = StyleSheet.create({
     width: 200,
     height: 60,
     margin: 10,
+  },
+  button: {
+    backgroundColor: '#FEE500',
+    borderRadius: 40,
+    borderWidth: 1,
+    width: 250,
+    height: 40,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginTop: 10,
   },
   // kakaoButton: {
   //   backgroundColor: "yellow",
