@@ -252,7 +252,7 @@ const SplashScreen = () => {
                   const visitedMatZips = await matZipSerializer(
                     fetchUserSavedZipsData,
                   );
-                  // console.log('visited: ' + fetchUserSavedZipsData.length);
+                  console.log('visited: ' + visitedMatZips);
                   dispatch(replaceVisitedMatZipsAction(visitedMatZips));
                 } else {
                   dispatch(replaceVisitedMatZipsAction([]));

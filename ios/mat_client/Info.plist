@@ -39,6 +39,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>fbAPP-ID</string>
 				<string>com.googleusercontent.apps.81406653474-qjuhseg11tvofa430rra5crot4r6db0p</string>
 			</array>
 		</dict>
@@ -65,6 +66,10 @@
 		<string>storykompassauth</string>
 		<string>kakaolink</string>
 		<string>mailto</string>
+		<string>fbapi</string>
+  		<string>fb-messenger-share-api</string>
+		<string>instagram</string>
+		<string>instagram-stories</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -119,7 +124,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>LaunchScreen.storyboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -141,5 +146,11 @@
 		<key>apiKey</key>
 		<string>3e92a68600d84011d91075ce1aef501b</string>
 	</dict>
+	<key>FacebookAppID</key>
+	<string>427131242991258</string>
+	<key>FacebookClientToken</key>
+	<string>7cbfde088d6a71b669175c190c597df8</string>
+	<key>FacebookDisplayName</key>
+	<string>Muckit</string>
 </dict>
 </plist>

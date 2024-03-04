@@ -13,11 +13,13 @@ export type AssetImages = {
     placeholder: ImageSourcePropType;
     default_profile: ImageSourcePropType;
     kakao_login_medium_narrow: ImageSourcePropType;
+    app_logo: ImageSourcePropType;
   };
 };
 
 const assets: AssetImages = {
   images: {
+    app_logo: require('./image/app_logo.png'),
     splash_background: require('./image/splash_background.png'),
     스시올로지: require('./image/1.png'),
     진만두: require('./image/2.png'),

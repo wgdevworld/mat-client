@@ -307,6 +307,23 @@ export default function Settings() {
           </View>
         </View> */}
         <View style={styles.section}>
+          <Text style={{...styles.sectionHeader, paddingTop: 0}}>
+            가본 맛집
+          </Text>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => navigation.navigate('VisitedZips')}>
+            <Ionicons name="restaurant-outline" size={18} />
+            <Text style={styles.rowText}>내가 가본 맛집</Text>
+            <View style={{flex: 1}} />
+            <Ionicons
+              name="chevron-forward-outline"
+              color="#0c0c0c"
+              size={22}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.section}>
           <Text style={styles.sectionHeader}>어플 설정</Text>
           <TouchableOpacity style={styles.row} onPress={openSettings}>
             <Ionicons name="navigate-circle-outline" size={18} />
