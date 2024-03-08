@@ -41,7 +41,6 @@ export default function AccessGrant2() {
           flex: 1,
           width: '100%',
           alignSelf: 'center',
-          marginTop: 10,
         }}>
         <View style={styles.textContainer}>
           <View style={styles.iconContainer}>{notifIcon}</View>
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
   },
   redtitle: {
     fontSize: 18,
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: 'left',
     alignSelf: 'flex-start',
     color: colors.coral1,

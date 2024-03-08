@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   redtitle: {
     fontSize: 18,
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: 'left',
     alignSelf: 'flex-start',
     color: colors.coral1,
