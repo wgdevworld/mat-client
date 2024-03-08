@@ -32,6 +32,7 @@ import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 import Muckiters from './screens/Muckiters';
 import codePush from 'react-native-code-push';
+import AccessGrant2 from './screens/Onboarding/AccessGrant2';
 
 const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
@@ -191,6 +192,11 @@ const App = () => {
               <Stack.Screen
                 name="AccessGrant"
                 component={AccessGrant}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AccessGrant2"
+                component={AccessGrant2}
                 options={{headerShown: false}}
               />
               <Stack.Screen

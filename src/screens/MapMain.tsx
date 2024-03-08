@@ -754,6 +754,7 @@ function App(): JSX.Element {
             style={styles.itemContainer}
             onPress={() => {
               setMarker(matZip);
+              sheetRef.current?.snapToIndex(1);
               const newRegion: Region = {
                 latitude: matZip.coordinate.latitude,
                 longitude: matZip.coordinate.longitude,
@@ -1158,9 +1159,14 @@ function App(): JSX.Element {
                           dispatch(updateIsJustFollowed(false));
                         }
                       }}
+                      dropDownDirection="BOTTOM"
                       containerStyle={styles.dropDownPickerContainer}
                       selectedItemContainerStyle={{
                         backgroundColor: colors.coral4,
+                        borderColor: colors.coral1,
+                        borderBottomRightRadius: 12,
+                        borderBottomLeftRadius: 12,
+                        borderBottomWidth: 1.3,
                       }}
                       tickIconStyle={{display: 'none'}}
                       dropDownContainerStyle={{
@@ -1341,6 +1347,7 @@ function App(): JSX.Element {
                       borderRadius: 12,
                       borderWidth: 1.3,
                     }}
+                    dropDownDirection="BOTTOM"
                     textStyle={{color: colors.coral1}}
                     // eslint-disable-next-line react/no-unstable-nested-components
                     ArrowDownIconComponent={() => (
@@ -1645,6 +1652,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: colors.coral1,
     borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
     backgroundColor: 'white',
     fontSize: 15,
     paddingLeft: 10,
