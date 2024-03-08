@@ -8,8 +8,7 @@ interface ZipCardProps {
   stars: number;
   numReview: number;
   address: string;
-  distance: number;
-  isVisited: boolean;
+  isVisited: boolean | undefined;
   category: string;
   onPressZip: () => void;
 }
@@ -53,15 +52,13 @@ const ZipCard: React.FC<ZipCardProps> = ({
       <TouchableOpacity onPress={onPressZip} style={styles.lowerHalf}>
         <View style={styles.cardHorizontal}>
           <View style={styles.infoContainer}>
-            <Text style={styles.mapName}>
+            <Text style={styles.mapName} ellipsizeMode="tail">
               {categoryEmoji} {name}
             </Text>
             {/* <Text style={styles.mapAuthor}>평점: {stars}</Text> */}
             {/* <Text style={styles.mapAuthor}>{address}</Text> */}
             {/* <Text style={styles.mapAuthor}>{category}</Text> */}
             {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
-            {/* //TODO: 나와의 거리 넣기 */}
-            {/* <Text style={styles.mapDistance}>나와의 거리: {distance}</Text> */}
           </View>
           <Ionicons
             name={
@@ -79,15 +76,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: 'white',
-    borderRadius: 3,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 2,
+    justifyContent: 'center',
+    backgroundColor: colors.grey,
+    marginBottom: 8,
+    borderRadius: 12,
   },
   infoContainer: {
     flex: 1,
@@ -99,8 +91,7 @@ const styles = StyleSheet.create({
   },
   mapName: {
     fontSize: 18,
-    fontWeight: 300,
-    marginBottom: 8,
+    fontWeight: '300',
     color: 'black',
   },
   mapAuthor: {
@@ -121,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    paddingTop: 12,
+    padding: 8,
     width: '100%',
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,

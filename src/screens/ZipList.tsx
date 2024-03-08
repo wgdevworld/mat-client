@@ -28,7 +28,7 @@ export default function ZipList() {
         <View style={styles.description}>
           {/* TODO: 이거 이미지 로딩 안됌 */}
           <Image source={{uri: mapData.map.imageSrc[0]}} />
-          <Text>{mapData.map.description}</Text>
+          <Text style={{fontWeight: '500'}}>{mapData.map.description}</Text>
         </View>
         <View>
           <FlatList
@@ -41,7 +41,6 @@ export default function ZipList() {
                 stars={item.reviewAvgRating}
                 numReview={item.reviewCount}
                 address={item.address}
-                distance={item.distance}
                 isVisited={item.isVisited}
                 category={item.category}
                 onPressZip={() => {

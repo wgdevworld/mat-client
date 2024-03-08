@@ -4,7 +4,7 @@ import {GlobalComponent} from '../../types/store';
 export const initialState: GlobalComponent = {
   isLoading: false,
   isFromSocial: false,
-  isRefuseNotifications: true,
+  isRefuseNotifications: false,
   isJustFollowed: false,
 };
 
