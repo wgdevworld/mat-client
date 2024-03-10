@@ -1366,11 +1366,12 @@ function App(): JSX.Element {
                     }}
                     selectedItemContainerStyle={{
                       backgroundColor: colors.coral4,
+                      borderRadius: 12,
                     }}
                     tickIconStyle={{display: 'none'}}
                     dropDownContainerStyle={{
                       borderColor: colors.coral1,
-                      borderRadius: 0,
+                      borderRadius: 12,
                     }}
                     dropDownDirection="BOTTOM"
                     textStyle={{color: colors.coral1}}
