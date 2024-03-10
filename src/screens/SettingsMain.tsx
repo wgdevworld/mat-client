@@ -36,7 +36,6 @@ export default function Settings() {
   const isRefuseNotifications = useAppSelector(
     state => state.globalComponents.isRefuseNotifications,
   );
-  console.log(isRefuseNotifications);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [isSetRadiusModalVisible, setIsSetRadiusModalVisible] = useState(false);
   const [radius, setRadius] = useState(1000);

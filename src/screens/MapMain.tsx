@@ -910,7 +910,7 @@ function App(): JSX.Element {
               query={{
                 key: Config.MAPS_API,
                 language: 'ko',
-                components: 'country:kr|country:us',
+                components: 'country:kr|country:us|country:pr',
               }}
               keyboardShouldPersistTaps={'handled'}
               fetchDetails={true}
@@ -1163,16 +1163,11 @@ function App(): JSX.Element {
                       containerStyle={styles.dropDownPickerContainer}
                       selectedItemContainerStyle={{
                         backgroundColor: colors.coral4,
-                        borderColor: colors.coral1,
-                        borderBottomRightRadius: 12,
-                        borderBottomLeftRadius: 12,
-                        borderBottomWidth: 1.3,
                       }}
                       tickIconStyle={{display: 'none'}}
                       dropDownContainerStyle={{
                         borderColor: colors.coral1,
-                        borderRadius: 12,
-                        borderWidth: 1.3,
+                        borderRadius: 0,
                       }}
                       textStyle={{color: colors.coral1}}
                       // eslint-disable-next-line react/no-unstable-nested-components
@@ -1344,8 +1339,7 @@ function App(): JSX.Element {
                     tickIconStyle={{display: 'none'}}
                     dropDownContainerStyle={{
                       borderColor: colors.coral1,
-                      borderRadius: 12,
-                      borderWidth: 1.3,
+                      borderRadius: 0,
                     }}
                     dropDownDirection="BOTTOM"
                     textStyle={{color: colors.coral1}}
