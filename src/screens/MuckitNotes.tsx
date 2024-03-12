@@ -144,7 +144,11 @@ export default function MuckitNotes() {
       <SwipeableRow
         onSwipeableRightOpen={() => {
           onDeleteMuckitem(item.id);
-        }}>
+        }}
+        onSwipeableLeftOpen={() => {
+          //do nothing
+        }}
+        renderLeft={false}>
         <TouchableOpacity
           activeOpacity={1}
           style={styles.itemContainer}
