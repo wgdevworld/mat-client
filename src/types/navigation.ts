@@ -23,6 +23,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   AccessGrant: undefined;
   VisitedZips: undefined;
+  AccessGrant2: undefined;
 
   //BottomTab
   MapMain: undefined;

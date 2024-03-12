@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -71,6 +72,7 @@ import {locationBackgroundTask} from '../controls/BackgroundTask';
 import Bugsnag from '@bugsnag/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import {addVisitedMatZipAction} from '../store/modules/visitedZips';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -569,6 +571,31 @@ function App(): JSX.Element {
     dispatch(updateIsLoadingAction(false));
   };
 
+  const onVisitMatZip = async (zip: MatZip) => {
+    if (visitedZips.find(visitedZip => visitedZip.id === zip.id)) {
+      Alert.alert('이미 방문한 맛집입니다!');
+      return;
+    }
+    dispatch(updateIsLoadingAction(true));
+    try {
+      const visitZipQuery = `
+      mutation dibsZip($zipId: String!) {
+        dibsZip(zipId: $zipId) {
+          id
+        }
+      }`;
+      const variables = {
+        zipId: zip.id,
+      };
+      await request(visitZipQuery, REQ_METHOD.MUTATION, variables);
+      dispatch(addVisitedMatZipAction(zip));
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
   const onPressShareMatMap = async () => {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
@@ -746,6 +773,9 @@ function App(): JSX.Element {
           onSwipeableRightOpen={() => {
             onDeleteMatZip(matZip.id);
           }}
+          onSwipeableLeftOpen={() => {
+            onVisitMatZip(matZip);
+          }}
           borderRadius={10}
           renderRight={curMatMap.authorId === curUser.id ? true : false}>
           <TouchableOpacity
@@ -754,6 +784,7 @@ function App(): JSX.Element {
             style={styles.itemContainer}
             onPress={() => {
               setMarker(matZip);
+              sheetRef.current?.snapToIndex(1);
               const newRegion: Region = {
                 latitude: matZip.coordinate.latitude,
                 longitude: matZip.coordinate.longitude,
@@ -909,7 +940,7 @@ function App(): JSX.Element {
               query={{
                 key: Config.MAPS_API,
                 language: 'ko',
-                components: 'country:kr|country:us',
+                components: 'country:kr|country:us|country:pr',
               }}
               keyboardShouldPersistTaps={'handled'}
               fetchDetails={true}
@@ -1158,15 +1189,16 @@ function App(): JSX.Element {
                           dispatch(updateIsJustFollowed(false));
                         }
                       }}
+                      dropDownDirection="BOTTOM"
                       containerStyle={styles.dropDownPickerContainer}
                       selectedItemContainerStyle={{
                         backgroundColor: colors.coral4,
+                        borderRadius: 12,
                       }}
                       tickIconStyle={{display: 'none'}}
                       dropDownContainerStyle={{
                         borderColor: colors.coral1,
                         borderRadius: 12,
-                        borderWidth: 1.3,
                       }}
                       textStyle={{color: colors.coral1}}
                       // eslint-disable-next-line react/no-unstable-nested-components
@@ -1334,13 +1366,14 @@ function App(): JSX.Element {
                     }}
                     selectedItemContainerStyle={{
                       backgroundColor: colors.coral4,
+                      borderRadius: 12,
                     }}
                     tickIconStyle={{display: 'none'}}
                     dropDownContainerStyle={{
                       borderColor: colors.coral1,
                       borderRadius: 12,
-                      borderWidth: 1.3,
                     }}
+                    dropDownDirection="BOTTOM"
                     textStyle={{color: colors.coral1}}
                     // eslint-disable-next-line react/no-unstable-nested-components
                     ArrowDownIconComponent={() => (
@@ -1645,6 +1678,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: colors.coral1,
     borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
     backgroundColor: 'white',
     fontSize: 15,
     paddingLeft: 10,
