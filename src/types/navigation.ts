@@ -22,6 +22,7 @@ export type RootStackParamList = {
   Survey3: undefined;
   Welcome: undefined;
   AccessGrant: undefined;
+  VisitedZips: undefined;
   AccessGrant2: undefined;
 
   //BottomTab

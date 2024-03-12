@@ -32,6 +32,7 @@ import {LogBox} from 'react-native';
 import GlobalLoading from './components/GlobalLoading';
 import Muckiters from './screens/Muckiters';
 import codePush from 'react-native-code-push';
+import VisitedZips from './screens/VisitedZips';
 import AccessGrant2 from './screens/Onboarding/AccessGrant2';
 
 const IGNORED_LOGS = [
@@ -214,6 +215,11 @@ const App = () => {
                 options={{
                   headerShown: false,
                 }}
+              />
+              <Stack.Screen
+                name="VisitedZips"
+                component={VisitedZips}
+                options={{headerShown: false}}
               />
             </Stack.Navigator>
             <GlobalLoading />
