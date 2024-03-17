@@ -161,7 +161,11 @@ const VisitedZips = () => {
           )}
         </View>
 
-        <FlatList data={savedZips} renderItem={({item}) => renderItem(item)} />
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={savedZips}
+          renderItem={({item}) => renderItem(item)}
+        />
       </View>
     </SafeAreaView>
   );

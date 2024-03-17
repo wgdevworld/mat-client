@@ -351,14 +351,23 @@ function App(): JSX.Element {
       if (!fetchedZipData) {
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
-        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
+        let photoArray: string[] = [];
+        if (!details.photos || details.photos.length === 0) {
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
+          photoArray = [defaultStreetViewImg];
+        } else {
+          details.photos.forEach((photo: any) => {
+            const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+            photoArray.push(photoUrl);
+          });
+        }
         const variables = {
           zipInfo: {
             name: details.name,
             number: data.place_id,
             description: data.description,
             address: details.formatted_address,
-            imgSrc: [defaultStreetViewImg],
+            imgSrc: photoArray,
             category: data.types[0] ? data.types[0] : '식당',
             latitude: details.geometry.location.lat,
             longitude: details.geometry.location.lng,
@@ -389,15 +398,13 @@ function App(): JSX.Element {
         fetchedZipData = addZipRes?.data.data.addZip;
       }
 
-      let defaultStreetViewImg = assets.images.placeholder;
       if (
         fetchedZipData.images === undefined ||
         fetchedZipData.images.length === 0
       ) {
         console.log('⛔️ no image');
         const apiKey = Config.MAPS_API;
-        //@ts-ignore
-        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
+        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
         const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
@@ -451,13 +458,13 @@ function App(): JSX.Element {
           longitude: fetchedZipData.longitude,
         };
       }
+      const photoArray: string[] = fetchedZipData.images.map(
+        (photo: any) => photo.src,
+      );
       const selectedMatZip: MatZip = {
         id: fetchedZipData.id,
         name: fetchedZipData.name,
-        imageSrc:
-          fetchedZipData.images || fetchedZipData.images.length === 0
-            ? defaultStreetViewImg
-            : fetchedZipData.images[0].src,
+        imageSrc: photoArray,
         coordinate: location,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
@@ -522,14 +529,11 @@ function App(): JSX.Element {
       const addToMapDataArr = addToMapRes?.data.data.addToMap;
       const serializedZipList: MatZip[] = await Promise.all(
         addToMapDataArr.map(async (zip: any) => {
-          let imgSrcArr = [];
-          if (zip.images) {
-            imgSrcArr = zip.images.map((img: any) => img.src);
-          } else {
-            const apiKey = Config.MAPS_API;
-            const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
-            imgSrcArr = [defaultStreetViewImg];
-          }
+          const apiKey = Config.MAPS_API;
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
+          const zipImgSrcArr = zip.images
+            ? zip.images.map((img: any) => img.src)
+            : [defaultStreetViewImg];
 
           const coordinate = {
             latitude: zip.latitude,
@@ -539,7 +543,7 @@ function App(): JSX.Element {
           return {
             id: zip.id,
             name: zip.name,
-            imageSrc: imgSrcArr,
+            imageSrc: zipImgSrcArr,
             coordinate,
             address: zip.address,
             reviewCount: zip.reviewCount,
@@ -938,6 +942,7 @@ function App(): JSX.Element {
           style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
           {isSearchGoogle ? (
             <GooglePlacesAutocomplete
+              // GooglePlacesSearchQuery={{rankby: 'distance', type: 'restaurant'}}
               minLength={1}
               debounce={500}
               placeholder="구글 지도에서 장소를 검색해보세요!"
@@ -958,7 +963,7 @@ function App(): JSX.Element {
               onFail={error => console.error(error)}
               onNotFound={() => console.error('검색 결과 없음')}
               keepResultsAfterBlur={true}
-              enablePoweredByContainer={false}
+              enablePoweredByContainer={true}
               styles={styles.searchTextInput}
             />
           ) : (

@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {View, Image, StyleSheet, ActivityIndicator} from 'react-native';
 import Swiper from 'react-native-swiper';
 import colors from '../styles/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface ImageCarouselProps {
   images?: string[];
@@ -23,7 +24,27 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
 
   return (
     <View style={styles.container}>
-      <Swiper showsButtons={false} autoplay autoplayTimeout={3} loop>
+      <Swiper
+        showsButtons={images && images.length > 1 ? true : false}
+        autoplay
+        autoplayTimeout={5}
+        loop
+        dotColor={colors.grey}
+        activeDotColor={colors.coral1}
+        nextButton={
+          <Ionicons
+            name="chevron-forward-outline"
+            size={30}
+            color={colors.coral1}
+          />
+        }
+        prevButton={
+          <Ionicons
+            name="chevron-back-outline"
+            size={30}
+            color={colors.coral1}
+          />
+        }>
         {images &&
           images.map((imageURI, index) => (
             <View key={imageURI + index} style={styles.slide}>
