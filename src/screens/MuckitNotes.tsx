@@ -13,7 +13,6 @@ import {
   SafeAreaView,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
 import colors from '../styles/colors';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from '../store/hooks';
@@ -192,24 +191,25 @@ export default function MuckitNotes() {
           <View style={styles.headingContainer}>
             <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
           </View>
-          <ScrollView bounces={false}>
-            <View style={{paddingHorizontal: 24}}>
-              <FlatList
-                data={items}
-                keyExtractor={item => item.id.toString()}
-                renderItem={renderItem}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="탕후루가 먹고 싶어"
-                value={newItemText}
-                onChangeText={handleTextInputChange}
-                onSubmitEditing={handleTextInputSubmit}
-                returnKeyType="done"
-                blurOnSubmit={false}
-              />
-            </View>
-          </ScrollView>
+          <View style={{paddingHorizontal: 24}}>
+            <FlatList
+              data={items}
+              bounces={false}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderItem}
+              ListFooterComponent={
+                <TextInput
+                  style={styles.input}
+                  placeholder="탕후루가 먹고 싶어"
+                  value={newItemText}
+                  onChangeText={handleTextInputChange}
+                  onSubmitEditing={handleTextInputSubmit}
+                  returnKeyType="done"
+                  blurOnSubmit={false}
+                />
+              }
+            />
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>

@@ -8,6 +8,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Keyboard,
   Modal,
   Platform,
   StyleSheet,
@@ -935,7 +936,6 @@ function App(): JSX.Element {
               placeholder="구글 지도에서 장소를 검색해보세요!"
               textInputProps={{
                 placeholderTextColor: 'black',
-                caretHidden: true,
               }}
               query={{
                 key: Config.MAPS_API,
@@ -958,7 +958,7 @@ function App(): JSX.Element {
             <>
               <View style={{flexDirection: 'row'}}>
                 <TextInput
-                  caretHidden={true}
+                  // caretHidden={true}
                   style={styles.ourDBSearchBar}
                   ref={textInputRef}
                   value={searchQuery}
@@ -1062,6 +1062,7 @@ function App(): JSX.Element {
               ) {
                 setIsSearchGoogle(false);
                 setMarker(null);
+                Keyboard.dismiss();
               }
             }}>
             {marker && (
