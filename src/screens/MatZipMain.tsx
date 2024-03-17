@@ -12,6 +12,9 @@ import {
   ScrollView,
   Modal,
   Image,
+  Linking,
+  ActionSheetIOS,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
@@ -155,7 +158,7 @@ export default function MatZipMain() {
       ) {
         console.log('⛔️ no image');
         const apiKey = Config.MAPS_API;
-        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${location.latitude},${location.longitude}&key=${apiKey}`;
+        defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${coordinate.latitude},${coordinate.longitude}&key=${apiKey}`;
         const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
@@ -291,6 +294,48 @@ export default function MatZipMain() {
       dispatch(updateIsLoadingAction(false));
     }
   };
+
+  const handleRedirectToNaver = () => {
+    const zipName = zipData?.name;
+    const url = `https://m.map.naver.com/search2/search.naver?query=${zipName}`;
+    Linking.openURL(url);
+  };
+
+  const handleNavigate = () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['취소', '네이버 지도', '카카오 지도'],
+        cancelButtonIndex: 0,
+      },
+      //kakaomap://route?sp=37.537229,127.005515&ep=37.4979502,127.0276368&by=PUBLICTRANSIT
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          // cancel action
+        } else if (buttonIndex === 1) {
+          const naverMapUrl = `nmap://route/public?dlat=${
+            zipData?.coordinate.latitude
+          }&dlng=${zipData?.coordinate.longitude}&dname=${encodeURI(
+            zipData?.name!,
+          )}`;
+          try {
+            Linking.openURL(naverMapUrl);
+          } catch (e) {
+            Alert.alert('네이버 지도를 실행할 수 없습니다.');
+            console.log(e);
+          }
+        } else if (buttonIndex === 2) {
+          const kakaoMapUrl = `/kakaomap://route?ep=${zipData?.coordinate.latitude},${zipData?.coordinate.longitude}&by=PUBLICTRANSIT`;
+          try {
+            Linking.openURL(kakaoMapUrl);
+          } catch (e) {
+            Alert.alert('카카오 지도를 실행할 수 없습니다.');
+            console.log(e);
+          }
+        }
+      },
+    );
+  };
+
   const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -348,49 +393,50 @@ export default function MatZipMain() {
         ) : (
           <ImageCarousel images={images} />
         )} */}
-        <View style={styles.matZipContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View>
-              <View style={styles.horizontal}>
-                <Text
-                  style={styles.zipNameText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {zipData?.name}
-                </Text>
-                <View style={{flex: 1}} />
-              </View>
-
-              <Text style={styles.matZipListText}>
-                {parentMap &&
-                  parentMap.length > 0 &&
-                  (parentMap.length > 2
-                    ? `${parentMap[0]}, ${parentMap[1]} 외 ${
-                        parentMap.length - 2
-                      }개의 맛맵에 포함`
-                    : parentMap.length === 2
-                    ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
-                    : `${parentMap[0]} 맛맵에 포함`)}
+        <View style={{paddingHorizontal: 24}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignContent: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <View style={styles.horizontal}>
+              <Text
+                style={styles.zipNameText}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {zipData?.name}
               </Text>
-              <View
-                style={{
-                  ...styles.horizontal,
-                  marginTop: parentMap && parentMap.length === 0 ? -27 : 0,
-                }}>
-                <Ionicons name="location-outline" color="black" size={18} />
-                <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
-              </View>
-              <Text style={styles.matZipDescriptionText}>
-                {zipData?.description}
-              </Text>
+              <View style={{flex: 1}} />
             </View>
-            <View style={{alignContent: 'center'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignContent: 'center',
+                justifyContent: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={handleRedirectToNaver}
+                style={{...styles.saveIcon, marginHorizontal: 5}}>
+                <Ionicons
+                  name={'globe-outline'}
+                  size={28}
+                  color={colors.coral1}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleNavigate}
+                style={{...styles.saveIcon, marginHorizontal: 5}}>
+                <Ionicons name={'arrow-redo'} size={28} color={colors.coral1} />
+              </TouchableOpacity>
               <View
                 style={{
                   backgroundColor: '#f2f2f2f2',
                   borderRadius: 8,
                   padding: 7,
-                  marginTop: 10,
+                  height: 30,
+                  marginLeft: 5,
+                  alignSelf: 'center',
                 }}>
                 <View style={{...styles.horizontal}}>
                   <Ionicons name="star" color={colors.coral1} size={15} />
@@ -399,6 +445,39 @@ export default function MatZipMain() {
                   </Text>
                 </View>
               </View>
+            </View>
+          </View>
+          <View style={styles.matZipContainer}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}>
+              <View>
+                <Text style={styles.matZipListText}>
+                  {parentMap &&
+                    parentMap.length > 0 &&
+                    (parentMap.length > 2
+                      ? `${parentMap[0]}, ${parentMap[1]} 외 ${
+                          parentMap.length - 2
+                        }개의 맛맵에 포함`
+                      : parentMap.length === 2
+                      ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                      : `${parentMap[0]} 맛맵에 포함`)}
+                </Text>
+                <View
+                  style={{
+                    ...styles.horizontal,
+                    marginTop: parentMap && parentMap.length === 0 ? -27 : 0,
+                  }}>
+                  <Ionicons name="location-outline" color="black" size={18} />
+                  <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
+                </View>
+                <Text style={styles.matZipDescriptionText}>
+                  {zipData?.description}
+                </Text>
+              </View>
+
               <TouchableOpacity
                 onPress={handleIconPress}
                 style={styles.saveIcon}>
@@ -411,27 +490,29 @@ export default function MatZipMain() {
                 />
               </TouchableOpacity>
             </View>
-          </View>
 
-          {zipData && <ReviewForm zipId={zipData.id} setReviews={setReviews} />}
-          <TouchableOpacity
-            style={styles.row}
-            onPress={handlePressReviewChevron}>
-            <Text style={styles.rowText}>
-              리뷰 {reviews ? reviews?.length : 0}개
-            </Text>
-            <View style={{flex: 1}} />
-            <Ionicons
-              name={
-                toggleReview
-                  ? 'chevron-forward-outline'
-                  : 'chevron-down-outline'
-              }
-              color="white"
-              size={22}
-            />
-          </TouchableOpacity>
-          <ExpandableView expanded={toggleReview} reviews={reviews} />
+            {zipData && (
+              <ReviewForm zipId={zipData.id} setReviews={setReviews} />
+            )}
+            <TouchableOpacity
+              style={styles.row}
+              onPress={handlePressReviewChevron}>
+              <Text style={styles.rowText}>
+                리뷰 {reviews ? reviews?.length : 0}개
+              </Text>
+              <View style={{flex: 1}} />
+              <Ionicons
+                name={
+                  toggleReview
+                    ? 'chevron-forward-outline'
+                    : 'chevron-down-outline'
+                }
+                color="white"
+                size={22}
+              />
+            </TouchableOpacity>
+            <ExpandableView expanded={toggleReview} reviews={reviews} />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -443,7 +524,7 @@ export default function MatZipMain() {
 const styles = StyleSheet.create({
   containter: {},
   matZipContainer: {
-    paddingHorizontal: 24,
+    paddingBottom: 500,
   },
   fullScreenImage: {
     flex: 1,
@@ -457,7 +538,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingBottom: 10,
     textAlign: 'left',
-    width: 250,
   },
   matZipListText: {
     fontSize: 13,
@@ -574,8 +654,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   saveIcon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 10,
+    alignSelf: 'center',
   },
 });
