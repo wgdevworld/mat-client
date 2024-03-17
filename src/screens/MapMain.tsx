@@ -861,11 +861,14 @@ function App(): JSX.Element {
             }}
             // eslint-disable-next-line react/no-unstable-nested-components
             listEmptyComponent={() => {
-              return (
-                <View style={{flex: 1, padding: 12}}>
-                  <Text>해당 맛집이 없어요! 😢</Text>
-                </View>
-              );
+              //@ts-ignore
+              if (googleSearchBarRef.current?.getAddressText().length > 0) {
+                return (
+                  <View style={{flex: 1, padding: 12}}>
+                    <Text>해당 맛집이 없어요! 😢</Text>
+                  </View>
+                );
+              }
             }}
             query={{
               key: Config.MAPS_API,
