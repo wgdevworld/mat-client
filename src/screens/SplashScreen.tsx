@@ -130,7 +130,7 @@ const SplashScreen = () => {
                   console.log('ℹ️ no MatMap found, creating default one');
                   const variables = {
                     mapInfo: {
-                      name: '기본 맛맵',
+                      name: `${curUserUsername} 맛맵`,
                       description: `${curUserUsername}님의 첫 맛맵`,
                       areaCode: '',
                       publicStatus: false,

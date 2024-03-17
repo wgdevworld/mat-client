@@ -86,6 +86,7 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
       {orderedReviews && orderedReviews.length !== 0 ? (
         <FlatList
           data={orderedReviews}
+          bounces={false}
           keyExtractor={(item, index) => item.date.toISOString() + index}
           scrollEnabled={true}
           maxToRenderPerBatch={5}
@@ -218,7 +219,7 @@ export default function MatZipMain() {
       const fetchReviewQuery = `{
         fetchReviewsByZipId(zipId: "${zipId}") {
           writer {
-            name
+            username
           }
           rating
           content
@@ -242,7 +243,8 @@ export default function MatZipMain() {
           };
         });
         return {
-          author: review.writer !== null ? review.writer.name : '탈퇴한 사용자',
+          author:
+            review.writer !== null ? review.writer.username : '탈퇴한 사용자',
           rating: review.rating,
           content: review.content,
           date: new Date(review.createdAt),

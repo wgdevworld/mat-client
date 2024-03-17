@@ -129,7 +129,7 @@ const ReviewForm: React.FC<{
       const fetchReviewQuery = `{
         fetchReviewsByZipId(zipId: "${zipId}") {
           writer {
-            name
+            username
           }
           rating
           content
@@ -155,7 +155,7 @@ const ReviewForm: React.FC<{
           };
         });
         return {
-          author: review.writer.name,
+          author: review.writer.username,
           rating: review.rating,
           content: review.content,
           date: new Date(review.createdAt),
