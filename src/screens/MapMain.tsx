@@ -1546,6 +1546,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
   },
   selfMarkerContainer: {
     justifyContent: 'center',
@@ -1690,13 +1697,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: 'black',
     includeFontPadding: true,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
   },
   searchResultContainer: {
     borderRadius: 10,
