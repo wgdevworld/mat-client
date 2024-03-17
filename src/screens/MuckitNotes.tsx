@@ -189,10 +189,10 @@ export default function MuckitNotes() {
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView>
-            <View style={styles.headingContainer}>
-              <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
-            </View>
+          <View style={styles.headingContainer}>
+            <Text style={styles.heading}>나만의 먹킷리스트 ✔️</Text>
+          </View>
+          <ScrollView bounces={false}>
             <View style={{paddingHorizontal: 24}}>
               <FlatList
                 data={items}
