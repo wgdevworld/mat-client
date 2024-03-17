@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
-  ActivityIndicator,
   Alert,
   Dimensions,
-  FlatList,
   Image,
   Keyboard,
   Modal,
@@ -50,7 +48,6 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import Config from 'react-native-config';
 // import {updateLocationAndSendNoti} from '../controls/BackgroundTask';
-import {throttle} from 'lodash';
 import SwipeableRow from '../components/SwipeableRow';
 import {
   updateIsJustFollowed,
@@ -95,15 +92,10 @@ function App(): JSX.Element {
 
   const sheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<MapView>(null);
-  const textInputRef = useRef(null);
+  const googleSearchBarRef = useRef(null);
 
   const [curMatMap, setCurMatMap] = useState<MatMap>(userOwnMaps[0]);
   const [marker, setMarker] = useState<MatZip | null>();
-  const [isSearchGoogle, setIsSearchGoogle] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchResultLoading, setIsSearchResultLoading] = useState(false);
-  const [searchedMatZips, setSearchedMatZips] =
-    useState<{zipId: number; name: string; address: string}[]>();
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>(
     curMatMap.zipList,
   );
@@ -238,95 +230,13 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
-
-  const performSearch = async (input: string) => {
-    const query = `{
-      fetchZipByName(searchKey: "${input}") {
-        id
-        name
-        address
-      }
-    }`;
-    const fetchedZipRes = await request(query, REQ_METHOD.QUERY);
-    const fetchedZipData = fetchedZipRes?.data.data.fetchZipByName;
-    return fetchedZipData;
-  };
-
-  const throttledSearch = useCallback(
-    throttle(query => {
-      setIsSearchResultLoading(true);
-      performSearch(query)
-        .then(data => {
-          setSearchedMatZips(data);
-        })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsSearchResultLoading(false);
-        });
-    }, 2000),
-    [],
-  );
-
-  useEffect(() => {
-    if (searchQuery.length > 1) {
-      setIsSearchResultLoading(true);
-      throttledSearch(searchQuery);
-    }
-  }, [searchQuery]);
-
-  const renderSearchedItem = (item: any) => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          onPressSearchResult(item.item.id, item.item.address);
-        }}
-        style={styles.searchResultEntry}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text>{item.item.name}</Text>
-          <Text
-            style={{fontSize: 12, maxWidth: '70%', alignSelf: 'center'}}
-            numberOfLines={1}
-            ellipsizeMode="tail">
-            {item.item.address}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
   const onPressSearchResult = async (data: any, details: any) => {
+    console.log(details);
     dispatch(updateIsLoadingAction(true));
     try {
-      setSearchQuery('');
       let fetchedZipData: any = null;
       // if searched with our DB
-      if (typeof details === 'string') {
-        // location = await addressToCoordinate(details);
-        const fetchZipQuery = `{
-        fetchZip(id: "${data}") {
-          id
-          name
-          address
-          reviewCount
-          reviewAvgRating
-          parentMap {
-            name
-          }
-          category
-          images {
-            id
-            src
-          }
-          latitude
-          longitude
-        }
-      }`;
-        const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-        fetchedZipData = fetchedZipRes?.data.data?.fetchZip;
-      } else {
-        const fetchZipQuery = `{
+      const fetchZipQuery = `{
         fetchZipByGID(gid: "${data.place_id}") {
           id
           name
@@ -345,9 +255,8 @@ function App(): JSX.Element {
           longitude
         }
       }`;
-        const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-        fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
-      }
+      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
+      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
       if (!fetchedZipData) {
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
@@ -940,126 +849,46 @@ function App(): JSX.Element {
       <GestureHandlerRootView style={{flex: 1}}>
         <View
           style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
-          {isSearchGoogle ? (
-            <GooglePlacesAutocomplete
-              // GooglePlacesSearchQuery={{rankby: 'distance', type: 'restaurant'}}
-              minLength={1}
-              debounce={500}
-              placeholder="구글 지도에서 장소를 검색해보세요!"
-              textInputProps={{
-                placeholderTextColor: 'black',
-              }}
-              query={{
-                key: Config.MAPS_API,
-                language: 'ko',
-                components: 'country:kr|country:us|country:pr',
-              }}
-              keyboardShouldPersistTaps={'handled'}
-              fetchDetails={true}
-              onPress={(data, details = null) => {
-                setIsSearchGoogle(false);
-                onPressSearchResult(data, details);
-              }}
-              onFail={error => console.error(error)}
-              onNotFound={() => console.error('검색 결과 없음')}
-              keepResultsAfterBlur={true}
-              enablePoweredByContainer={true}
-              styles={styles.searchTextInput}
-            />
-          ) : (
-            <>
-              <View style={{flexDirection: 'row'}}>
-                <TextInput
-                  // caretHidden={true}
-                  style={styles.ourDBSearchBar}
-                  ref={textInputRef}
-                  value={searchQuery}
-                  placeholderTextColor={'black'}
-                  placeholder="장소를 검색해보세요!"
-                  onChangeText={newText => setSearchQuery(newText)}
-                  onPressOut={() => {
-                    setSearchQuery('');
-                  }}
-                />
-                {searchQuery.length === 0 ? (
-                  <Ionicons
-                    name="search-outline"
-                    style={{position: 'absolute', right: 5, top: 9}}
-                    size={24}
-                    color={colors.coral1}
-                  />
-                ) : null}
-                {searchQuery.length > 0 ? (
-                  <TouchableOpacity
-                    style={{position: 'absolute', right: 5, top: 9}}
-                    onPress={() => {
-                      setSearchQuery('');
-                      setSearchedMatZips([]);
-                      if (textInputRef.current) {
-                        //@ts-ignore
-                        textInputRef.current.blur();
-                      }
-                    }}>
-                    <Ionicons
-                      name="close-circle"
-                      size={24}
-                      color={colors.coral1}
-                    />
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-              {searchedMatZips && searchQuery.length !== 0 ? (
-                <View
-                  style={{
-                    borderColor: colors.coral1,
-                    borderWidth: 1,
-                    borderRadius: 10,
-                    backgroundColor: 'white',
-                    marginTop: 5,
-                    maxHeight: 300,
-                  }}>
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={searchedMatZips}
-                    renderItem={renderSearchedItem}
-                    contentContainerStyle={styles.searchResultContainer}
-                    ListHeaderComponent={
-                      isSearchResultLoading ? (
-                        <View
-                          style={{
-                            borderBottomColor: 'grey',
-                            borderBottomWidth: 0.17,
-                          }}>
-                          <ActivityIndicator
-                            style={{
-                              padding: 12,
-                              alignSelf: 'flex-start',
-                              borderBottomColor: 'grey',
-                              borderBottomWidth: 0.17,
-                            }}
-                            size="small"
-                            color={colors.coral1}
-                          />
-                        </View>
-                      ) : null
-                    }
-                    ListFooterComponent={
-                      <TouchableOpacity
-                        onPress={() => {
-                          setSearchQuery('');
-                          setIsSearchGoogle(true);
-                        }}
-                        style={styles.searchResultEntry}>
-                        <Text style={{color: colors.coral1}}>
-                          검색 결과가 없으세요?
-                        </Text>
-                      </TouchableOpacity>
-                    }
-                  />
+          <GooglePlacesAutocomplete
+            minLength={1}
+            GooglePlacesDetailsQuery={{
+              fields: 'geometry,photos,name,formatted_address',
+            }}
+            debounce={0}
+            placeholder="맛집을 검색해보세요!"
+            textInputProps={{
+              placeholderTextColor: 'black',
+            }}
+            // eslint-disable-next-line react/no-unstable-nested-components
+            listEmptyComponent={() => {
+              return (
+                <View style={{flex: 1, padding: 12}}>
+                  <Text>해당 맛집이 없어요! 😢</Text>
                 </View>
-              ) : null}
-            </>
-          )}
+              );
+            }}
+            query={{
+              key: Config.MAPS_API,
+              language: 'ko',
+              components: 'country:kr|country:us|country:pr',
+              rankby: 'distance',
+              types: 'restaurant|cafe|bakery|bar|liquor_store',
+            }}
+            numberOfLines={2}
+            fetchDetails={true}
+            onPress={async (data, details = null) => {
+              await onPressSearchResult(data, details);
+              //@ts-ignore
+              googleSearchBarRef.current?.clear();
+            }}
+            isRowScrollable={false}
+            onFail={error => console.error(error)}
+            onNotFound={() => console.error('검색 결과 없음')}
+            keepResultsAfterBlur={false}
+            enablePoweredByContainer={false}
+            styles={styles.searchTextInput}
+            ref={googleSearchBarRef}
+          />
         </View>
         <View style={styles.container}>
           <MapView
@@ -1068,13 +897,14 @@ function App(): JSX.Element {
             style={styles.map}
             followsUserLocation={true}
             onPress={e => {
+              //@ts-ignore
+              googleSearchBarRef.current?.clear();
+              Keyboard.dismiss();
               if (
                 !e.nativeEvent.action ||
                 e.nativeEvent.action !== 'marker-press'
               ) {
-                setIsSearchGoogle(false);
                 setMarker(null);
-                Keyboard.dismiss();
               }
             }}>
             {marker && (
@@ -1589,6 +1419,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     listView: {
       borderRadius: 10,
+      borderColor: colors.coral1,
+      borderWidth: 1,
+      backgroundColor: 'white',
     },
     textInputContainer: {
       borderRadius: 10,
@@ -1597,6 +1430,8 @@ const styles = StyleSheet.create({
       backgroundColor: 'white',
       borderRadius: 10,
       color: 'black',
+      borderColor: colors.coral1,
+      borderWidth: 1,
     },
   },
   iconContainer: {

@@ -77,3 +77,9 @@ export function trimCountry(address: string): string {
   const newAddress = address.replace(country, '').trimStart();
   return newAddress;
 }
+
+export function trimCountryAtBack(address: string): string {
+  const country = address.split(' ')[address.split(' ').length - 1];
+  const newAddress = address.replace(country, '').trimStart();
+  return newAddress;
+}
