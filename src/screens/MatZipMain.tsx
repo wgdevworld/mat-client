@@ -83,18 +83,25 @@ const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
 
   return (
     <Animated.View style={{height}}>
-      <FlatList
-        data={orderedReviews}
-        keyExtractor={(item, index) => item.date.toISOString() + index}
-        scrollEnabled={true}
-        maxToRenderPerBatch={5}
-        initialNumToRender={5}
-        windowSize={10}
-        removeClippedSubviews={true}
-        renderItem={renderItem}
-        getItemLayout={getItemLayout}
-        // ListHeaderComponent={<ReviewForm />}
-      />
+      {orderedReviews && orderedReviews.length !== 0 ? (
+        <FlatList
+          data={orderedReviews}
+          keyExtractor={(item, index) => item.date.toISOString() + index}
+          scrollEnabled={true}
+          maxToRenderPerBatch={5}
+          initialNumToRender={5}
+          windowSize={10}
+          removeClippedSubviews={true}
+          renderItem={renderItem}
+          getItemLayout={getItemLayout}
+          // ListHeaderComponent={<ReviewForm />}
+        />
+      ) : (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text>이 맛집의 첫 리뷰를 작성해주세요!</Text>
+        </View>
+      )}
+
       {/* <ReviewForm /> */}
     </Animated.View>
   );
@@ -536,6 +543,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginTop: 10,
+    maxWidth: 220,
     paddingBottom: 10,
     textAlign: 'left',
   },
