@@ -140,10 +140,9 @@ function App(): JSX.Element {
 
   const [dropDownValue, setDropDownValue] = useState(dropDownItems[0].value);
 
-  const [currentLocation, setCurrentLocation] = useState<Coordinate>({
-    latitude: 0,
-    longitude: 0,
-  });
+  const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(
+    null,
+  );
 
   useEffect(() => {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
@@ -226,6 +225,9 @@ function App(): JSX.Element {
   }, [curMatMap]);
 
   useEffect(() => {
+    if (!currentLocation) {
+      return;
+    }
     setOrderedMatZips(prev => {
       const sortedArray = [...prev].sort(
         (a, b) =>
@@ -765,9 +767,14 @@ function App(): JSX.Element {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
 
   const renderItem = (matZip: MatZip) => {
-    const distance = calculateDistance(matZip.coordinate, currentLocation);
-    const distanceDisplay =
-      distance > 1000 ? `${(distance / 1000).toFixed(1)}km` : `${distance}m`;
+    let distanceDisplay = '';
+    if (currentLocation) {
+      const distance = calculateDistance(matZip.coordinate, currentLocation);
+      distanceDisplay =
+        distance > 1000 ? `${(distance / 1000).toFixed(1)}km` : `${distance}m`;
+    } else {
+      distanceDisplay = '--';
+    }
     return (
       <>
         <SwipeableRow

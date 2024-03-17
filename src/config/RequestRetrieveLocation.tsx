@@ -15,7 +15,7 @@ export async function requestPermission() {
 
 export function requestPermissionAndGetLocation(
   setCurrentLocation: Dispatch<
-    SetStateAction<{latitude: number; longitude: number}>
+    SetStateAction<{latitude: number; longitude: number} | null>
   >,
   mapRef: RefObject<MapView>,
 ) {
@@ -49,6 +49,17 @@ export function requestPermissionAndGetLocation(
           maximumAge: 3600,
         },
       );
+    } else {
+      if (!mapRef.current) {
+        return;
+      }
+      const newRegion: Region = {
+        latitude: 37.566535,
+        longitude: 126.977969,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      };
+      mapRef.current.animateToRegion(newRegion, 100);
     }
   });
 }

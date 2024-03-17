@@ -1,4 +1,4 @@
-import {MatMap} from './store';
+import {Coordinate, MatMap} from './store';
 
 export type ScreenParamList = RootStackParamList;
 
@@ -34,6 +34,7 @@ export type RootStackParamList = {
   ZipList: {
     // mapID: string;
     map: MatMap;
+    location: Coordinate | null;
   };
   MatZipMain: {
     zipID: string | undefined;

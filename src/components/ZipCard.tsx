@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -11,6 +12,7 @@ interface ZipCardProps {
   isVisited: boolean | undefined;
   category: string;
   onPressZip: () => void;
+  distance: number | undefined;
 }
 
 const getCategoryEmoji = (category: string) => {
@@ -44,21 +46,38 @@ const ZipCard: React.FC<ZipCardProps> = ({
   isVisited,
   category,
   onPressZip,
+  distance,
 }) => {
   const categoryEmoji = getCategoryEmoji(category);
+  const distanceDisplay = distance
+    ? distance > 1000
+      ? `${(distance / 1000).toFixed(1)}km`
+      : `${distance}m`
+    : undefined;
 
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onPressZip} style={styles.lowerHalf}>
         <View style={styles.cardHorizontal}>
+          <Text
+            style={{...styles.mapName, paddingRight: 5}}
+            ellipsizeMode="tail">
+            {categoryEmoji}
+          </Text>
           <View style={styles.infoContainer}>
             <Text style={styles.mapName} ellipsizeMode="tail">
-              {categoryEmoji} {name}
+              {name}
             </Text>
-            {/* <Text style={styles.mapAuthor}>평점: {stars}</Text> */}
-            {/* <Text style={styles.mapAuthor}>{address}</Text> */}
-            {/* <Text style={styles.mapAuthor}>{category}</Text> */}
-            {/* <Text style={styles.followersCount}>리뷰수 {numReview}</Text> */}
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: '300',
+                color: 'black',
+                paddingTop: 5,
+              }}
+              ellipsizeMode="tail">
+              나외의 거리: {distanceDisplay ? distanceDisplay : '--'}
+            </Text>
           </View>
           <Ionicons
             name={
