@@ -179,7 +179,7 @@ function App(): JSX.Element {
             : 2000 / 20,
           distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
           // Activity Recognition
-          stopTimeout: 5,
+          stopTimeout: 1,
           // Application config
           debug: false,
           showsBackgroundLocationIndicator: false,
