@@ -12,6 +12,7 @@ import {
   ScrollView,
   Modal,
   Image,
+  Linking,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
@@ -291,6 +292,11 @@ export default function MatZipMain() {
       dispatch(updateIsLoadingAction(false));
     }
   };
+  const handleRedirectToNaver = () => {
+    const zipName = zipData?.name;
+    const url = `https://m.map.naver.com/search2/search.naver?query=${zipName}`;
+    Linking.openURL(url);
+  };
   const [reviews, setReviews] = useState<Review[]>([]);
   return zipData ? (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -410,6 +416,15 @@ export default function MatZipMain() {
                   color={colors.coral1}
                 />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleRedirectToNaver}
+                style={styles.saveIcon}>
+                <Ionicons
+                  name={'globe-outline'}
+                  size={28}
+                  color={colors.coral1}
+                />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -444,6 +459,7 @@ const styles = StyleSheet.create({
   containter: {},
   matZipContainer: {
     paddingHorizontal: 24,
+    paddingBottom: 500,
   },
   fullScreenImage: {
     flex: 1,
