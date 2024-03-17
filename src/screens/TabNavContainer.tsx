@@ -23,7 +23,10 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import {useDispatch} from 'react-redux';
-import {updateIsLoadingAction} from '../store/modules/globalComponent';
+import {
+  updateIsJustFollowed,
+  updateIsLoadingAction,
+} from '../store/modules/globalComponent';
 import {addUserFollower} from '../controls/MatMapControl';
 import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -144,6 +147,7 @@ const TabNavContainer = () => {
               if (fetchMapData) {
                 const map = await matMapSerializer([fetchMapData]);
                 dispatch(addFollowingMatMapAction(map[0]));
+                dispatch(updateIsJustFollowed(true));
                 console.log(map[0].id + 'added');
               } else {
                 console.error('Error fetching map:', fetchMapData);
