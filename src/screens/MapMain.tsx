@@ -237,9 +237,7 @@ function App(): JSX.Element {
     // here, we check our database if there is a zip with the same name.
     // if yes, we return this zip
     const searchKey =
-      details.name.length > 3
-        ? details.name.toLowerCase().substring(0, 3)
-        : details.name.toLowerCase();
+      details.name.length > 3 ? details.name.substring(0, 3) : details.name;
     try {
       const checkOurDBQuery = `{
         fetchZipByName(searchKey: "${searchKey}") {
