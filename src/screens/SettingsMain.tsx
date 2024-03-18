@@ -69,7 +69,7 @@ export default function Settings() {
       radius.toString(),
     );
     await BackgroundGeolocation.setConfig({
-      stationaryRadius: radius / 20,
+      stationaryRadius: radius / 4,
       distanceFilter: radius / 2,
     }).then(state => {
       console.log('[setConfig] success: ', state);
