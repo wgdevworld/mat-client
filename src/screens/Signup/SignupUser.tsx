@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import colors from '../../styles/colors';
 import {useNavigation} from '@react-navigation/native';
@@ -38,6 +39,10 @@ export default function SignupUser() {
   };
 
   async function onNext() {
+    if (username === '운영자') {
+      Alert.alert('사용 불가능한 유저네임입니다!');
+      return;
+    }
     dispatch(updateUsernameAction(username));
     if (!isFromSocial) {
       try {
