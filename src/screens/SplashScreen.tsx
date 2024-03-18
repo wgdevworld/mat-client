@@ -59,14 +59,6 @@ const SplashScreen = () => {
                   REQ_METHOD.QUERY,
                 );
                 console.log(curUserRes?.data.data.fetchLoggedIn);
-                AsyncStorage.getItem(
-                  ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
-                ).then(interval => {
-                  const COOLDOWN_TIME = interval
-                    ? parseInt(interval, 10)
-                    : 3 * 60 * 60 * 1000;
-                  store.dispatch(cleanupCooldowns(COOLDOWN_TIME));
-                });
 
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
@@ -78,6 +70,9 @@ const SplashScreen = () => {
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
                   curUserEmail,
                 );
+                navigation.replace('TabNavContainer', {
+                  screen: 'Map',
+                });
 
                 const fetchUserMapQuery = `{
                   fetchUserMap {
@@ -257,40 +252,6 @@ const SplashScreen = () => {
                 } else {
                   dispatch(replaceVisitedMatZipsAction([]));
                 }
-                navigation.replace('TabNavContainer', {
-                  screen: 'Map',
-                });
-
-                //유저 먹킷 리스트 불러오기
-                const fetchMuckitemQuery = `{
-                  fetchAllMuckitem {
-                    id
-                    title
-                    description
-                    completeStatus
-                  }
-                }`;
-                const userMuckitemsRes = await request(
-                  fetchMuckitemQuery,
-                  REQ_METHOD.QUERY,
-                );
-                const userMuckitemsData =
-                  userMuckitemsRes?.data?.data?.fetchAllMuckitem;
-
-                if (userMuckitemsData) {
-                  const serializedItemsList: MuckitItem[] = await Promise.all(
-                    userMuckitemsData.map(async (item: any) => {
-                      return {
-                        id: item.id,
-                        title: item.title,
-                        description: item.description,
-                        completeStatus: item.completeStatus,
-                      } as MuckitItem;
-                    }),
-                  );
-                  dispatch(replaceOwnMuckitemsAction(serializedItemsList));
-                }
-
                 const fetchAllMapsQuery = `{
                   fetchAllMaps {
                     id
@@ -344,6 +305,44 @@ const SplashScreen = () => {
                     dispatch(replacePublicMapsAction(publicMaps));
                   }
                 }
+
+                //유저 먹킷 리스트 불러오기
+                const fetchMuckitemQuery = `{
+                  fetchAllMuckitem {
+                    id
+                    title
+                    description
+                    completeStatus
+                  }
+                }`;
+                const userMuckitemsRes = await request(
+                  fetchMuckitemQuery,
+                  REQ_METHOD.QUERY,
+                );
+                const userMuckitemsData =
+                  userMuckitemsRes?.data?.data?.fetchAllMuckitem;
+
+                if (userMuckitemsData) {
+                  const serializedItemsList: MuckitItem[] = await Promise.all(
+                    userMuckitemsData.map(async (item: any) => {
+                      return {
+                        id: item.id,
+                        title: item.title,
+                        description: item.description,
+                        completeStatus: item.completeStatus,
+                      } as MuckitItem;
+                    }),
+                  );
+                  dispatch(replaceOwnMuckitemsAction(serializedItemsList));
+                }
+                AsyncStorage.getItem(
+                  ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
+                ).then(interval => {
+                  const COOLDOWN_TIME = interval
+                    ? parseInt(interval, 10)
+                    : 3 * 60 * 60 * 1000;
+                  store.dispatch(cleanupCooldowns(COOLDOWN_TIME));
+                });
               }
             })
             .catch(e => {
