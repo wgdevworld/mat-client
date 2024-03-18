@@ -238,6 +238,7 @@ function App(): JSX.Element {
     // if yes, we return this zip
     const searchKey =
       details.name.length > 3 ? details.name.substring(0, 3) : details.name;
+    let isZipFoundInDB = false;
     try {
       const checkOurDBQuery = `{
         fetchZipByName(searchKey: "${searchKey}") {
@@ -260,7 +261,7 @@ function App(): JSX.Element {
       }`;
       const checkOurDBRes = await request(checkOurDBQuery, REQ_METHOD.QUERY);
       const checkOurDBData = checkOurDBRes?.data.data?.fetchZipByName;
-      if (checkOurDBData) {
+      if (checkOurDBData && checkOurDBData.length > 0) {
         console.log('ℹ️ 저장된 맛집 찾음');
         checkOurDBData.forEach((zip: any) => {
           if (
@@ -301,6 +302,7 @@ function App(): JSX.Element {
               0,
             );
             dispatch(updateIsLoadingAction(false));
+            isZipFoundInDB = true;
             return;
           }
         });
@@ -309,7 +311,9 @@ function App(): JSX.Element {
       console.log(e);
       dispatch(updateIsLoadingAction(false));
     }
-
+    if (isZipFoundInDB) {
+      return;
+    }
     //pipeline for checking if this zip is already saved in the database (by checking it against place_id)
     // if yes, we return this zip. if not, we create a new zip and return it.
     try {
