@@ -233,9 +233,89 @@ function App(): JSX.Element {
   const onPressSearchResult = async (data: any, details: any) => {
     console.log(details);
     dispatch(updateIsLoadingAction(true));
+    // pipeline for checking if this zip is already saved
+    // here, we check our database if there is a zip with the same name.
+    // if yes, we return this zip
+    const searchKey =
+      details.name.length > 3
+        ? details.name.toLowerCase().substring(0, 3)
+        : details.name.toLowerCase();
+    try {
+      const checkOurDBQuery = `{
+        fetchZipByName(searchKey: "${searchKey}") {
+          id
+          name
+          address
+          reviewCount
+          reviewAvgRating
+          parentMap {
+            name
+          }
+          category
+          images {
+            id
+            src
+          }
+          latitude
+          longitude
+        }
+      }`;
+      const checkOurDBRes = await request(checkOurDBQuery, REQ_METHOD.QUERY);
+      const checkOurDBData = checkOurDBRes?.data.data?.fetchZipByName;
+      if (checkOurDBData) {
+        console.log('ℹ️ 저장된 맛집 찾음');
+        checkOurDBData.forEach((zip: any) => {
+          if (
+            calculateDistance(
+              {latitude: zip.latitude, longitude: zip.longitude},
+              {
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+              },
+            ) < 200
+          ) {
+            console.log('🚀 해당 맛집이 있음');
+            const location: Coordinate = {
+              latitude: zip.latitude,
+              longitude: zip.longitude,
+            };
+            const photoArray: string[] = zip.images.map(
+              (photo: any) => photo.src,
+            );
+            const selectedMatZip: MatZip = {
+              id: zip.id,
+              name: zip.name,
+              imageSrc: photoArray,
+              coordinate: location,
+              reviewAvgRating: zip.reviewAvgRating,
+              reviewCount: zip.reviewCount,
+              address: zip.address,
+              category: zip.category,
+            };
+            setMarker(selectedMatZip);
+            mapRef.current?.animateToRegion(
+              {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+              0,
+            );
+            dispatch(updateIsLoadingAction(false));
+            return;
+          }
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      dispatch(updateIsLoadingAction(false));
+    }
+
+    //pipeline for checking if this zip is already saved in the database (by checking it against place_id)
+    // if yes, we return this zip. if not, we create a new zip and return it.
     try {
       let fetchedZipData: any = null;
-      // if searched with our DB
       const fetchZipQuery = `{
         fetchZipByGID(gid: "${data.place_id}") {
           id
