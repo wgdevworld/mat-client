@@ -231,13 +231,12 @@ function App(): JSX.Element {
     });
   }, [currentLocation, curMatMap, visitedZips]);
   const onPressSearchResult = async (data: any, details: any) => {
-    console.log(details);
     dispatch(updateIsLoadingAction(true));
     // pipeline for checking if this zip is already saved
     // here, we check our database if there is a zip with the same name.
     // if yes, we return this zip
     const searchKey =
-      details.name.length > 3 ? details.name.substring(0, 3) : details.name;
+      details.name.length > 2 ? details.name.substring(0, 2) : details.name;
     let isZipFoundInDB = false;
     try {
       const checkOurDBQuery = `{
@@ -264,15 +263,17 @@ function App(): JSX.Element {
       if (checkOurDBData && checkOurDBData.length > 0) {
         console.log('ℹ️ 저장된 맛집 찾음');
         checkOurDBData.forEach((zip: any) => {
-          if (
-            calculateDistance(
-              {latitude: zip.latitude, longitude: zip.longitude},
-              {
-                latitude: details.geometry.location.lat,
-                longitude: details.geometry.location.lng,
-              },
-            ) < 200
-          ) {
+          const distance = calculateDistance(
+            {latitude: zip.latitude, longitude: zip.longitude},
+            {
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+            },
+          );
+          if (distance < 25) {
+            if (isZipFoundInDB) {
+              return;
+            }
             console.log('🚀 해당 맛집이 있음');
             const location: Coordinate = {
               latitude: zip.latitude,
@@ -303,7 +304,6 @@ function App(): JSX.Element {
             );
             dispatch(updateIsLoadingAction(false));
             isZipFoundInDB = true;
-            return;
           }
         });
       }
