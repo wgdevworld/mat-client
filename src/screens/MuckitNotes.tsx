@@ -124,7 +124,6 @@ export default function MuckitNotes() {
         variables,
       );
       const newItemData = addItemRes?.data?.data?.createMuckitem;
-      console.log(newItemData);
       const newItem: MuckitItem = {
         id: newItemData.id,
         title: newItemData.title,
@@ -200,7 +199,9 @@ export default function MuckitNotes() {
               ListFooterComponent={
                 <TextInput
                   style={styles.input}
-                  placeholder="탕후루가 먹고 싶어"
+                  placeholder={
+                    items.length === 0 ? '탕후루가 먹고 싶어' : '새 먹킷'
+                  }
                   value={newItemText}
                   onChangeText={handleTextInputChange}
                   onSubmitEditing={handleTextInputSubmit}
