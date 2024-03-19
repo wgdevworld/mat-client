@@ -20,7 +20,7 @@ export const visitedZipsSlice = createSlice({
       if (!action.payload) {
         return;
       }
-      state.visitedZips.push(action.payload);
+      state.visitedZips.unshift(action.payload);
       return state;
     },
     removeVisitedZipAction: (
