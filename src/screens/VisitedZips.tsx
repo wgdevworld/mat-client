@@ -6,7 +6,6 @@ import {
   Image,
   Linking,
   Platform,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -24,11 +23,14 @@ import {captureRef} from 'react-native-view-shot';
 import Header from '../components/Header';
 import Share, {Social} from 'react-native-share';
 import Config from 'react-native-config';
+import LinearGradient from 'react-native-linear-gradient';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const VisitedZips = () => {
   const savedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const viewRef = useRef<View>(null);
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const insets = useSafeAreaInsets();
 
   const [showInstagramStory, setShowInstagramStory] = useState(false);
   const [isPressedShare, setIsPressedShare] = useState(false);
@@ -55,18 +57,21 @@ const VisitedZips = () => {
         if (showInstagramStory) {
           await Share.shareSingle({
             stickerImage: uri,
+            backgroundBottomColor: '#FF4000',
+            backgroundTopColor: '#FF4000',
             social: Social.InstagramStories,
             appId: `${Config.FACEBOOK_APP_ID}`,
           });
         } else {
           await Share.open({url: uri});
         }
+        setIsPressedShare(false);
       } catch (e) {
         console.log(e);
-      } finally {
         setIsPressedShare(false);
+      } finally {
       }
-    }, 100);
+    }, 500);
   };
   const renderItem = (matZip: MatZip) => (
     <>
@@ -98,15 +103,6 @@ const VisitedZips = () => {
                 ellipsizeMode="tail">
                 {matZip.name}
               </Text>
-              <View style={styles.itemStarReviewContainer}>
-                <Ionicons name="star" size={14} color={colors.coral1} />
-                <Text style={styles.itemStarsText}>
-                  {matZip.reviewAvgRating}
-                </Text>
-                <Text style={styles.itemReviewText}>
-                  리뷰 {matZip.reviewCount}개
-                </Text>
-              </View>
             </View>
             <Text
               style={styles.itemSubtext}
@@ -122,23 +118,36 @@ const VisitedZips = () => {
   );
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <Header
-        onPressBack={() => navigation.goBack()}
-        color={colors.white}
-        buttonColor={colors.coral1}
-      />
-      <View style={styles.container} ref={viewRef}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={styles.pageHeader}>내가 가본 맛집들</Text>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.coral1,
+        paddingTop: isPressedShare ? 12 : insets.top,
+        paddingBottom: isPressedShare ? 0 : insets.bottom,
+      }}
+      ref={viewRef}>
+      <View style={{display: isPressedShare ? 'none' : 'flex'}}>
+        <Header
+          onPressBack={() => navigation.goBack()}
+          color={colors.coral1}
+          buttonColor={isPressedShare ? 'transparent' : colors.white}
+        />
+      </View>
+      <View style={styles.container}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 18,
+          }}>
+          <Text style={styles.pageHeader}>최근에 가본 맛집들</Text>
           {isPressedShare ? (
             <Image
-              source={assets.images.app_logo}
+              source={assets.images.app_logo_white}
               style={{
-                height: '100%',
-                width: '10%',
+                height: 35,
+                width: 35,
                 alignSelf: 'center',
-                marginBottom: 12,
               }}
               resizeMethod="scale"
             />
@@ -148,14 +157,10 @@ const VisitedZips = () => {
                 <Ionicons
                   name="logo-instagram"
                   size={30}
-                  color={colors.coral1}
+                  color={colors.white}
                 />
               ) : (
-                <Ionicons
-                  name="share-outline"
-                  size={30}
-                  color={colors.coral1}
-                />
+                <Ionicons name="share-outline" size={30} color={colors.white} />
               )}
             </TouchableOpacity>
           )}
@@ -167,34 +172,50 @@ const VisitedZips = () => {
           renderItem={({item}) => renderItem(item)}
         />
       </View>
-    </SafeAreaView>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '100%',
+          display: isPressedShare ? 'flex' : 'none',
+        }}>
+        <LinearGradient
+          colors={['black', 'transparent']}
+          style={{flex: 1}}
+          start={{x: 0, y: 1.1}}
+          end={{x: 0, y: 0.7}}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    backgroundColor: colors.white,
+    paddingHorizontal: 30,
+    backgroundColor: colors.coral1,
   },
   pageHeader: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: colors.coral1,
-    marginBottom: 12,
+    fontWeight: '600',
+    color: colors.white,
     textAlign: 'left',
     alignSelf: 'center',
   },
   itemContainer: {
     flexDirection: 'row',
-    padding: 10,
-    backgroundColor: colors.grey,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: colors.coral1,
     borderRadius: 10,
   },
   itemImageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
+    width: 80,
+    height: 80,
+    // borderRadius: 10,
     overflow: 'hidden',
     marginRight: 10,
   },
@@ -203,28 +224,29 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   itemInfoContainer: {
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
     flex: 1,
   },
   itemTitleText: {
     fontSize: 20,
-    fontWeight: '400',
-    color: 'black',
+    fontWeight: '600',
+    color: colors.white,
     paddingBottom: 5,
-    width: 150,
+    // width: 150,
   },
   itemStarsText: {
     fontSize: 14,
-    color: colors.coral1,
+    color: colors.white,
     paddingRight: 10,
     paddingLeft: 3,
   },
   itemReviewText: {
     fontSize: 14,
-    color: colors.coral1,
+    color: colors.white,
   },
   itemSubtext: {
-    color: 'black',
+    color: colors.white,
     paddingVertical: 2,
     fontWeight: '300',
   },
