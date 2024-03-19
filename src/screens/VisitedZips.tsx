@@ -122,17 +122,15 @@ const VisitedZips = () => {
       style={{
         flex: 1,
         backgroundColor: colors.coral1,
-        paddingTop: isPressedShare ? 12 : insets.top,
-        paddingBottom: isPressedShare ? 0 : insets.bottom,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
       }}
       ref={viewRef}>
-      <View style={{display: isPressedShare ? 'none' : 'flex'}}>
-        <Header
-          onPressBack={() => navigation.goBack()}
-          color={colors.coral1}
-          buttonColor={isPressedShare ? 'transparent' : colors.white}
-        />
-      </View>
+      <Header
+        onPressBack={() => navigation.goBack()}
+        color={colors.coral1}
+        buttonColor={isPressedShare ? 'transparent' : colors.white}
+      />
       <View style={styles.container}>
         <View
           style={{
@@ -168,24 +166,14 @@ const VisitedZips = () => {
 
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={savedZips}
+          data={
+            isPressedShare
+              ? savedZips.length > 4
+                ? savedZips.slice(0, 5)
+                : savedZips
+              : savedZips
+          }
           renderItem={({item}) => renderItem(item)}
-        />
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '100%',
-          display: isPressedShare ? 'flex' : 'none',
-        }}>
-        <LinearGradient
-          colors={['black', 'transparent']}
-          style={{flex: 1}}
-          start={{x: 0, y: 1.1}}
-          end={{x: 0, y: 0.7}}
         />
       </View>
     </View>
