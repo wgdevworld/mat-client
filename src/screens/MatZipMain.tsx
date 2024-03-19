@@ -333,7 +333,7 @@ export default function MatZipMain() {
             console.log(e);
           }
         } else if (buttonIndex === 2) {
-          const kakaoMapUrl = `/kakaomap://route?ep=${zipData?.coordinate.latitude},${zipData?.coordinate.longitude}&by=PUBLICTRANSIT`;
+          const kakaoMapUrl = `kakaomap://route?ep=${zipData?.coordinate.latitude},${zipData?.coordinate.longitude}&by=PUBLICTRANSIT`;
           try {
             Linking.openURL(kakaoMapUrl);
           } catch (e) {

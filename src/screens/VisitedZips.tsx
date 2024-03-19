@@ -23,7 +23,6 @@ import {captureRef} from 'react-native-view-shot';
 import Header from '../components/Header';
 import Share, {Social} from 'react-native-share';
 import Config from 'react-native-config';
-import LinearGradient from 'react-native-linear-gradient';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const VisitedZips = () => {
@@ -56,7 +55,7 @@ const VisitedZips = () => {
         });
         if (showInstagramStory) {
           await Share.shareSingle({
-            stickerImage: uri,
+            backgroundImage: uri,
             backgroundBottomColor: '#FF4000',
             backgroundTopColor: '#FF4000',
             social: Social.InstagramStories,
