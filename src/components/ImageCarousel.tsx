@@ -32,18 +32,22 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({images}) => {
         dotColor={colors.grey}
         activeDotColor={colors.coral1}
         nextButton={
-          <Ionicons
-            name="chevron-forward-outline"
-            size={30}
-            color={colors.coral1}
-          />
+          <View style={{paddingVertical: 50, paddingLeft: 30}}>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={30}
+              color={colors.coral1}
+            />
+          </View>
         }
         prevButton={
-          <Ionicons
-            name="chevron-back-outline"
-            size={30}
-            color={colors.coral1}
-          />
+          <View style={{paddingVertical: 50, paddingRight: 30}}>
+            <Ionicons
+              name="chevron-back-outline"
+              size={30}
+              color={colors.coral1}
+            />
+          </View>
         }>
         {images &&
           images.map((imageURI, index) => (
