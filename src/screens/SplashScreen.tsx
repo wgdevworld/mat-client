@@ -31,11 +31,15 @@ import {replaceVisitedMatZipsAction} from '../store/modules/visitedZips';
 import {cleanupCooldowns} from '../store/modules/notificationCooldown';
 import store from '../store/store';
 import RNRestart from 'react-native-restart';
+import {useAppSelector} from '../store/hooks';
 // import store from '../store/store';
 
 const SplashScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
+  const userOwnMapFromStore = useAppSelector(
+    state => state.userMaps.ownMaps[0],
+  );
 
   useEffect(() => {
     AsyncStorage.getItem(ASYNC_STORAGE_ENUM.IS_LOGGED_IN).then(loggedIn =>
@@ -70,9 +74,13 @@ const SplashScreen = () => {
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
                   curUserEmail,
                 );
-                navigation.replace('TabNavContainer', {
-                  screen: 'Map',
-                });
+                let alreadyNavigated = false;
+                if (userOwnMapFromStore) {
+                  navigation.replace('TabNavContainer', {
+                    screen: 'Map',
+                  });
+                  alreadyNavigated = true;
+                }
 
                 const fetchUserMapQuery = `{
                   fetchUserMap {
@@ -343,6 +351,11 @@ const SplashScreen = () => {
                     : 3 * 60 * 60 * 1000;
                   store.dispatch(cleanupCooldowns(COOLDOWN_TIME));
                 });
+                if (!alreadyNavigated) {
+                  navigation.replace('TabNavContainer', {
+                    screen: 'Map',
+                  });
+                }
               }
             })
             .catch(e => {
