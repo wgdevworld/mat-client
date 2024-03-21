@@ -173,8 +173,8 @@ function App(): JSX.Element {
           // Activity Recognition
           stopTimeout: 2,
           // Application config
-          debug: true,
-          isMoving: false,
+          debug: false,
+          // isMoving: false,
           showsBackgroundLocationIndicator: false,
           stopOnTerminate: false,
           startOnBoot: true,
