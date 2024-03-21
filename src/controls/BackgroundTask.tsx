@@ -283,13 +283,13 @@ export const locationBackgroundTask = async (location: Location) => {
       );
       let notificationMessage;
       if (numCloseMatZips > 2) {
-        notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]}, ${
+        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}, ${
           closeMatZips[1]
         } 외 ${numCloseMatZips - 2}개의 맛집이 있어요!`;
       } else if (numCloseMatZips > 1) {
-        notificationMessage = `${parsedRadius}m 근처에 저장하신 ${closeMatZips[0]}와 ${closeMatZips[1]}(이)가 있어요!`;
+        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}와 ${closeMatZips[1]}(이)가 있어요!`;
       } else {
-        notificationMessage = `${parsedRadius}m 근처에 ${closeMatZips[0]}(이)가 있어요!`;
+        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}(이)가 있어요!`;
       }
       const notificationQuery = `
                         mutation sendNotification($deviceToken: String!, $message: String!) {
