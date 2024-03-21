@@ -84,6 +84,7 @@
     "@types/lodash": "^4.14.201",
     "@types/react": "^18.0.24",
     "@types/react-native-material-dropdown": "^0.11.5",
+    "@types/react-native-share-menu": "^5.0.5",
     "@types/react-native-vector-icons": "^6.4.13",
     "@types/react-test-renderer": "^18.0.0",
     "@types/uuid": "^9.0.3",

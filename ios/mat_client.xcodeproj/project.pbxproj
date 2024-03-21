@@ -19,6 +19,7 @@
 		26258B392AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 26258B382AF56EE000E6710D /* RNBackgroundFetch+AppDelegate.m */; };
 		2643EFBC2A67C0DA00450F35 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2643EFBB2A67C0DA00450F35 /* GoogleService-Info.plist */; };
 		26BABD532A517D76009784BC /* bridging_header.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BABD522A517D76009784BC /* bridging_header.swift */; };
+		26D614852BACCC48005F3295 /* ReactShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D614842BACCC48005F3295 /* ReactShareViewController.swift */; };
 		7C4010C1A91CFA2761B89A1D /* libPods-mat_client-mat_clientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1998339AD937DCFF7E6AF39E /* libPods-mat_client-mat_clientTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		B3A3BEA28F174358962043F9 /* libPods-mat_client.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 553418111DCA7516373E0B11 /* libPods-mat_client.a */; };
@@ -86,6 +87,7 @@
 		2686185D2A52BE91004B5464 /* mat_client.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = mat_client.entitlements; path = mat_client/mat_client.entitlements; sourceTree = "<group>"; };
 		26BABD512A517D75009784BC /* mat_client-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mat_client-Bridging-Header.h"; sourceTree = "<group>"; };
 		26BABD522A517D76009784BC /* bridging_header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bridging_header.swift; sourceTree = "<group>"; };
+		26D614842BACCC48005F3295 /* ReactShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReactShareViewController.swift; path = "../../node_modules/react-native-share-menu/ios/ReactShareViewController.swift"; sourceTree = "<group>"; };
 		553418111DCA7516373E0B11 /* libPods-mat_client.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-mat_client.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C115D396A62269A8A82309 /* Pods-mat_client-screenshot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client-screenshot.debug.xcconfig"; path = "Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot.debug.xcconfig"; sourceTree = "<group>"; };
 		6A6CF0D8F9439AC55EB5D21A /* Pods-mat_client.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client.debug.xcconfig"; path = "Target Support Files/Pods-mat_client/Pods-mat_client.debug.xcconfig"; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 		2611308A2BAC7B8900BD286E /* screenshot */ = {
 			isa = PBXGroup;
 			children = (
+				26D614842BACCC48005F3295 /* ReactShareViewController.swift */,
 				2611309D2BAC7E5300BD286E /* screenshot.entitlements */,
 				261130992BAC7C4A00BD286E /* ShareViewController.swift */,
 				2611308D2BAC7B8900BD286E /* MainInterface.storyboard */,
@@ -298,6 +301,7 @@
 				261130862BAC7B8900BD286E /* Frameworks */,
 				261130872BAC7B8900BD286E /* Resources */,
 				15AE15B42E518B2240C92392 /* [CP] Copy Pods Resources */,
+				26D614862BACCD54005F3295 /* Bundle React Native code and images */,
 			);
 			buildRules = (
 			);
@@ -431,6 +435,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		26D614862BACCD54005F3295 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle React Native code and images";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport NODE_BINARY=node\nexport ENTRY_FILE=index.share.js\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		513A610450A6732599DA3425 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -624,6 +646,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26D614852BACCC48005F3295 /* ReactShareViewController.swift in Sources */,
 				2611309A2BAC7C4A00BD286E /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
