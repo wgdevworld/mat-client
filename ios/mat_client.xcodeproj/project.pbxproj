@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* mat_clientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* mat_clientTests.m */; };
-		056C8DD2EB44E55D3EE7C2E5 /* libPods-mat_client-screenshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB838BD96A269BB207D3D3A /* libPods-mat_client-screenshot.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -22,6 +21,7 @@
 		26D614852BACCC48005F3295 /* ReactShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D614842BACCC48005F3295 /* ReactShareViewController.swift */; };
 		7C4010C1A91CFA2761B89A1D /* libPods-mat_client-mat_clientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1998339AD937DCFF7E6AF39E /* libPods-mat_client-mat_clientTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		990B8B96CCC61A2F50F3D24A /* libPods-screenshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6715A718C549769D4AA9A7E /* libPods-screenshot.a */; };
 		B3A3BEA28F174358962043F9 /* libPods-mat_client.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 553418111DCA7516373E0B11 /* libPods-mat_client.a */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +88,8 @@
 		26BABD512A517D75009784BC /* mat_client-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mat_client-Bridging-Header.h"; sourceTree = "<group>"; };
 		26BABD522A517D76009784BC /* bridging_header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bridging_header.swift; sourceTree = "<group>"; };
 		26D614842BACCC48005F3295 /* ReactShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReactShareViewController.swift; path = "../../node_modules/react-native-share-menu/ios/ReactShareViewController.swift"; sourceTree = "<group>"; };
+		2D1C55DB6B453DB0AC3967B5 /* Pods-screenshot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-screenshot.debug.xcconfig"; path = "Target Support Files/Pods-screenshot/Pods-screenshot.debug.xcconfig"; sourceTree = "<group>"; };
+		3E3B97909CB8E7B383E9E676 /* Pods-screenshot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-screenshot.release.xcconfig"; path = "Target Support Files/Pods-screenshot/Pods-screenshot.release.xcconfig"; sourceTree = "<group>"; };
 		553418111DCA7516373E0B11 /* libPods-mat_client.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-mat_client.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C115D396A62269A8A82309 /* Pods-mat_client-screenshot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client-screenshot.debug.xcconfig"; path = "Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot.debug.xcconfig"; sourceTree = "<group>"; };
 		6A6CF0D8F9439AC55EB5D21A /* Pods-mat_client.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client.debug.xcconfig"; path = "Target Support Files/Pods-mat_client/Pods-mat_client.debug.xcconfig"; sourceTree = "<group>"; };
@@ -96,8 +98,8 @@
 		DB247B81E832DC47D2D7B159 /* Pods-mat_client.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client.release.xcconfig"; path = "Target Support Files/Pods-mat_client/Pods-mat_client.release.xcconfig"; sourceTree = "<group>"; };
 		E27F0125EC8ED7C25C9E7302 /* Pods-mat_client-screenshot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client-screenshot.release.xcconfig"; path = "Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EEB838BD96A269BB207D3D3A /* libPods-mat_client-screenshot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-mat_client-screenshot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0A78D3D1DC211F9457863F7 /* Pods-mat_client-mat_clientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mat_client-mat_clientTests.debug.xcconfig"; path = "Target Support Files/Pods-mat_client-mat_clientTests/Pods-mat_client-mat_clientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		F6715A718C549769D4AA9A7E /* libPods-screenshot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-screenshot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,7 +123,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				056C8DD2EB44E55D3EE7C2E5 /* libPods-mat_client-screenshot.a in Frameworks */,
+				990B8B96CCC61A2F50F3D24A /* libPods-screenshot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +193,7 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				553418111DCA7516373E0B11 /* libPods-mat_client.a */,
 				1998339AD937DCFF7E6AF39E /* libPods-mat_client-mat_clientTests.a */,
-				EEB838BD96A269BB207D3D3A /* libPods-mat_client-screenshot.a */,
+				F6715A718C549769D4AA9A7E /* libPods-screenshot.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -239,6 +241,8 @@
 				C9D60C7A7555CD7BAAA8CD72 /* Pods-mat_client-mat_clientTests.release.xcconfig */,
 				63C115D396A62269A8A82309 /* Pods-mat_client-screenshot.debug.xcconfig */,
 				E27F0125EC8ED7C25C9E7302 /* Pods-mat_client-screenshot.release.xcconfig */,
+				2D1C55DB6B453DB0AC3967B5 /* Pods-screenshot.debug.xcconfig */,
+				3E3B97909CB8E7B383E9E676 /* Pods-screenshot.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -425,15 +429,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-screenshot/Pods-screenshot-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-screenshot/Pods-screenshot-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-screenshot/Pods-screenshot-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		26D614862BACCD54005F3295 /* Bundle React Native code and images */ = {
@@ -577,7 +581,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-mat_client-screenshot-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-screenshot-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -805,7 +809,7 @@
 		};
 		261130952BAC7B8900BD286E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63C115D396A62269A8A82309 /* Pods-mat_client-screenshot.debug.xcconfig */;
+			baseConfigurationReference = 2D1C55DB6B453DB0AC3967B5 /* Pods-screenshot.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -851,7 +855,7 @@
 		};
 		261130962BAC7B8900BD286E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E27F0125EC8ED7C25C9E7302 /* Pods-mat_client-screenshot.release.xcconfig */;
+			baseConfigurationReference = 3E3B97909CB8E7B383E9E676 /* Pods-screenshot.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;

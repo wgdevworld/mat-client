@@ -72,14 +72,6 @@ target 'mat_client' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'screenshot' do
-    use_react_native!(
-      :hermes_enabled => true,
-      :flipper_configuration => flipper_config,
-    )
-    pod 'RNShareMenu', :path => '../node_modules/react-native-share-menu'
-  end
-
   target 'mat_clientTests' do
     inherit! :complete
     # Pods for testing
@@ -100,4 +92,12 @@ target 'mat_client' do
     end
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
+end
+
+target 'screenshot' do
+  use_react_native!(
+    :hermes_enabled => true,
+    :flipper_configuration => flipper_config,
+  )
+  pod 'RNShareMenu', :path => '../node_modules/react-native-share-menu'
 end
