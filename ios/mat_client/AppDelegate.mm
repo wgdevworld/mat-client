@@ -36,16 +36,13 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
-- (BOOL)application:(UIApplication *)app
-  openURL:(NSURL *)url
-  options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
-  {
-    return [ShareMenuManager application:app openURL:url options:options];
-  }
-
 - (BOOL)application:(UIApplication *)application
   openURL:(NSURL *)url
   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    NSString *urlString = url.absoluteString;
+    if ([urlString hasPrefix:@"com.mat.muckit//"]) {
+      return [ShareMenuManager application:application openURL:url options:options];
+    }
     if ([RNKakaoLogins isKakaoTalkLoginUrl:url]) {
       return [RNKakaoLogins handleOpenUrl: url];
     }
