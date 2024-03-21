@@ -274,7 +274,6 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				35ED83C0FB604C2FB00B42B6 /* Upload source maps to Bugsnag */,
 				261130942BAC7B8900BD286E /* Embed Foundation Extensions */,
 				978A7E2DB70463B4161D7CDD /* [CP] Embed Pods Frameworks */,
 				513A610450A6732599DA3425 /* [CP] Copy Pods Resources */,
@@ -432,20 +431,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mat_client-screenshot/Pods-mat_client-screenshot-resources.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		35ED83C0FB604C2FB00B42B6 /* Upload source maps to Bugsnag */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Upload source maps to Bugsnag";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "SOURCE_MAP=\"$TMPDIR/$(md5 -qs \"$CONFIGURATION_BUILD_DIR\")-main.jsbundle.map\" ../node_modules/@bugsnag/react-native/bugsnag-react-native-xcode.sh";
 		};
 		513A610450A6732599DA3425 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
