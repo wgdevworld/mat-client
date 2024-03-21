@@ -167,8 +167,8 @@ function App(): JSX.Element {
         BackgroundGeolocation.ready({
           desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_MEDIUM,
           stationaryRadius: notiRadius
-            ? parseInt(notiRadius, 10) / 4
-            : 2000 / 4,
+            ? parseInt(notiRadius, 10) / 12
+            : 2000 / 12,
           distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
           // Activity Recognition
           stopTimeout: 1,
