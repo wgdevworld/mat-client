@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Button, Image} from 'react-native';
+import {View, StyleSheet, Button, Image, ActivityIndicator} from 'react-native';
 import {ShareMenuReactView} from 'react-native-share-menu';
 // import store from '.././store/store';
 // import {persistStore} from 'redux-persist';
@@ -19,26 +19,13 @@ import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 
 const Share = () => {
-  // const [sharedData, setSharedData] = useState<string>('');
-  // const [sharedMimeType, setSharedMimeType] = useState<string>('');
-
   const googleSearchBarRef = useRef(null);
-  // const handleShare = useCallback((item: any) => {
-  //   if (!item) {
-  //     return;
-  //   }
-
-  //   const {mimeType, data, extraData} = item;
-
-  //   setSharedData(data);
-  //   setSharedMimeType(mimeType);
-  //   // You can receive extra data from your custom Share View
-  //   console.log(extraData);
-  //   console.log(data);
-  // }, []);
   const [searchedMatZip, setSearchedMatZip] = useState<MatZip | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAddingLoading, setIsAddingLoading] = useState(false);
 
   const onPressSearchResult = async (data: any, details: any) => {
+    setIsLoading(true);
     // pipeline for checking if this zip is already saved
     // here, we check our database if there is a zip with the same name.
     // if yes, we return this zip
@@ -156,7 +143,59 @@ const Share = () => {
       );
       fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
       if (!fetchedZipData) {
-        //handle stuff
+        const apiKey = Config.MAPS_API;
+        let photoArray: string[] = [];
+        if (!details.photos || details.photos.length === 0) {
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
+          photoArray = [defaultStreetViewImg];
+        } else {
+          details.photos.forEach((photo: any) => {
+            const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+            photoArray.push(photoUrl);
+          });
+        }
+        const variables = {
+          zipInfo: {
+            name: details.name,
+            number: data.place_id,
+            description: data.description,
+            address: details.formatted_address,
+            imgSrc: photoArray,
+            category: data.types[0] ? data.types[0] : '식당',
+            latitude: details.geometry.location.lat,
+            longitude: details.geometry.location.lng,
+          },
+        };
+        const addZipMutation = `
+          mutation addZip($zipInfo: CreateZipInput!) {
+            addZip(zipInfo: $zipInfo) {
+              id
+              name
+              address
+              reviewCount
+              reviewAvgRating
+              category
+              images {
+                id
+                src
+              }
+              latitude
+              longitude
+            }
+        }`;
+        const addZipRes = await axios.post(
+          'https://muckit-server.site/graphql',
+          {
+            query: addZipMutation,
+            variables: variables,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        fetchedZipData = addZipRes?.data.data.addZip;
       }
       const location = {
         latitude: fetchedZipData.latitude,
@@ -178,6 +217,8 @@ const Share = () => {
       setSearchedMatZip(selectedMatZip);
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -200,16 +241,18 @@ const Share = () => {
   }, []);
 
   const handleAddToMap = async () => {
-    const userMapId = await SharedGroupPreferences.getItem(
-      SHARED_STORAGE_ENUM.USER_MAP_ID,
-      'group.com.mat.muckit',
-    );
-    console.log(userMapId);
-    const variables = {
-      mapId: userMapId,
-      zipId: searchedMatZip!.id,
-    };
-    const addToMapQuery = `
+    setIsAddingLoading(true);
+    try {
+      const userMapId = await SharedGroupPreferences.getItem(
+        SHARED_STORAGE_ENUM.USER_MAP_ID,
+        'group.com.mat.muckit',
+      );
+      console.log(userMapId);
+      const variables = {
+        mapId: userMapId,
+        zipId: searchedMatZip!.id,
+      };
+      const addToMapQuery = `
       mutation addToMap($mapId: String! $zipId:String!) {
         addToMap(mapId: $mapId zipId: $zipId) {
           id
@@ -225,21 +268,25 @@ const Share = () => {
           longitude
         }
       }`;
-    await axios.post(
-      'https://muckit-server.site/graphql',
-      {
-        query: addToMapQuery,
-        variables: variables,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+      await axios.post(
+        'https://muckit-server.site/graphql',
+        {
+          query: addToMapQuery,
+          variables: variables,
         },
-      },
-    );
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsAddingLoading(false);
+    }
   };
 
-  // const persistor = persistStore(store);
   return (
     <View
       style={{
@@ -270,58 +317,73 @@ const Share = () => {
               ShareMenuReactView.dismissExtension();
             }}
           />
-          {searchedMatZip && (
-            <Button
-              color={colors.white}
-              title="내 맛맵에 추가하기"
-              onPress={async () => {
-                // ShareMenuReactView.dismissExtension();
-                // ShareMenuReactView.continueInApp({matZipId: searchedMatZip});
-                await handleAddToMap();
-                ShareMenuReactView.dismissExtension();
-                // ShareMenuReactView.continueInApp({data: 'from other side 2'});
-              }}
-            />
-          )}
-        </View>
-        {searchedMatZip ? (
-          <View style={styles.itemContainer}>
-            <View style={styles.itemImageContainer}>
-              <Image
-                source={
-                  searchedMatZip.imageSrc &&
-                  searchedMatZip.imageSrc.length === 0
-                    ? assets.images.placeholder
-                    : {uri: searchedMatZip.imageSrc[0]}
-                }
-                style={styles.itemImage}
+          {searchedMatZip &&
+            (isAddingLoading ? (
+              <Button
+                color={colors.white}
+                title="내 맛맵에 추가하기"
+                onPress={async () => {
+                  await handleAddToMap();
+                  ShareMenuReactView.dismissExtension();
+                  // ShareMenuReactView.continueInApp({data: 'from other side 2'});
+                }}
               />
-            </View>
-            <View style={styles.itemInfoContainer}>
-              <View style={styles.itemTitleStarsContainer}>
-                <Text
-                  style={styles.itemTitleText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail">
-                  {searchedMatZip.name}
-                </Text>
-                <View style={styles.itemStarReviewContainer}>
-                  {/* <Ionicons name="star" size={14} color={colors.coral1} /> */}
-                  <Text style={styles.itemStarsText}>
-                    {searchedMatZip.reviewAvgRating}
-                  </Text>
-                  <Text style={styles.itemReviewText}>
-                    리뷰 {searchedMatZip.reviewCount}개
+            ) : (
+              <ActivityIndicator
+                size="large"
+                color={colors.coral1}
+                style={{marginTop: 100}}
+              />
+            ))}
+        </View>
+        {isLoading ? (
+          <View style={styles.itemContainer}>
+            {searchedMatZip ? (
+              <>
+                <View style={styles.itemImageContainer}>
+                  <Image
+                    source={
+                      searchedMatZip.imageSrc &&
+                      searchedMatZip.imageSrc.length === 0
+                        ? assets.images.placeholder
+                        : {uri: searchedMatZip.imageSrc[0]}
+                    }
+                    style={styles.itemImage}
+                  />
+                </View>
+                <View style={styles.itemInfoContainer}>
+                  <View style={styles.itemTitleStarsContainer}>
+                    <Text
+                      style={styles.itemTitleText}
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
+                      {searchedMatZip.name}
+                    </Text>
+                    <View style={styles.itemStarReviewContainer}>
+                      {/* <Ionicons name="star" size={14} color={colors.coral1} /> */}
+                      <Text style={styles.itemStarsText}>
+                        {searchedMatZip.reviewAvgRating}
+                      </Text>
+                      <Text style={styles.itemReviewText}>
+                        리뷰 {searchedMatZip.reviewCount}개
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    style={styles.itemSubtext}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {trimCountry(searchedMatZip.address)}
                   </Text>
                 </View>
-              </View>
-              <Text
-                style={styles.itemSubtext}
-                numberOfLines={1}
-                ellipsizeMode="tail">
-                {trimCountry(searchedMatZip.address)}
-              </Text>
-            </View>
+              </>
+            ) : (
+              <ActivityIndicator
+                size="large"
+                color={colors.coral1}
+                style={{marginTop: 100}}
+              />
+            )}
           </View>
         ) : (
           <View></View>
