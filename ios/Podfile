@@ -100,4 +100,7 @@ target 'screenshot' do
     :flipper_configuration => flipper_config,
   )
   pod 'RNShareMenu', :path => '../node_modules/react-native-share-menu'
+  pod 'react-native-config', :path => '../node_modules/react-native-config'
+  pod 'RNReactNativeSharedGroupPreferences', :path => '../node_modules/react-native-shared-group-preferences'
+  # pod 'RNGooglePlacesAutocomplete', :path => '../node_modules/react-native-google-places-autocomplete'
 end

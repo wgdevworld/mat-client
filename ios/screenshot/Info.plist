@@ -37,16 +37,8 @@
 	</dict>
 	<key>ReactShareViewBackgroundColor</key>
 	<dict>
-		<key>Red</key>
-		<integer>1</integer>
-		<key>Green</key>
-		<integer>1</integer>
-		<key>Blue</key>
-		<integer>1</integer>
-		<key>Alpha</key>
-		<integer>1</integer>
 		<key>Transparent</key>
-		<false/>
+		<true/>
 	</dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>

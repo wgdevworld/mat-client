@@ -632,6 +632,8 @@ PODS:
     - React-Core
   - RNPermissions (4.0.1):
     - React-Core
+  - RNReactNativeSharedGroupPreferences (1.1.24):
+    - React
   - RNReanimated (2.17.0):
     - DoubleConversion
     - FBLazyVector
@@ -768,6 +770,7 @@ DEPENDENCIES:
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNReactNativeSharedGroupPreferences (from `../node_modules/react-native-shared-group-preferences`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
@@ -945,6 +948,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@notifee/react-native"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNReactNativeSharedGroupPreferences:
+    :path: "../node_modules/react-native-shared-group-preferences"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -1065,6 +1070,7 @@ SPEC CHECKSUMS:
   RNGoogleSignin: d8c6e70ad37cd9dc69f4f34b36433feec749ad63
   RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
   RNPermissions: 265600cdd53b2d330cf39f4dafefaa993e33bc44
+  RNReactNativeSharedGroupPreferences: 29092869fc2e40d5baca5e15d82fa5c24a668977
   RNReanimated: f186e85d9f28c9383d05ca39e11dd194f59093ec
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
@@ -1076,6 +1082,6 @@ SPEC CHECKSUMS:
   Yoga: 065f0b74dba4832d6e328238de46eb72c5de9556
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 8a2242f87c46822f4069611cc41beeeb13fe09f4
+PODFILE CHECKSUM: bf1a53ef9f805a70c5363fa425f857c77ca6c37e
 
 COCOAPODS: 1.15.2
