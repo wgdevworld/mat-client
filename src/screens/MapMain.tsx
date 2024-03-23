@@ -222,6 +222,11 @@ function App(): JSX.Element {
         dispatch(replaceOwnMatMapZipListAction(serializedZipList));
       } catch (e) {
         console.log(e);
+      } finally {
+        await AsyncStorage.setItem(
+          ASYNC_STORAGE_ENUM.LAST_CHECK_FROM_CLIENT,
+          new Date().toISOString(),
+        );
       }
     }
   };
