@@ -139,6 +139,8 @@ function App(): JSX.Element {
   useEffect(() => {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
+        console.log(location);
+        //TODO: experimenting with useSignificantChangesOnly set to true
         if (location.sample === true) {
           console.log('- location is a sample');
           return;
@@ -146,11 +148,12 @@ function App(): JSX.Element {
         if (location.coords === undefined) {
           return;
         }
-        // eslint-disable-next-line eqeqeq
-        if (location.activity.type == 'in_vehicle') {
-          return;
-        }
-        console.log(location);
+        // if (
+        //   location.activity.type === 'on_bicycle' ||
+        //   location.activity.type === 'on_foot' ||
+        //   location.activity.type === 'running' ||
+        //   location.activity.type === 'walking'
+        // ) {
         const taskId = await BackgroundGeolocation.startBackgroundTask();
         try {
           await locationBackgroundTask(location);
@@ -159,33 +162,35 @@ function App(): JSX.Element {
           Bugsnag.notify(new Error(e as string));
           BackgroundGeolocation.stopBackgroundTask(taskId);
         }
+        // }
       },
     );
 
-    AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
-      notiRadius => {
-        BackgroundGeolocation.ready({
-          desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_MEDIUM,
-          stationaryRadius: notiRadius
-            ? parseInt(notiRadius, 10) / 5
-            : 2000 / 5,
-          distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
-          // Activity Recognition
-          stopTimeout: 2,
-          // Application config
-          debug: false,
-          // isMoving: false,
-          showsBackgroundLocationIndicator: false,
-          stopOnTerminate: false,
-          startOnBoot: true,
-        }).then(_state => {
-          console.log('BackgroundGeolocation is ready');
-          if (!isRefuseNotifications) {
-            BackgroundGeolocation.start();
-          }
-        });
-      },
-    );
+    // AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
+    //   notiRadius => {
+    BackgroundGeolocation.ready({
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      //TODO: experimenting with useSignificantChangesOnly set to true
+      useSignificantChangesOnly: true,
+      // stationaryRadius: notiRadius
+      //   ? parseInt(notiRadius, 10) / 5
+      //   : 2000 / 5,
+      // distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
+      // Activity Recognition
+      stopTimeout: 2,
+      // Application config
+      debug: true,
+      showsBackgroundLocationIndicator: false,
+      stopOnTerminate: false,
+      startOnBoot: true,
+    }).then(_state => {
+      console.log('BackgroundGeolocation is ready');
+      if (!isRefuseNotifications) {
+        BackgroundGeolocation.start();
+      }
+    });
+    //   },
+    // );
 
     return () => {
       onLocation.remove();

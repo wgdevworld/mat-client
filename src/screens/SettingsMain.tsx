@@ -68,12 +68,13 @@ export default function Settings() {
       ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
       radius.toString(),
     );
-    await BackgroundGeolocation.setConfig({
-      stationaryRadius: radius / 5,
-      distanceFilter: radius / 2,
-    }).then(state => {
-      console.log('[setConfig] success: ', state);
-    });
+    //TODO: experimenting with useSignificantChangesOnly set to true
+    // await BackgroundGeolocation.setConfig({
+    //   stationaryRadius: radius / 5,
+    //   distanceFilter: radius / 2,
+    // }).then(state => {
+    //   console.log('[setConfig] success: ', state);
+    // });
     dispatch(updateIsLoadingAction(false));
     setIsSetRadiusModalVisible(false);
   };
@@ -217,9 +218,9 @@ export default function Settings() {
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
-            minimumValue={500}
+            minimumValue={1000}
             maximumValue={5000}
-            step={100}
+            step={500}
             value={radius}
             onValueChange={value => setRadius(value)}
             minimumTrackTintColor={colors.coral2}
@@ -423,7 +424,7 @@ export default function Settings() {
             <Ionicons name="construct-outline" size={18} />
             <Text style={styles.rowText}>버전 정보</Text>
             <View style={{flex: 1}} />
-            <Text>1.1.1</Text>
+            <Text>1.1.1(b)</Text>
           </View>
           {/* <View style={styles.row}>
             <Ionicons name="newspaper-outline" size={18} />
