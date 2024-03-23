@@ -229,9 +229,15 @@ const Share = () => {
       .then(data => {
         console.log(data);
         //@ts-ignore
-        googleSearchBarRef.current.setAddressText(data.data[0].data);
-        // setSharedData(data[0].data as string);
-        // setSharedMimeType(data[0].mimeType as string);
+        if (data.data[0].mimeType.startsWith('image')) {
+          //handle image
+          //@ts-ignore
+        } else if (data.data[0].mimeType.startsWith('text')) {
+          //@ts-ignore
+          googleSearchBarRef.current.setAddressText(data.data[0].data);
+        } else {
+          //do nothing
+        }
       })
       .catch(e => console.log(e));
   }, []);
@@ -363,7 +369,7 @@ const Share = () => {
                     <View style={styles.itemStarReviewContainer}>
                       {/* <Ionicons name="star" size={14} color={colors.coral1} /> */}
                       <Text style={styles.itemStarsText}>
-                        {searchedMatZip.reviewAvgRating}
+                        {'★ ' + searchedMatZip.reviewAvgRating}
                       </Text>
                       <Text style={styles.itemReviewText}>
                         리뷰 {searchedMatZip.reviewCount}개
@@ -447,9 +453,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     listView: {
       borderRadius: 10,
-      borderColor: colors.coral1,
-      borderWidth: 1,
       backgroundColor: 'white',
+      maxHeight: '70%',
     },
     textInputContainer: {
       borderRadius: 10,
