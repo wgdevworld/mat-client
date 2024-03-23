@@ -155,7 +155,7 @@ function App(): JSX.Element {
   }, [appState]);
 
   const checkForNewRestaurants = async () => {
-    console.log('checking');
+    console.log('ℹ️ checking if custom view added new data');
     let lastUpdatedStr;
     try {
       lastUpdatedStr = await SharedGroupPreferences.getItem(
@@ -173,7 +173,7 @@ function App(): JSX.Element {
       ? new Date(lastCheckTimeStampStr)
       : null;
     if (!lastChecked || lastUpdated > lastChecked) {
-      console.log('updating');
+      console.log('ℹ️ updating from custom view');
       try {
         const fetchUserMapQuery = `{
           fetchUserMap {

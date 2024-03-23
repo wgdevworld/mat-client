@@ -214,6 +214,7 @@ const Share = () => {
         address: fetchedZipData.address,
         category: fetchedZipData.category,
       };
+      console.log(selectedMatZip);
       setSearchedMatZip(selectedMatZip);
     } catch (e) {
       console.log(e);
@@ -336,7 +337,7 @@ const Share = () => {
             )
           ) : null}
         </View>
-        {isLoading ? (
+        {isLoading || searchedMatZip ? (
           <View style={styles.itemContainer}>
             {searchedMatZip ? (
               <>
@@ -393,7 +394,7 @@ const Share = () => {
         ) : (
           <View />
         )}
-        {isLoading ? null : (
+        {isLoading || searchedMatZip ? null : (
           <GooglePlacesAutocomplete
             minLength={1}
             GooglePlacesDetailsQuery={{
