@@ -4,6 +4,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Alert,
+  AppState,
   Dimensions,
   Image,
   Keyboard,
@@ -71,6 +72,8 @@ import Bugsnag from '@bugsnag/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {addVisitedMatZipAction} from '../store/modules/visitedZips';
+import SharedGroupPreferences from 'react-native-shared-group-preferences';
+import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -135,6 +138,93 @@ function App(): JSX.Element {
   const [currentLocation, setCurrentLocation] = useState<Coordinate | null>(
     null,
   );
+
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        checkForNewRestaurants();
+      }
+      setAppState(nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
+
+  const checkForNewRestaurants = async () => {
+    console.log('checking');
+    let lastUpdatedStr;
+    try {
+      lastUpdatedStr = await SharedGroupPreferences.getItem(
+        SHARED_STORAGE_ENUM.LAST_UPDATED,
+        'group.com.mat.muckit',
+      );
+    } catch (e) {
+      return;
+    }
+    const lastUpdated = new Date(lastUpdatedStr);
+    const lastCheckTimeStampStr = await AsyncStorage.getItem(
+      ASYNC_STORAGE_ENUM.LAST_CHECK_FROM_CLIENT,
+    );
+    const lastChecked = lastCheckTimeStampStr
+      ? new Date(lastCheckTimeStampStr)
+      : null;
+    if (!lastChecked || lastUpdated > lastChecked) {
+      console.log('updating');
+      try {
+        const fetchUserMapQuery = `{
+          fetchUserMap {
+            zipList {
+              id
+              name
+              address
+              images {
+                src
+              }
+              reviewCount
+              reviewAvgRating
+              parentMap {
+                id
+              }
+              category
+              latitude
+              longitude
+            }
+          }
+        }`;
+        const userOwnMapRes = await request(
+          fetchUserMapQuery,
+          REQ_METHOD.QUERY,
+        );
+        const userOwnMapData = userOwnMapRes?.data.data.fetchUserMap.zipList;
+        const serializedZipList: MatZip[] = await Promise.all(
+          userOwnMapData.map(async (zip: any) => {
+            const zipImgSrcArr = zip.images.map((img: any) => img.src);
+            const coordinate = {
+              latitude: zip.latitude,
+              longitude: zip.longitude,
+            };
+            return {
+              id: zip.id,
+              name: zip.name,
+              imageSrc: zipImgSrcArr,
+              coordinate,
+              address: zip.address,
+              reviewCount: zip.reviewCount,
+              reviewAvgRating: zip.reviewAvgRating,
+              category: zip.category,
+            } as MatZip;
+          }),
+        );
+        dispatch(replaceOwnMatMapZipListAction(serializedZipList));
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
 
   useEffect(() => {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(

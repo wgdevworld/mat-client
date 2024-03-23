@@ -223,11 +223,6 @@ const Share = () => {
   };
 
   useEffect(() => {
-    ShareMenuReactView.data()
-      .then(item => {
-        console.log(item);
-      })
-      .catch(e => console.error(e));
     //@ts-ignore
     ShareMenuReactView.data()
       .then(data => {
@@ -280,6 +275,11 @@ const Share = () => {
           },
         },
       );
+      SharedGroupPreferences.setItem(
+        SHARED_STORAGE_ENUM.LAST_UPDATED,
+        new Date().toISOString(),
+        'group.com.mat.muckit',
+      );
     } catch (e) {
       console.log(e);
     } finally {
@@ -317,24 +317,24 @@ const Share = () => {
               ShareMenuReactView.dismissExtension();
             }}
           />
-          {searchedMatZip &&
-            (isAddingLoading ? (
+          {searchedMatZip ? (
+            isAddingLoading ? (
+              <ActivityIndicator
+                size="small"
+                color={colors.white}
+                style={{alignSelf: 'center'}}
+              />
+            ) : (
               <Button
                 color={colors.white}
                 title="내 맛맵에 추가하기"
                 onPress={async () => {
                   await handleAddToMap();
                   ShareMenuReactView.dismissExtension();
-                  // ShareMenuReactView.continueInApp({data: 'from other side 2'});
                 }}
               />
-            ) : (
-              <ActivityIndicator
-                size="large"
-                color={colors.coral1}
-                style={{marginTop: 100}}
-              />
-            ))}
+            )
+          ) : null}
         </View>
         {isLoading ? (
           <View style={styles.itemContainer}>
@@ -381,14 +381,19 @@ const Share = () => {
               <ActivityIndicator
                 size="large"
                 color={colors.coral1}
-                style={{marginTop: 100}}
+                style={{
+                  alignSelf: 'center',
+                  width: 76,
+                  height: 76,
+                  padding: 10,
+                }}
               />
             )}
           </View>
         ) : (
-          <View></View>
+          <View />
         )}
-        {searchedMatZip ? null : (
+        {isLoading ? null : (
           <GooglePlacesAutocomplete
             minLength={1}
             GooglePlacesDetailsQuery={{
@@ -503,6 +508,8 @@ const styles = StyleSheet.create({
     fontWeight: '200',
   },
   itemContainer: {
+    justifyContent: 'center',
+
     flexDirection: 'row',
     padding: 10,
     backgroundColor: colors.grey,
