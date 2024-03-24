@@ -10,16 +10,40 @@ import {ScreenParamList} from '../types/navigation';
 import colors from '../styles/colors';
 import Header from '../components/Header';
 import {calculateDistance} from '../tools/CommonFunc';
-import {MatZip} from '../types/store';
+import {Coordinate, MatZip} from '../types/store';
+import Geolocation from 'react-native-geolocation-service';
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const route = useRoute<RouteProp<ScreenParamList, 'ZipList'>>();
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>([]);
-  const {map, location} = route.params;
+  const {map} = route.params;
+  const [location, setLocation] = useState<Coordinate | null>(null);
 
   useEffect(() => {
     setOrderedMatZips(map.zipList);
+    try {
+      Geolocation.getCurrentPosition(
+        position => {
+          const {latitude, longitude} = position.coords;
+          setLocation(prevState => ({
+            ...prevState,
+            latitude: latitude,
+            longitude: longitude,
+          }));
+        },
+        error => {
+          console.log(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 3600,
+          maximumAge: 3600,
+        },
+      );
+    } catch (e) {
+      console.log(e);
+    }
     if (location === null) {
       return;
     }
@@ -33,7 +57,7 @@ export default function ZipList() {
       return sortedArray;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location]);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>

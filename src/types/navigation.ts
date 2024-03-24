@@ -34,7 +34,6 @@ export type RootStackParamList = {
   ZipList: {
     // mapID: string;
     map: MatMap;
-    location: Coordinate | null;
   };
   MatZipMain: {
     zipID: string | undefined;
