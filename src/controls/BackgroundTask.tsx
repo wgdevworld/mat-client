@@ -267,7 +267,7 @@ export const locationBackgroundTask = async (location: Location) => {
     allSavedZips.forEach((zip: MatZip) => {
       const lastNotifiedTime = lastNotified[zip.name];
       if (
-        calculateDistance(zip.coordinate, curLocation) < 1000000 &&
+        calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
         (!lastNotifiedTime || Date.now() - lastNotifiedTime > parsedInterval)
       ) {
         closeMatZips.push(zip.name);

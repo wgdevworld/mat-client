@@ -68,8 +68,6 @@ import BackgroundGeolocation, {
 } from 'react-native-background-geolocation';
 import {locationBackgroundTask} from '../controls/BackgroundTask';
 import Bugsnag from '@bugsnag/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {addVisitedMatZipAction} from '../store/modules/visitedZips';
 
 const screenWidth = Dimensions.get('window').width;
@@ -140,7 +138,6 @@ function App(): JSX.Element {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
         console.log(location);
-        //TODO: experimenting with useSignificantChangesOnly set to true
         if (location.sample === true) {
           console.log('- location is a sample');
           return;
@@ -148,21 +145,21 @@ function App(): JSX.Element {
         if (location.coords === undefined) {
           return;
         }
-        // if (
-        //   location.activity.type === 'on_bicycle' ||
-        //   location.activity.type === 'on_foot' ||
-        //   location.activity.type === 'running' ||
-        //   location.activity.type === 'walking'
-        // ) {
-        const taskId = await BackgroundGeolocation.startBackgroundTask();
-        try {
-          await locationBackgroundTask(location);
-          BackgroundGeolocation.stopBackgroundTask(taskId);
-        } catch (e) {
-          Bugsnag.notify(new Error(e as string));
-          BackgroundGeolocation.stopBackgroundTask(taskId);
+        if (
+          location.activity.type === 'on_bicycle' ||
+          location.activity.type === 'on_foot' ||
+          location.activity.type === 'running' ||
+          location.activity.type === 'walking'
+        ) {
+          const taskId = await BackgroundGeolocation.startBackgroundTask();
+          try {
+            await locationBackgroundTask(location);
+            BackgroundGeolocation.stopBackgroundTask(taskId);
+          } catch (e) {
+            Bugsnag.notify(new Error(e as string));
+            BackgroundGeolocation.stopBackgroundTask(taskId);
+          }
         }
-        // }
       },
     );
 
@@ -170,7 +167,6 @@ function App(): JSX.Element {
     //   notiRadius => {
     BackgroundGeolocation.ready({
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-      //TODO: experimenting with useSignificantChangesOnly set to true
       useSignificantChangesOnly: true,
       // stationaryRadius: notiRadius
       //   ? parseInt(notiRadius, 10) / 5
@@ -178,8 +174,7 @@ function App(): JSX.Element {
       // distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
       // Activity Recognition
       stopTimeout: 2,
-      // Application config
-      debug: true,
+      debug: false,
       showsBackgroundLocationIndicator: false,
       stopOnTerminate: false,
       startOnBoot: true,
