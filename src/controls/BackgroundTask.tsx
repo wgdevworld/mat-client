@@ -260,7 +260,7 @@ export const locationBackgroundTask = async (location: Location) => {
     );
     const parsedInterval = interval
       ? parseInt(interval, 10) * 60 * 60 * 1000
-      : 3 * 60 * 60 * 1000;
+      : 6 * 60 * 60 * 1000;
 
     let closeMatZips: string[];
     closeMatZips = [];

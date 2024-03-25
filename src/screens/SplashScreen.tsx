@@ -348,7 +348,7 @@ const SplashScreen = () => {
                 ).then(interval => {
                   const COOLDOWN_TIME = interval
                     ? parseInt(interval, 10)
-                    : 3 * 60 * 60 * 1000;
+                    : 6 * 60 * 60 * 1000;
                   store.dispatch(cleanupCooldowns(COOLDOWN_TIME));
                 });
                 if (!alreadyNavigated) {

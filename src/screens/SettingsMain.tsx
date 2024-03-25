@@ -148,7 +148,7 @@ export default function Settings() {
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
-            minimumValue={0}
+            minimumValue={3}
             maximumValue={24}
             step={1}
             value={interval}
@@ -217,8 +217,8 @@ export default function Settings() {
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
-            minimumValue={500}
-            maximumValue={5000}
+            minimumValue={1000}
+            maximumValue={3000}
             step={100}
             value={radius}
             onValueChange={value => setRadius(value)}
@@ -351,7 +351,7 @@ export default function Settings() {
               const userSetInterval = await AsyncStorage.getItem(
                 ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
               );
-              setInterval(userSetInterval ? parseInt(userSetInterval, 10) : 3);
+              setInterval(userSetInterval ? parseInt(userSetInterval, 10) : 6);
               setIsSetIntervalModalVisible(true);
             }}>
             <Ionicons name="timer-outline" size={18} />
