@@ -137,6 +137,7 @@ export default function MatZipMain() {
           address
           reviewCount
           reviewAvgRating
+          description
           images {
             id
             src
@@ -191,6 +192,7 @@ export default function MatZipMain() {
           fetchedZipData.images.length !== 0
             ? fetchedZipData.images.map((image: any) => image.src)
             : defaultStreetViewImg,
+        description: fetchedZipData.description,
         coordinate: coordinate,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
@@ -463,28 +465,50 @@ export default function MatZipMain() {
                 justifyContent: 'space-between',
               }}>
               <View>
-                <Text style={styles.matZipListText}>
-                  {parentMap &&
-                    parentMap.length > 0 &&
-                    (parentMap.length > 2
-                      ? `${parentMap[0]}, ${parentMap[1]} 외 ${
-                          parentMap.length - 2
-                        }개의 맛맵에 포함`
-                      : parentMap.length === 2
-                      ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
-                      : `${parentMap[0]} 맛맵에 포함`)}
-                </Text>
+                {zipData.description && (
+                  <View
+                    style={{
+                      ...styles.horizontal,
+                      paddingVertical: 5,
+                    }}>
+                    <Ionicons
+                      name="information-circle-outline"
+                      color="black"
+                      size={18}
+                    />
+                    <Text style={styles.matZipDescriptionText}>
+                      {zipData?.description}
+                    </Text>
+                  </View>
+                )}
+
+                {parentMap && parentMap.length > 0 && (
+                  <View
+                    style={{
+                      ...styles.horizontal,
+                      paddingVertical: 5,
+                    }}>
+                    <Ionicons name="map-outline" color="black" size={18} />
+                    <Text style={styles.matZipListText}>
+                      {parentMap.length > 2
+                        ? `${parentMap[0]}, ${parentMap[1]} 외 ${
+                            parentMap.length - 2
+                          }개의 맛맵에 포함`
+                        : parentMap.length === 2
+                        ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                        : `${parentMap[0]} 맛맵에 포함`}
+                    </Text>
+                  </View>
+                )}
                 <View
                   style={{
                     ...styles.horizontal,
-                    marginTop: parentMap && parentMap.length === 0 ? -27 : 0,
+                    paddingVertical: 5,
+                    paddingBottom: 20,
                   }}>
                   <Ionicons name="location-outline" color="black" size={18} />
                   <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
                 </View>
-                <Text style={styles.matZipDescriptionText}>
-                  {zipData?.description}
-                </Text>
               </View>
 
               <TouchableOpacity
@@ -550,25 +574,25 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   matZipListText: {
-    fontSize: 13,
+    fontSize: 15,
+    marginLeft: 5,
     color: 'black',
     textAlign: 'left',
-    marginBottom: 25,
+    maxWidth: '85%',
   },
   matZipInfoText: {
     fontSize: 15,
     color: 'black',
     textAlign: 'left',
-    marginLeft: 3,
-    maxWidth: 250,
+    marginLeft: 5,
+    maxWidth: '85%',
   },
   matZipDescriptionText: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'black',
     textAlign: 'left',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 2,
+    maxWidth: '85%',
+    marginLeft: 5,
   },
   matZipRatingText: {
     fontSize: 14,

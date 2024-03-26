@@ -230,6 +230,23 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
+
+  async function generateSummary(reviews: any) {
+    try {
+      const response = await fetch('http://localhost:3000/generate-summary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({reviews}),
+      });
+      const data = await response.json();
+      return data.summary;
+    } catch (error) {
+      console.error('Error generating summary:', error);
+    }
+  }
+
   const onPressSearchResult = async (data: any, details: any) => {
     dispatch(updateIsLoadingAction(true));
     // pipeline for checking if this zip is already saved
@@ -352,11 +369,16 @@ function App(): JSX.Element {
             photoArray.push(photoUrl);
           });
         }
+        let descriptionFromOpenAI = '';
+        if (details.reviews && details.reviews.length > 0) {
+          descriptionFromOpenAI = await generateSummary(details.reviews);
+        }
+
         const variables = {
           zipInfo: {
             name: details.name,
             number: data.place_id,
-            description: data.description,
+            description: descriptionFromOpenAI,
             address: details.formatted_address,
             imgSrc: photoArray,
             category: data.types[0] ? data.types[0] : '식당',
@@ -934,7 +956,7 @@ function App(): JSX.Element {
           <GooglePlacesAutocomplete
             minLength={1}
             GooglePlacesDetailsQuery={{
-              fields: 'geometry,photos,name,formatted_address',
+              fields: 'geometry,photos,name,formatted_address,reviews',
             }}
             debounce={0}
             placeholder="맛집을 검색해보세요!"
