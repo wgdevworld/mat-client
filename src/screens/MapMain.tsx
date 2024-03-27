@@ -99,6 +99,7 @@ function App(): JSX.Element {
   );
   const [isEditPublicMapVisible, setIsEditPublicMapVisible] = useState(false);
   const [newPublicMapName, setNewPublicMapName] = useState(userOwnMaps[0].name);
+  const [newPublicMapDesc, setNewPublicMapDesc] = useState('');
   const [imgLibraryResponse, setImgLibraryResponse] =
     useState<ImagePickerResponse>();
 
@@ -689,11 +690,18 @@ function App(): JSX.Element {
       setImgLibraryResponse(undefined);
     }
 
-    //TODO: have a default map image if user doesn't pick
     const variables = {
       mapInfo: {
         name: newPublicMapName,
-        ...(mapPhoto ? mapPhoto : ''),
+        description: newPublicMapDesc
+          ? newPublicMapDesc
+          : `${curUser.username}님의 첫 맛맵`,
+        ...(mapPhoto
+          ? mapPhoto
+          : {
+              imageSrc:
+                'https://storage.googleapis.com/kobon-01/defualt_map.png',
+            }),
       },
       id: userOwnMaps[0].id,
     };
@@ -884,26 +892,44 @@ function App(): JSX.Element {
           display: isEditPublicMapVisible ? 'flex' : 'none',
         }}>
         <View style={styles.modalContainer} />
-        <View style={styles.popupContainer}>
+        <View style={{...styles.popupContainer, padding: 16}}>
           <Text
             style={{
               color: colors.white,
               alignSelf: 'center',
               paddingVertical: 5,
-              fontSize: 16,
-              fontWeight: 'bold',
+              textAlign: 'left',
+              fontSize: 18,
+              fontWeight: '500',
+              lineHeight: 18,
               paddingBottom: 10,
             }}>
-            다른 유저들의 이목을 이끌만한 맛맵 이름과 사진을 정해주세요!
+            내 맛맵의 이름, 사진과 {'\n'} 설명을 정해주세요!
           </Text>
-          <Text style={{color: colors.white, paddingBottom: 10, fontSize: 16}}>
+          <Text style={{color: colors.white, paddingBottom: 6, fontSize: 16}}>
             맛맵 이름
           </Text>
           <TextInput
             style={styles.input}
-            placeholder={'서울 핫플 맛집들 다 모았다'}
+            placeholder={'서울 맛집들 다 모았다'}
             placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
             onChangeText={value => setNewPublicMapName(value)}
+          />
+          <Text
+            style={{
+              color: colors.white,
+              paddingBottom: 6,
+              fontSize: 16,
+              paddingTop: 6,
+            }}>
+            맛맵 소개
+          </Text>
+          <TextInput
+            style={{...styles.input, flexWrap: 'wrap'}}
+            multiline={true}
+            placeholder={'유학생이 서울 도착하면 바로 가는 맛집들'}
+            placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
+            onChangeText={value => setNewPublicMapDesc(value)}
           />
           <TouchableOpacity
             style={{flexDirection: 'row', paddingVertical: 10}}
@@ -1672,14 +1698,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral1,
     width: 250,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: 12,
     justifyContent: 'space-between',
   },
   input: {
     // color: '#989898',
     color: 'white',
     // borderBottomColor: '#eee',
-    fontSize: 16,
+    fontSize: 14.5,
     textAlign: 'left',
     borderColor: colors.coral2,
     padding: 5,

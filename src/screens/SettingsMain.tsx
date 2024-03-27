@@ -33,6 +33,7 @@ import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const isRefuseNotifications = useAppSelector(
     state => state.globalComponents.isRefuseNotifications,
   );
@@ -314,9 +315,12 @@ export default function Settings() {
           <TouchableOpacity
             style={styles.row}
             onPress={() => navigation.navigate('VisitedZips')}>
-            <Ionicons name="restaurant-outline" size={18} />
+            <Ionicons name="checkmark-circle-outline" size={18} />
             <Text style={styles.rowText}>내가 가본 맛집</Text>
             <View style={{flex: 1}} />
+            <Text style={{fontSize: 15, fontWeight: '500', paddingRight: 2}}>
+              {visitedZips.length}
+            </Text>
             <Ionicons
               name="chevron-forward-outline"
               color="#0c0c0c"
