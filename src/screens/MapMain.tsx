@@ -230,7 +230,46 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
+
+  async function generateSummary(place_id: string, zipId: string) {
+    console.log('ℹ️ generating reviews');
+    try {
+      const response = await fetch(
+        'https://storied-scarab-391406.du.r.appspot.com/generate-summary',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({place_id, zipId}),
+        },
+      );
+      const data = await response.json();
+      const summary = data.summary;
+      const updateZipQuery = `
+      mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+          updateZip(id: $id, zipInfo: $zipInfo) {
+            id
+          }
+      }
+     `;
+      const updateZipVariables = {
+        id: zipId,
+        zipInfo: {
+          description: summary,
+        },
+      };
+      request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      // if (!response.ok) {
+      //   throw new Error(`Server responded with status ${response.status}`);
+      // }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+    }
+  }
+
   const onPressSearchResult = async (data: any, details: any) => {
+    console.log(data.place_id);
     dispatch(updateIsLoadingAction(true));
     // pipeline for checking if this zip is already saved
     // here, we check our database if there is a zip with the same name.
@@ -275,10 +314,20 @@ function App(): JSX.Element {
               return;
             }
             console.log('🚀 해당 맛집이 있음');
+            dispatch(updateIsLoadingAction(false));
             const location: Coordinate = {
               latitude: zip.latitude,
               longitude: zip.longitude,
             };
+            mapRef.current?.animateToRegion(
+              {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+              100,
+            );
             const photoArray: string[] = zip.images.map(
               (photo: any) => photo.src,
             );
@@ -293,16 +342,7 @@ function App(): JSX.Element {
               category: zip.category,
             };
             setMarker(selectedMatZip);
-            mapRef.current?.animateToRegion(
-              {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              },
-              0,
-            );
-            dispatch(updateIsLoadingAction(false));
+
             isZipFoundInDB = true;
           }
         });
@@ -313,52 +353,30 @@ function App(): JSX.Element {
     }
     if (isZipFoundInDB) {
       return;
-    }
-    //pipeline for checking if this zip is already saved in the database (by checking it against place_id)
-    // if yes, we return this zip. if not, we create a new zip and return it.
-    try {
-      let fetchedZipData: any = null;
-      const fetchZipQuery = `{
-        fetchZipByGID(gid: "${data.place_id}") {
-          id
-          name
-          address
-          reviewCount
-          reviewAvgRating
-          parentMap {
-            name
-          }
-          category
-          images {
-            id
-            src
-          }
-          latitude
-          longitude
-        }
-      }`;
-      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
-      if (!fetchedZipData) {
+    } else {
+      //pipeline for creating a new zip
+      try {
+        let fetchedZipData: any = null;
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
-        let photoArray: string[] = [];
+        let createdPhotoArray: string[] = [];
         if (!details.photos || details.photos.length === 0) {
           const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
-          photoArray = [defaultStreetViewImg];
+          createdPhotoArray = [defaultStreetViewImg];
         } else {
           details.photos.forEach((photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${apiKey}`;
-            photoArray.push(photoUrl);
+            createdPhotoArray.push(photoUrl);
           });
         }
+
         const variables = {
           zipInfo: {
             name: details.name,
             number: data.place_id,
-            description: data.description,
+            description: '',
             address: details.formatted_address,
-            imgSrc: photoArray,
+            imgSrc: createdPhotoArray,
             category: data.types[0] ? data.types[0] : '식당',
             latitude: details.geometry.location.lat,
             longitude: details.geometry.location.lng,
@@ -387,46 +405,52 @@ function App(): JSX.Element {
           variables,
         );
         fetchedZipData = addZipRes?.data.data.addZip;
-      }
-
-      if (
-        fetchedZipData.images === undefined ||
-        fetchedZipData.images.length === 0
-      ) {
-        console.log('⛔️ no image');
-        const apiKey = Config.MAPS_API;
-        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
-        const updateZipQuery = `
+        // }
+        // FIXME: uncomment after optimizing google places
+        // if (details.reviews && details.reviews.length > 0) {
+        generateSummary(data.place_id, fetchedZipData.id);
+        // }
+        if (
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length === 0
+        ) {
+          console.log('⛔️ no image');
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
+          const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
                 id
               }
           }
          `;
-        const updateZipVariables = {
-          id: fetchedZipData.id,
-          zipInfo: {
-            imgSrc: [defaultStreetViewImg],
-          },
-        };
-        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
-      }
-      // fallback if matzip has no coordinates
-      let location: Coordinate;
-      if (
-        fetchedZipData.latitude === null ||
-        fetchedZipData.longitude === null
-      ) {
-        console.log('⛔️ no coordinate');
-        if (typeof details === 'string') {
-          location = await addressToCoordinate(details);
-        } else {
-          location = {
-            latitude: details.geometry.location.lat,
-            longitude: details.geometry.location.lng,
+          const updateZipVariables = {
+            id: fetchedZipData.id,
+            zipInfo: {
+              imgSrc: [defaultStreetViewImg],
+            },
           };
+          await request(
+            updateZipQuery,
+            REQ_METHOD.MUTATION,
+            updateZipVariables,
+          );
         }
-        const updateZipQuery = `
+        // fallback if matzip has no coordinates
+        let location: Coordinate;
+        if (
+          fetchedZipData.latitude === null ||
+          fetchedZipData.longitude === null
+        ) {
+          console.log('⛔️ no coordinate');
+          if (typeof details === 'string') {
+            location = await addressToCoordinate(details);
+          } else {
+            location = {
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+            };
+          }
+          const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
                 id
@@ -435,48 +459,50 @@ function App(): JSX.Element {
               }
           }
          `;
-        const updateZipVariables = {
-          id: fetchedZipData.id,
-          zipInfo: {
+          const updateZipVariables = {
+            id: fetchedZipData.id,
+            zipInfo: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          };
+          await request(
+            updateZipQuery,
+            REQ_METHOD.MUTATION,
+            updateZipVariables,
+          );
+        } else {
+          location = {
+            latitude: fetchedZipData.latitude,
+            longitude: fetchedZipData.longitude,
+          };
+        }
+        mapRef.current?.animateToRegion(
+          {
             latitude: location.latitude,
             longitude: location.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           },
+          500,
+        );
+        dispatch(updateIsLoadingAction(false));
+        const selectedMatZip: MatZip = {
+          id: fetchedZipData.id,
+          name: fetchedZipData.name,
+          imageSrc: createdPhotoArray,
+          coordinate: location,
+          reviewAvgRating: fetchedZipData.reviewAvgRating,
+          reviewCount: fetchedZipData.reviewCount,
+          address: fetchedZipData.address,
+          category: fetchedZipData.category,
         };
-        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
-      } else {
-        location = {
-          latitude: fetchedZipData.latitude,
-          longitude: fetchedZipData.longitude,
-        };
+        setMarker(selectedMatZip);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        dispatch(updateIsLoadingAction(false));
       }
-      const photoArray: string[] = fetchedZipData.images.map(
-        (photo: any) => photo.src,
-      );
-      const selectedMatZip: MatZip = {
-        id: fetchedZipData.id,
-        name: fetchedZipData.name,
-        imageSrc: photoArray,
-        coordinate: location,
-        reviewAvgRating: fetchedZipData.reviewAvgRating,
-        reviewCount: fetchedZipData.reviewCount,
-        address: fetchedZipData.address,
-        category: fetchedZipData.category,
-      };
-      setMarker(selectedMatZip);
-      mapRef.current?.animateToRegion(
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        0,
-      );
-      dispatch(updateIsLoadingAction(false));
-    } catch (e) {
-      console.log(e);
-    } finally {
-      dispatch(updateIsLoadingAction(false));
     }
   };
 
@@ -879,7 +905,7 @@ function App(): JSX.Element {
           </Text>
           <TextInput
             style={styles.input}
-            placeholder={'믿고 한번 눌러봐'}
+            placeholder={'서울 핫플 맛집들 다 모았다'}
             placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
             onChangeText={value => setNewPublicMapName(value)}
           />
@@ -936,7 +962,7 @@ function App(): JSX.Element {
             GooglePlacesDetailsQuery={{
               fields: 'geometry,photos,name,formatted_address',
             }}
-            debounce={0}
+            debounce={300}
             placeholder="맛집을 검색해보세요!"
             textInputProps={{
               placeholderTextColor: 'black',
