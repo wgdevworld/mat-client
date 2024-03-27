@@ -21,7 +21,6 @@ import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import assets from '../../assets';
 import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
@@ -69,6 +68,7 @@ import BackgroundGeolocation, {
 import {locationBackgroundTask} from '../controls/BackgroundTask';
 import Bugsnag from '@bugsnag/react-native';
 import {addVisitedMatZipAction} from '../store/modules/visitedZips';
+import FastImage from 'react-native-fast-image';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -405,11 +405,7 @@ function App(): JSX.Element {
           variables,
         );
         fetchedZipData = addZipRes?.data.data.addZip;
-        // }
-        // FIXME: uncomment after optimizing google places
-        // if (details.reviews && details.reviews.length > 0) {
         generateSummary(data.place_id, fetchedZipData.id);
-        // }
         if (
           fetchedZipData.images === undefined ||
           fetchedZipData.images.length === 0
@@ -823,13 +819,13 @@ function App(): JSX.Element {
               mapRef.current?.animateToRegion(newRegion, 0);
             }}>
             <View style={styles.itemImageContainer}>
-              <Image
-                source={
-                  matZip.imageSrc && matZip.imageSrc.length === 0
-                    ? assets.images.placeholder
-                    : {uri: matZip.imageSrc[0]}
-                }
+              <FastImage
+                source={{
+                  uri: matZip.imageSrc[0],
+                  priority: FastImage.priority.normal,
+                }}
                 style={styles.itemImage}
+                resizeMode={FastImage.resizeMode.cover}
               />
             </View>
             <View style={styles.itemInfoContainer}>

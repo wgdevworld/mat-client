@@ -20,6 +20,7 @@ import {
 import {useAppSelector} from '../store/hooks';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {addPublicMapFollowerCountAction} from '../store/modules/publicMaps';
+import FastImage from 'react-native-fast-image';
 
 interface MapCardProps {
   map: MatMap;
@@ -36,7 +37,7 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   return (
     <TouchableOpacity onPress={onPressMap} style={{paddingHorizontal: 24}}>
       <View style={styles.cardContainer}>
-        <Image source={{uri: map.imageSrc[0]}} style={styles.image} />
+        <FastImage source={{uri: map.imageSrc[0]}} style={styles.image} />
         <View
           style={{
             position: 'absolute',
