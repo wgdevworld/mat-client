@@ -93,7 +93,7 @@ const MapCard: React.FC<MapCardProps> = ({
           }}>
           <View>
             <Text style={styles.mapName}>{map.name}</Text>
-            <Text style={styles.mapAuthor}>by {map.author}</Text>
+            <Text style={styles.mapAuthor}>by {map.author.split('$')[0]}</Text>
           </View>
           <TouchableOpacity
             style={styles.bellButton}

@@ -15,7 +15,11 @@ import {
 import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
-import {updateUserIdAction, updateUsernameAction} from '../store/modules/user';
+import {
+  updateProfileAction,
+  updateUserIdAction,
+  updateUsernameAction,
+} from '../store/modules/user';
 import {
   Alert,
   Animated,
@@ -65,10 +69,14 @@ const SplashScreen = () => {
 
                 const curUserId = curUserRes?.data.data.fetchLoggedIn.id;
                 const curUserEmail = curUserRes?.data.data.fetchLoggedIn.email;
-                const curUserUsername =
-                  curUserRes?.data.data.fetchLoggedIn.username;
+                const curUserUsernameProfile =
+                  curUserRes?.data.data.fetchLoggedIn.username.split('$');
+                const curUserUsername = curUserUsernameProfile[0];
                 dispatch(updateUserIdAction(curUserId));
                 dispatch(updateUsernameAction(curUserUsername));
+                if (curUserUsernameProfile.length > 1) {
+                  dispatch(updateProfileAction(curUserUsernameProfile[1]));
+                }
                 await AsyncStorage.setItem(
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
                   curUserEmail,
@@ -224,6 +232,7 @@ const SplashScreen = () => {
                     savedZips {
                       id
                       name
+                      number
                       address
                       images {
                         src

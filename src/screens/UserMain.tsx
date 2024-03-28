@@ -45,6 +45,7 @@ const UserMain = () => {
   const apiKey = Config.MAPS_API;
   const [userName, setUserName] = useState<string>('');
   const [joinedDate, setJoinedDate] = useState<string>('');
+  const [userProfile, setUserProfile] = useState<string>('');
 
   useEffect(() => {
     if (isLoading) {
@@ -185,7 +186,17 @@ const UserMain = () => {
       );
       const fetchUserSavedZipsData =
         fetchUserSavedZipsRes?.data.data.fetchUser.savedZips;
-      setUserName(fetchUserSavedZipsRes?.data.data.fetchUser.username);
+      setUserName(
+        fetchUserSavedZipsRes?.data.data.fetchUser.username.split('$')[0],
+      );
+      if (
+        fetchUserSavedZipsRes?.data.data.fetchUser.username.split('$').length >
+        1
+      ) {
+        setUserProfile(
+          fetchUserSavedZipsRes?.data.data.fetchUser.username.split('$')[1],
+        );
+      }
       const date: Date = new Date(
         fetchUserSavedZipsRes?.data.data.fetchUser.createdAt,
       );
@@ -216,12 +227,12 @@ const UserMain = () => {
     }
   };
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.grey}}>
       <Header
         onPressBack={() => {
           navigation.goBack();
         }}
-        color={colors.white}
+        color={colors.grey}
         buttonColor={colors.coral1}
       />
       {isGlobalLoading ? null : (
@@ -235,11 +246,12 @@ const UserMain = () => {
           <View
             style={{
               height: 140,
-              width: '100%',
+              width: '95%',
+              alignSelf: 'center',
               flexDirection: 'row',
-              borderRadius: 12,
+              borderRadius: 36,
               padding: 10,
-              backgroundColor: colors.grey,
+              backgroundColor: colors.coral1,
             }}>
             <Image
               source={assets.images.default_profile}
@@ -249,13 +261,13 @@ const UserMain = () => {
                 width: 100,
                 borderRadius: 500,
                 alignSelf: 'center',
-                marginLeft: 18,
+                marginLeft: 6,
               }}
             />
             <View
               style={{
                 // justifyContent: 'center',
-                paddingLeft: '11%',
+                paddingLeft: '5%',
                 justifyContent: 'space-around',
               }}>
               <View
@@ -266,15 +278,15 @@ const UserMain = () => {
                 }}>
                 <Ionicons
                   name="person-circle-outline"
-                  color={'black'}
+                  color={colors.white}
                   size={18}
                 />
                 <Text
                   style={{
                     fontSize: 18,
-                    color: 'black',
+                    color: colors.white,
                     paddingLeft: 6,
-                    fontWeight: '400',
+                    fontWeight: '500',
                   }}
                   numberOfLines={1}
                   ellipsizeMode="tail">
@@ -286,13 +298,17 @@ const UserMain = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}>
-                <Ionicons name="person-add-outline" color={'black'} size={18} />
+                <Ionicons
+                  name="person-add-outline"
+                  color={colors.white}
+                  size={18}
+                />
                 <Text
                   style={{
                     textAlign: 'center',
                     fontSize: 18,
-                    fontWeight: '400',
-                    color: 'black',
+                    fontWeight: '500',
+                    color: colors.white,
                     paddingLeft: 6,
                   }}>
                   {joinedDate}
@@ -303,16 +319,20 @@ const UserMain = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}>
-                <Ionicons name="analytics-outline" color={'black'} size={18} />
+                <Ionicons
+                  name="analytics-outline"
+                  color={colors.white}
+                  size={18}
+                />
                 <Text
                   style={{
                     textAlign: 'center',
                     fontSize: 18,
-                    fontWeight: '300',
-                    color: 'black',
+                    fontWeight: '500',
+                    color: colors.white,
                     paddingLeft: 6,
                   }}>
-                  -
+                  {userProfile ? userProfile : '-'}
                 </Text>
               </View>
             </View>
@@ -320,18 +340,18 @@ const UserMain = () => {
           {userFollowingMatMaps.length > 0 && (
             <View
               style={{
-                borderRadius: 12,
+                borderRadius: 6,
                 backgroundColor: colors.grey,
                 paddingTop: 16,
-                paddingBottom: 4,
+                // paddingBottom: 24,
                 marginTop: 12,
               }}>
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  paddingBottom: 12,
-                  alignSelf: 'center',
+                  paddingBottom: 16,
+                  // alignSelf: 'center',
                 }}>
                 <Text
                   style={{
@@ -371,17 +391,17 @@ const UserMain = () => {
           {userVisitedZips.length > 0 && (
             <View
               style={{
-                borderRadius: 12,
+                borderRadius: 6,
                 backgroundColor: colors.grey,
                 paddingTop: 16,
-                marginTop: 12,
+                // marginTop: 12,
               }}>
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  alignSelf: 'center',
-                  paddingBottom: 8,
+                  // alignSelf: 'center',
+                  paddingBottom: 16,
                 }}>
                 <Text
                   style={{
@@ -394,6 +414,9 @@ const UserMain = () => {
                   {'가본 맛집'}
                 </Text>
                 <Ionicons name="restaurant-outline" size={16} />
+                <Text style={{fontSize: 18, fontWeight: '400', paddingLeft: 4}}>
+                  {visitedZips.length}
+                </Text>
               </View>
               <FlatList
                 data={userVisitedZips}

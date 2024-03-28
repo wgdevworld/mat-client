@@ -58,6 +58,7 @@ export const matZipSerializer = async (matZips: any[]) => {
         reviewCount: zip.reviewCount,
         reviewAvgRating: zip.reviewAvgRating,
         category: zip.category,
+        place_id: zip.number ? zip.number : null,
       } as MatZip;
     }),
   );

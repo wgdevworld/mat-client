@@ -11,6 +11,7 @@ export interface MatZip {
   reviewCount: number;
   description?: string;
   notificationSent?: boolean;
+  place_id?: string;
 }
 
 //TODO: 스플래시에서 데이터 받아오면 옵셔널 뺴기
@@ -40,7 +41,7 @@ export interface User {
   id: string;
   name: string;
   username: string;
-  password: string;
+  profile: string;
   email: string;
   address: string;
   deviceToken: string;
