@@ -24,6 +24,9 @@ export type RootStackParamList = {
   AccessGrant: undefined;
   VisitedZips: undefined;
   AccessGrant2: undefined;
+  UserMain: {
+    userEmail: string;
+  };
 
   //BottomTab
   MapMain: undefined;

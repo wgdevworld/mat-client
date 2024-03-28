@@ -26,6 +26,7 @@ export interface MatMap {
   zipList: MatZip[];
   followerList?: User[];
   numFollower?: number;
+  authorEmail?: string;
 }
 
 export interface MuckitItem {
