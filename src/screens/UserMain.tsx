@@ -249,7 +249,7 @@ const UserMain = () => {
               width: '95%',
               alignSelf: 'center',
               flexDirection: 'row',
-              borderRadius: 36,
+              borderRadius: 24,
               padding: 10,
               backgroundColor: colors.coral1,
             }}>
@@ -320,7 +320,7 @@ const UserMain = () => {
                   alignItems: 'center',
                 }}>
                 <Ionicons
-                  name="analytics-outline"
+                  name="search-outline"
                   color={colors.white}
                   size={18}
                 />
@@ -350,13 +350,13 @@ const UserMain = () => {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  paddingBottom: 16,
+                  paddingBottom: 6,
                   // alignSelf: 'center',
                 }}>
                 <Text
                   style={{
                     color: 'black',
-                    fontSize: 18,
+                    fontSize: 19,
                     paddingLeft: 16,
                     fontWeight: '500',
                     alignSelf: 'center',
@@ -364,7 +364,7 @@ const UserMain = () => {
                   }}>
                   {'팔로우하는 공개 맛맵'}
                 </Text>
-                <Ionicons name="map-outline" size={18} />
+                <Ionicons name="chevron-forward-outline" size={18} />
               </View>
               <FlatList
                 showsVerticalScrollIndicator={false}
@@ -401,22 +401,23 @@ const UserMain = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                   // alignSelf: 'center',
-                  paddingBottom: 16,
+                  // paddingBottom: 8,
                 }}>
                 <Text
                   style={{
                     color: 'black',
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: '500',
                     paddingLeft: 16,
                     paddingRight: 4,
                   }}>
                   {'가본 맛집'}
                 </Text>
-                <Ionicons name="restaurant-outline" size={16} />
-                <Text style={{fontSize: 18, fontWeight: '400', paddingLeft: 4}}>
+                <Text
+                  style={{fontSize: 18, fontWeight: '400', paddingRight: 4}}>
                   {visitedZips.length}
                 </Text>
+                <Ionicons name="chevron-forward-outline" size={16} />
               </View>
               <FlatList
                 data={userVisitedZips}
@@ -480,8 +481,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemTitleText: {
-    fontSize: 20,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '300',
     color: 'black',
     paddingBottom: 5,
     width: 150,

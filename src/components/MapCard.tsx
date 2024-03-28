@@ -92,7 +92,13 @@ const MapCard: React.FC<MapCardProps> = ({
             paddingRight: heightWidth ? 0 : 12,
           }}>
           <View>
-            <Text style={styles.mapName}>{map.name}</Text>
+            <Text
+              style={{
+                ...styles.mapName,
+                fontWeight: heightWidth ? '400' : '600',
+              }}>
+              {map.name}
+            </Text>
             <Text style={styles.mapAuthor}>by {map.author.split('$')[0]}</Text>
           </View>
           <TouchableOpacity
