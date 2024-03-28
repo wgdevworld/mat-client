@@ -5,7 +5,7 @@ export const initialState: User = {
   id: '',
   name: '',
   username: '',
-  password: '',
+  profile: '',
   email: '',
   address: '',
   deviceToken: '',
@@ -20,6 +20,7 @@ export const userSlice = createSlice({
       const newUser = action.payload;
       state.id = newUser.id;
       state.name = newUser.name;
+      state.profile = newUser.profile;
       state.username = newUser.username;
       state.email = newUser.email;
       state.address = newUser.address;
@@ -35,8 +36,8 @@ export const userSlice = createSlice({
       state.username = action.payload;
       return state;
     },
-    updatePasswordAction: (state, action: PayloadAction<string>) => {
-      state.password = action.payload;
+    updateProfileAction: (state, action: PayloadAction<string>) => {
+      state.profile = action.payload;
       return state;
     },
     updateEmailAction: (state, action: PayloadAction<string>) => {
@@ -51,6 +52,6 @@ export const {
   updateUserIdAction,
   updateUsernameAction,
   updateEmailAction,
-  updatePasswordAction,
+  updateProfileAction,
 } = userSlice.actions;
 export default userSlice.reducer;

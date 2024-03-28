@@ -78,8 +78,7 @@ const EmailRegisterMain = () => {
         username: '사과',
         email: email,
         address: address,
-        userMaps: [],
-        followingMaps: [],
+        profile: '',
         deviceToken: 'asdfasdfafd',
         pushAllowStatus: false,
       };

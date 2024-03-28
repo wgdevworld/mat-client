@@ -66,6 +66,7 @@ export default function ListMaps() {
               creator {
                 id
                 username
+                email
               }
               images {
                 src

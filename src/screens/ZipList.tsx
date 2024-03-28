@@ -2,7 +2,14 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
-import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ZipCard from '../components/ZipCard';
@@ -12,6 +19,8 @@ import Header from '../components/Header';
 import {calculateDistance} from '../tools/CommonFunc';
 import {Coordinate, MatZip} from '../types/store';
 import Geolocation from 'react-native-geolocation-service';
+import assets from '../../assets';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -57,7 +66,7 @@ export default function ZipList() {
       return sortedArray;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -67,12 +76,79 @@ export default function ZipList() {
         buttonColor={colors.coral1}
       />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>{map.name} 🎯</Text>
-        <View style={styles.description}>
-          {/* TODO: 이거 이미지 로딩 안됌 */}
-          <Image source={{uri: map.imageSrc[0]}} />
-          <Text style={{fontWeight: '500'}}>{map.description}</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={{
+              ...styles.heading,
+              maxWidth:
+                map.authorId === 'ef4a3851-f4f3-4316-93d3-6c5178d23da6'
+                  ? '100%'
+                  : '80%',
+            }}>
+            {map.name} 🎯
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              height: 40,
+              width: '15%',
+            }}>
+            {map.authorId !== 'ef4a3851-f4f3-4316-93d3-6c5178d23da6' && (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('UserMain', {
+                    userEmail: map.authorEmail!,
+                  });
+                }}
+                style={{
+                  alignSelf: 'center',
+                  height: '100%',
+                  width: '100%',
+                  borderRadius: 1000,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignSelf: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={assets.images.default_profile}
+                    resizeMethod="auto"
+                    style={{
+                      borderRadius: 500,
+                      width: 30,
+                      height: 30,
+                      alignSelf: 'center',
+                    }}
+                  />
+                </View>
+
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={20}
+                  color={colors.coral1}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
+
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <View style={styles.description}>
+            {/* TODO: 이거 이미지 로딩 안됌 */}
+            {/* <Image source={{uri: map.imageSrc[0]}} /> */}
+            <Text style={{fontWeight: '500', textAlign: 'left'}}>
+              {map.description}
+            </Text>
+          </View>
+        </View>
+
         <View>
           <FlatList
             data={orderedMatZips}
@@ -115,8 +191,8 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   description: {
-    alignItems: 'center',
-    flexDirection: 'row',
+    minWidth: '100%',
+    // alignItems: 'center',
     padding: 10,
     borderRadius: 9,
     backgroundColor: colors.grey,
