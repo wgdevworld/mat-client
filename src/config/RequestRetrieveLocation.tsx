@@ -38,7 +38,7 @@ export function requestPermissionAndGetLocation(
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           };
-          mapRef.current.animateToRegion(newRegion, 100);
+          mapRef.current.animateToRegion(newRegion, 0);
         },
         error => {
           console.log(error);
@@ -59,7 +59,7 @@ export function requestPermissionAndGetLocation(
         latitudeDelta: 0.1,
         longitudeDelta: 0.1,
       };
-      mapRef.current.animateToRegion(newRegion, 100);
+      mapRef.current.animateToRegion(newRegion, 0);
     }
   });
 }

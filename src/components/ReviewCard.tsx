@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     backgroundColor: 'white',
     marginBottom: 5,
-    borderBottomColor: 'black',
-    borderBottomWidth: 0.17,
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 0.17,
     padding: 12,
   },
   fullScreenImage: {

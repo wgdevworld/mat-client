@@ -36,6 +36,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
 import ReviewCard from '../components/ReviewCard';
+import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
@@ -53,6 +54,10 @@ export default function MatZipMain() {
   //   state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   // );
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
+  const userOwnList = useAppSelector(
+    state => state.userMaps.ownMaps[0].zipList,
+  );
+  const userOwnMatMapId = useAppSelector(state => state.userMaps.ownMaps[0].id);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
   const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
@@ -152,8 +157,24 @@ export default function MatZipMain() {
         renderItem={renderItem}
       />
     ) : (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text>이 맛집의 첫 리뷰를 작성해주세요!</Text>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'row',
+          paddingTop: 16,
+        }}>
+        <Ionicons name="pencil-outline" size={16} color={colors.coral1} />
+        <Text
+          style={{
+            color: colors.coral1,
+            fontWeight: '500',
+            fontSize: 16,
+            paddingLeft: 6,
+          }}>
+          이 맛집의 첫 리뷰를 작성해주세요!
+        </Text>
       </View>
     );
   };
@@ -242,6 +263,68 @@ export default function MatZipMain() {
         dispatch(removeVisitedZipAction(zipData?.id));
       }
       setSaveIcon(prev => !prev);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
+  const handleAddPress = async () => {
+    try {
+      dispatch(updateIsLoadingAction(true));
+      const variables = {
+        mapId: userOwnMatMapId,
+        zipId: zipId,
+      };
+      const addToMapQuery = `
+    mutation addToMap($mapId: String! $zipId:String!) {
+      addToMap(mapId: $mapId zipId: $zipId) {
+        id
+        name
+        address
+        reviewCount
+        reviewAvgRating
+        category
+        images {
+          src
+        }
+        latitude
+        longitude
+      }
+    }`;
+      const addToMapRes = await request(
+        addToMapQuery,
+        REQ_METHOD.MUTATION,
+        variables,
+      );
+      const addToMapDataArr = addToMapRes?.data.data.addToMap;
+      const serializedZipList: MatZip[] = await Promise.all(
+        addToMapDataArr.map(async (zip: any) => {
+          const apiKey = Config.MAPS_API;
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
+          const zipImgSrcArr = zip.images
+            ? zip.images.map((img: any) => img.src)
+            : [defaultStreetViewImg];
+
+          const coordinate = {
+            latitude: zip.latitude,
+            longitude: zip.longitude,
+          };
+
+          return {
+            id: zip.id,
+            name: zip.name,
+            imageSrc: zipImgSrcArr,
+            coordinate,
+            address: zip.address,
+            reviewCount: zip.reviewCount,
+            reviewAvgRating: zip.reviewAvgRating,
+            category: zip.category,
+          } as MatZip;
+        }),
+      );
+      dispatch(replaceOwnMatMapZipListAction(serializedZipList));
     } catch (e) {
       console.log(e);
     } finally {
@@ -454,17 +537,30 @@ export default function MatZipMain() {
                 </View>
               </View>
 
-              <TouchableOpacity
-                onPress={handleIconPress}
-                style={styles.saveIcon}>
-                <Ionicons
-                  name={
-                    saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
-                  }
-                  size={28}
-                  color={colors.coral1}
-                />
-              </TouchableOpacity>
+              <View>
+                <TouchableOpacity
+                  onPress={handleIconPress}
+                  style={styles.saveIcon}>
+                  <Ionicons
+                    name={
+                      saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                    }
+                    size={28}
+                    color={colors.coral1}
+                  />
+                </TouchableOpacity>
+                {!userOwnList.find(zip => zip.id === zipId) && (
+                  <TouchableOpacity
+                    onPress={handleAddPress}
+                    style={{...styles.saveIcon, paddingTop: 6}}>
+                    <Ionicons
+                      name={'add-circle-outline'}
+                      size={28}
+                      color={colors.coral1}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
 
             {zipData && (
@@ -484,7 +580,7 @@ export default function MatZipMain() {
 const styles = StyleSheet.create({
   containter: {},
   matZipContainer: {
-    paddingBottom: 500,
+    paddingBottom: 200,
   },
   fullScreenImage: {
     flex: 1,

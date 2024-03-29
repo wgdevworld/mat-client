@@ -327,7 +327,7 @@ function App(): JSX.Element {
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               },
-              100,
+              0,
             );
             const photoArray: string[] = zip.images.map(
               (photo: any) => photo.src,
@@ -481,7 +481,7 @@ function App(): JSX.Element {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           },
-          500,
+          0,
         );
         dispatch(updateIsLoadingAction(false));
         const selectedMatZip: MatZip = {
@@ -516,7 +516,7 @@ function App(): JSX.Element {
     try {
       dispatch(updateIsLoadingAction(true));
       const variables = {
-        mapId: curMatMap.id,
+        mapId: userOwnMaps[0].id,
         zipId: marker?.id,
       };
       const addToMapQuery = `
@@ -1120,8 +1120,7 @@ function App(): JSX.Element {
               ...styles.mapBtn,
               display:
                 marker &&
-                !userOwnMaps[0].zipList.find(zip => zip.id === marker.id) &&
-                curMatMap.authorId === curUser.id
+                !userOwnMaps[0].zipList.find(zip => zip.id === marker.id)
                   ? 'flex'
                   : 'none',
             }}
