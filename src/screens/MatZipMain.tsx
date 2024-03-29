@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,7 +8,6 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-  Animated,
   ScrollView,
   Modal,
   Image,
@@ -18,7 +17,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
-import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Coordinate, MatZip, Review} from '../types/store';
@@ -37,76 +35,7 @@ import Header from '../components/Header';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
-
-const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
-  expanded = false,
-  reviews,
-}) => {
-  const [height] = useState(new Animated.Value(0));
-
-  const [orderedReviews, setOrderedReviews] = useState<Review[] | undefined>(
-    reviews,
-  );
-
-  useEffect(() => {
-    if (reviews) {
-      setOrderedReviews(
-        reviews.sort((a, b) => {
-          return b.date.getTime() - a.date.getTime();
-        }),
-      );
-    }
-  }, [reviews]);
-
-  useEffect(() => {
-    Animated.timing(height, {
-      toValue: !expanded ? (reviews ? reviews.length * 200 : 0) : 0,
-      duration: 150,
-      useNativeDriver: false,
-    }).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, height]);
-
-  const renderItem = ({item}: {item: Review}) => <ReviewCard review={item} />;
-
-  // REFACTOR: dynamic height
-  const ITEM_HEIGHT = 60;
-
-  const getItemLayout = useCallback(
-    (data: any, index: number) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
-  );
-
-  return (
-    <Animated.View style={{height}}>
-      {orderedReviews && orderedReviews.length !== 0 ? (
-        <FlatList
-          data={orderedReviews}
-          bounces={false}
-          keyExtractor={(item, index) => item.date.toISOString() + index}
-          scrollEnabled={true}
-          maxToRenderPerBatch={5}
-          initialNumToRender={5}
-          windowSize={10}
-          removeClippedSubviews={true}
-          renderItem={renderItem}
-          getItemLayout={getItemLayout}
-          // ListHeaderComponent={<ReviewForm />}
-        />
-      ) : (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>이 맛집의 첫 리뷰를 작성해주세요!</Text>
-        </View>
-      )}
-
-      {/* <ReviewForm /> */}
-    </Animated.View>
-  );
-};
+import ReviewCard from '../components/ReviewCard';
 
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
@@ -127,7 +56,6 @@ export default function MatZipMain() {
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
   const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
-
   const matZipFromZipId = async () => {
     try {
       const fetchZipQuery = `{
@@ -209,6 +137,27 @@ export default function MatZipMain() {
     }
   };
 
+  const renderReviews = () => {
+    const renderItem = ({item}: {item: Review}) => <ReviewCard review={item} />;
+    return reviews && reviews.length !== 0 ? (
+      <FlatList
+        data={reviews}
+        bounces={false}
+        keyExtractor={(item, index) => item.date.toISOString() + index}
+        scrollEnabled={true}
+        maxToRenderPerBatch={5}
+        initialNumToRender={5}
+        windowSize={11}
+        removeClippedSubviews={true}
+        renderItem={renderItem}
+      />
+    ) : (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text>이 맛집의 첫 리뷰를 작성해주세요!</Text>
+      </View>
+    );
+  };
+
   useEffect(() => {
     dispatch(updateIsLoadingAction(true));
     // if (zipDataFromStore) {
@@ -261,12 +210,6 @@ export default function MatZipMain() {
   }, [zipId]);
 
   const images = zipData?.imageSrc;
-  const handlePressReviewChevron = () => {
-    // navigation.navigate('MatZip', {id: zipId});
-    setToggleReview(prev => !prev);
-    // show review shen toggled
-  };
-  const [toggleReview, setToggleReview] = useState(true);
   const [saveIcon, setSaveIcon] = useState(
     !!visitedZips.find(zip => zip.id === zipId),
   );
@@ -527,24 +470,8 @@ export default function MatZipMain() {
             {zipData && (
               <ReviewForm zipId={zipData.id} setReviews={setReviews} />
             )}
-            <TouchableOpacity
-              style={styles.row}
-              onPress={handlePressReviewChevron}>
-              <Text style={styles.rowText}>
-                리뷰 {reviews ? reviews?.length : 0}개
-              </Text>
-              <View style={{flex: 1}} />
-              <Ionicons
-                name={
-                  toggleReview
-                    ? 'chevron-forward-outline'
-                    : 'chevron-down-outline'
-                }
-                color="white"
-                size={22}
-              />
-            </TouchableOpacity>
-            <ExpandableView expanded={toggleReview} reviews={reviews} />
+            {renderReviews()}
+            {/* <ExpandableView expanded={toggleReview} reviews={reviews} /> */}
           </View>
         </View>
       </ScrollView>
