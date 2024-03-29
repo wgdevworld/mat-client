@@ -31,7 +31,7 @@ export default function ListMaps() {
   );
   const userName = useAppSelector(state => state.user.username);
 
-  const FETCH_COOLDOWN = 2 * 60 * 1000;
+  const FETCH_COOLDOWN = 10 * 60 * 1000;
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
@@ -124,6 +124,13 @@ export default function ListMaps() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onRefreshPublicMaps]),
   );
+
+  useEffect(() => {
+    // This effect only depends on isUserOwnMapPublic.
+    // It will trigger a refresh every time isUserOwnMapPublic changes.
+    onRefreshPublicMaps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUserOwnMapPublic]);
 
   const orderMaps = () => {
     const newOrdered = [...publicMaps];

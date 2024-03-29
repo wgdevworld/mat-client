@@ -306,7 +306,7 @@ const UserMain = () => {
                 <Text
                   style={{
                     textAlign: 'center',
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: '500',
                     color: colors.white,
                     paddingLeft: 6,
@@ -327,7 +327,7 @@ const UserMain = () => {
                 <Text
                   style={{
                     textAlign: 'center',
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: '500',
                     color: colors.white,
                     paddingLeft: 6,
@@ -342,7 +342,7 @@ const UserMain = () => {
               style={{
                 borderRadius: 6,
                 backgroundColor: colors.grey,
-                paddingTop: 16,
+                paddingTop: 8,
                 // paddingBottom: 24,
                 marginTop: 12,
               }}>
@@ -350,7 +350,7 @@ const UserMain = () => {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  paddingBottom: 6,
+                  paddingBottom: 8,
                   // alignSelf: 'center',
                 }}>
                 <Text
@@ -393,7 +393,7 @@ const UserMain = () => {
               style={{
                 borderRadius: 6,
                 backgroundColor: colors.grey,
-                paddingTop: 16,
+                paddingTop: 8,
                 // marginTop: 12,
               }}>
               <View
