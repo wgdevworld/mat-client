@@ -152,6 +152,7 @@ export default function ZipList() {
         <View>
           <FlatList
             data={orderedMatZips}
+            initialNumToRender={20}
             keyExtractor={item => item.id}
             scrollEnabled={false}
             renderItem={({item}) => (

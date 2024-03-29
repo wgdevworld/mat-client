@@ -1,13 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import colors from '../styles/colors';
 import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
@@ -78,6 +71,7 @@ const MapCard: React.FC<MapCardProps> = ({
               alignSelf: 'center',
               // backgroundColor: colors.coral1,
               padding: 3,
+              fontWeight: '600',
             }}>
             팔로워: {map.numFollower}
           </Text>
@@ -88,8 +82,6 @@ const MapCard: React.FC<MapCardProps> = ({
             ...styles.cardContent,
             backgroundColor: backgroundColor ? backgroundColor : 'white',
             height: heightWidth ? heightWidth : 150,
-            paddingBottom: heightWidth ? 0 : 10,
-            paddingRight: heightWidth ? 0 : 12,
           }}>
           <View>
             <Text
@@ -151,8 +143,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     borderColor: colors.grey,
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingBottom: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 14,
     height: 150,

@@ -1142,6 +1142,7 @@ function App(): JSX.Element {
           <BottomSheet ref={sheetRef} snapPoints={snapPoints} index={1}>
             {orderedMatZips && orderedMatZips.length !== 0 ? (
               <BottomSheetFlatList
+                bounces={false}
                 initialNumToRender={5}
                 data={orderedMatZips}
                 keyExtractor={i => i.id}
