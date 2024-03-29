@@ -46,6 +46,8 @@ export interface User {
   address: string;
   deviceToken: string;
   pushAllowStatus: Boolean;
+  receiveFollowId: string[];
+  password: string;
 }
 
 export interface Coordinate {

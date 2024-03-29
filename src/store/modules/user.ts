@@ -10,6 +10,8 @@ export const initialState: User = {
   address: '',
   deviceToken: '',
   pushAllowStatus: false,
+  receiveFollowId: [],
+  password: '',
 };
 
 export const userSlice = createSlice({
@@ -26,6 +28,7 @@ export const userSlice = createSlice({
       state.address = newUser.address;
       state.deviceToken = newUser.deviceToken;
       state.pushAllowStatus = newUser.pushAllowStatus;
+      state.receiveFollowId = newUser.receiveFollowId;
       return state;
     },
     updateUserIdAction: (state, action: PayloadAction<string>) => {
@@ -44,6 +47,18 @@ export const userSlice = createSlice({
       state.email = action.payload;
       return state;
     },
+    addFollowingIdAction: (state, action: PayloadAction<string>) => {
+      state.receiveFollowId.push(action.payload);
+      return state;
+    },
+    updatePasswordAction: (state, action: PayloadAction<string>) => {
+      state.password = action.payload;
+      return state;
+    },
+    replaceFollowingIdAction: (state, action: PayloadAction<string[]>) => {
+      state.receiveFollowId = action.payload;
+      return state;
+    },
   },
 });
 
@@ -53,5 +68,8 @@ export const {
   updateUsernameAction,
   updateEmailAction,
   updateProfileAction,
+  addFollowingIdAction,
+  updatePasswordAction,
+  replaceFollowingIdAction,
 } = userSlice.actions;
 export default userSlice.reducer;

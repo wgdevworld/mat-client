@@ -16,6 +16,7 @@ import {replaceOwnMuckitemsAction} from '../store/modules/userItems';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {
+  replaceFollowingIdAction,
   updateProfileAction,
   updateUserIdAction,
   updateUsernameAction,
@@ -59,6 +60,7 @@ const SplashScreen = () => {
                       id
                       email
                       username
+                      institution
                     }
                   }
                   `;
@@ -76,6 +78,15 @@ const SplashScreen = () => {
                 dispatch(updateUsernameAction(curUserUsername));
                 if (curUserUsernameProfile.length > 1) {
                   dispatch(updateProfileAction(curUserUsernameProfile[1]));
+                }
+                if (curUserRes?.data.data.fetchLoggedIn.institution) {
+                  dispatch(
+                    replaceFollowingIdAction(
+                      curUserRes.data.data.fetchLoggedIn.institution.split(','),
+                    ),
+                  );
+                } else {
+                  dispatch(replaceFollowingIdAction([]));
                 }
                 await AsyncStorage.setItem(
                   ASYNC_STORAGE_ENUM.USER_EMAIL,
