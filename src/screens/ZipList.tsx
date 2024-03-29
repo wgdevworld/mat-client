@@ -28,7 +28,6 @@ export default function ZipList() {
   const [orderedMatZips, setOrderedMatZips] = useState<MatZip[]>([]);
   const {map} = route.params;
   const [location, setLocation] = useState<Coordinate | null>(null);
-
   useEffect(() => {
     setOrderedMatZips(map.zipList);
     try {

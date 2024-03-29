@@ -102,6 +102,8 @@ function App(): JSX.Element {
   const [newPublicMapDesc, setNewPublicMapDesc] = useState('');
   const [imgLibraryResponse, setImgLibraryResponse] =
     useState<ImagePickerResponse>();
+  const [isConfirmPrivateMapModal, setIsConfirmPrivateMapModal] =
+    useState(false);
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -638,40 +640,43 @@ function App(): JSX.Element {
       .catch(e => console.log(e));
   };
 
-  const onPublicStatusChange = async () => {
+  const confirmPrivateMap = async () => {
     dispatch(updateIsLoadingAction(true));
+    const variables = {
+      mapInfo: {
+        publicStatus: false,
+      },
+      id: userOwnMaps[0].id,
+    };
+    const query = `
+    mutation updateMap($mapInfo: UpdateMapInput! $id: String!) {
+      updateMap(mapInfo: $mapInfo id: $id) {
+        id
+      }
+    }`;
     try {
-      const updateMapQuery = `
-      mutation updateMap($mapInfo: UpdateMapInput!, $id: String!) {
-        updateMap(mapInfo: $mapInfo, id: $id) {
-          publicStatus
+      await request(query, REQ_METHOD.MUTATION, variables);
+      dispatch(updatePublicStatusAction(false));
+      curUser.receiveFollowId;
+      for (const map of userFollowingMaps) {
+        if (map.authorId === 'ef4a3851-f4f3-4316-93d3-6c5178d23da6') {
+          continue;
         }
+
+        if (curUser.receiveFollowId.some(id => id === map.id)) {
+          continue;
+        }
+        await removeUserFollower(map.id);
+        dispatch(removeFollowingMatMapAction(map.id));
       }
-    `;
-      const updateMapVariables = {
-        mapInfo: {
-          publicStatus: !curMatMap.publicStatus,
-        },
-        id: curMatMap.id,
-      };
-      const updateMapRes = await request(
-        updateMapQuery,
-        REQ_METHOD.MUTATION,
-        updateMapVariables,
-      );
-      if (updateMapRes === null || updateMapRes === undefined) {
-        return;
-      }
-      dispatch(
-        updatePublicStatusAction(updateMapRes.data.data.updateMap.publicStatus),
-      );
+      findAndSetCurMatMapByID(userOwnMaps[0].id);
+      setDropDownValue(dropDownItems[0].value);
+      dispatch(updateIsLoadingAction(false));
     } catch (e) {
       console.log(e);
     } finally {
       dispatch(updateIsLoadingAction(false));
-      if (curMatMap.publicStatus === false) {
-        setIsEditPublicMapVisible(true);
-      }
+      setIsConfirmPrivateMapModal(false);
     }
   };
 
@@ -693,6 +698,7 @@ function App(): JSX.Element {
     const variables = {
       mapInfo: {
         name: newPublicMapName,
+        publicStatus: true,
         description: newPublicMapDesc
           ? newPublicMapDesc
           : `${curUser.username}님의 첫 맛맵`,
@@ -717,6 +723,7 @@ function App(): JSX.Element {
       await request(query, REQ_METHOD.MUTATION, variables);
       dispatch(updateOwnMapImgAction(mapPhoto ? mapPhoto.imageSrc : ''));
       dispatch(updateOwnMapNameAction(newPublicMapName));
+      dispatch(updatePublicStatusAction(true));
     } catch (e) {
       console.log(e);
     } finally {
@@ -882,6 +889,60 @@ function App(): JSX.Element {
   };
   return (
     <View style={{flex: 1}}>
+      <Modal
+        visible={isConfirmPrivateMapModal}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isConfirmPrivateMapModal ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View
+          style={{
+            ...styles.popupContainer,
+            padding: 16,
+            top: Dimensions.get('window').height / 2 - 80,
+          }}>
+          <Text
+            style={{
+              color: colors.white,
+              alignSelf: 'center',
+              paddingVertical: 5,
+              textAlign: 'left',
+              fontSize: 16,
+              fontWeight: '400',
+              // lineHeight: 18,
+              paddingBottom: 10,
+            }}>
+            ⚠ 맛맵을 비공개로 바꾸시면 운영자가 만든 맛맵들과 {curUser.username}
+            님에게 공유된 맛맵을 제외한 나머지 맛맵들이 언팔로우 돼요!
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 12,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                setIsConfirmPrivateMapModal(false);
+              }}>
+              <Text
+                style={{color: colors.white, fontSize: 16, fontWeight: 'bold'}}>
+                취소
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={confirmPrivateMap}>
+              <Text style={{color: colors.white, fontSize: 16}}>계속하기</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <Modal
         visible={isEditPublicMapVisible}
         transparent
@@ -1284,7 +1345,11 @@ function App(): JSX.Element {
                               false: 'grey',
                               true: colors.coral1,
                             }}
-                            onValueChange={onPublicStatusChange}
+                            onValueChange={
+                              curMatMap.publicStatus === false
+                                ? () => setIsEditPublicMapVisible(true)
+                                : () => setIsConfirmPrivateMapModal(true)
+                            }
                             value={curMatMap.publicStatus}
                             style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
                             ios_backgroundColor={colors.grey}
