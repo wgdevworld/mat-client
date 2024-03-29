@@ -270,7 +270,7 @@ function App(): JSX.Element {
   }
 
   const onPressSearchResult = async (data: any, details: any) => {
-    console.log(data.place_id);
+    // console.log(data.place_id);
     dispatch(updateIsLoadingAction(true));
     // pipeline for checking if this zip is already saved
     // here, we check our database if there is a zip with the same name.
@@ -1143,6 +1143,7 @@ function App(): JSX.Element {
           <BottomSheet ref={sheetRef} snapPoints={snapPoints} index={1}>
             {orderedMatZips && orderedMatZips.length !== 0 ? (
               <BottomSheetFlatList
+                initialNumToRender={5}
                 data={orderedMatZips}
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}

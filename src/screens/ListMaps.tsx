@@ -149,6 +149,7 @@ export default function ListMaps() {
       <View style={styles.containter}>
         <View>
           <FlatList
+            initialNumToRender={5}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
