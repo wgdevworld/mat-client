@@ -552,7 +552,11 @@ export default function MatZipMain() {
                 {!userOwnList.find(zip => zip.id === zipId) && (
                   <TouchableOpacity
                     onPress={handleAddPress}
-                    style={{...styles.saveIcon, paddingTop: 6}}>
+                    style={{
+                      ...styles.saveIcon,
+                      paddingTop: 6,
+                      paddingBottom: 6,
+                    }}>
                     <Ionicons
                       name={'add-circle-outline'}
                       size={28}
