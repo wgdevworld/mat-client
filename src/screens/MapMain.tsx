@@ -623,12 +623,12 @@ function App(): JSX.Element {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
       message:
-        curMatMap.id === curUser.id
+        curMatMap.authorId === curUser.id
           ? `먹킷 어플에서 만든 제 맛맵을 팔로우 해보세요!
           \nMuckit 어플 미설치시 ${
             Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
           }에서 Muckit을 설치해주세요.`
-          : `${curMatMap.author} 유저가 만든 ${
+          : `${curMatMap.author.split('$')[0]} 유저가 만든 ${
               curMatMap.name
             } 맛맵을 팔로우 해보세요!
             \nMuckit 어플 미설치시 ${

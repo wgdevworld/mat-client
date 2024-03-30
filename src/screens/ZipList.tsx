@@ -39,6 +39,21 @@ export default function ZipList() {
             latitude: latitude,
             longitude: longitude,
           }));
+          setOrderedMatZips((prev: any) => {
+            const sortedArray = [...prev].sort(
+              (a, b) =>
+                calculateDistance(a.coordinate, {
+                  latitude: latitude,
+                  longitude: longitude,
+                }) -
+                calculateDistance(b.coordinate, {
+                  latitude: latitude,
+                  longitude: longitude,
+                }),
+            );
+
+            return sortedArray;
+          });
         },
         error => {
           console.log(error);
@@ -55,15 +70,6 @@ export default function ZipList() {
     if (location === null) {
       return;
     }
-    setOrderedMatZips((prev: any) => {
-      const sortedArray = [...prev].sort(
-        (a, b) =>
-          calculateDistance(a.coordinate, location) -
-          calculateDistance(b.coordinate, location),
-      );
-
-      return sortedArray;
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
