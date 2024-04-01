@@ -490,7 +490,7 @@ export default function MatZipMain() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}>
-              <View>
+              <View style={{width: '80%'}}>
                 {zipData.description && (
                   <View
                     style={{
@@ -605,7 +605,6 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: 'black',
     textAlign: 'left',
-    maxWidth: '85%',
   },
   matZipInfoText: {
     fontSize: 15,
