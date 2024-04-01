@@ -2,14 +2,7 @@
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ZipCard from '../components/ZipCard';
@@ -19,8 +12,6 @@ import Header from '../components/Header';
 import {calculateDistance} from '../tools/CommonFunc';
 import {Coordinate, MatZip} from '../types/store';
 import Geolocation from 'react-native-geolocation-service';
-import assets from '../../assets';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ZipList() {
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
@@ -87,14 +78,14 @@ export default function ZipList() {
             ellipsizeMode="tail"
             style={{
               ...styles.heading,
-              maxWidth:
-                map.authorId === 'ef4a3851-f4f3-4316-93d3-6c5178d23da6'
-                  ? '100%'
-                  : '80%',
+              // maxWidth:
+              //   map.authorId === 'ef4a3851-f4f3-4316-93d3-6c5178d23da6'
+              //     ? '100%'
+              //     : '80%',
             }}>
             {map.name} 🎯
           </Text>
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               height: 40,
@@ -141,7 +132,7 @@ export default function ZipList() {
                 />
               </TouchableOpacity>
             )}
-          </View>
+          </View> */}
         </View>
 
         <View style={{flex: 1, flexDirection: 'row'}}>
