@@ -33,6 +33,7 @@ import BackgroundGeolocation from 'react-native-background-geolocation';
 
 export default function Settings() {
   const user = useAppSelector(state => state.user);
+  const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
   const isRefuseNotifications = useAppSelector(
     state => state.globalComponents.isRefuseNotifications,
   );
@@ -68,12 +69,13 @@ export default function Settings() {
       ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS,
       radius.toString(),
     );
-    await BackgroundGeolocation.setConfig({
-      stationaryRadius: radius / 5,
-      distanceFilter: radius / 2,
-    }).then(state => {
-      console.log('[setConfig] success: ', state);
-    });
+    //TODO: experimenting with useSignificantChangesOnly set to true
+    // await BackgroundGeolocation.setConfig({
+    //   stationaryRadius: radius / 5,
+    //   distanceFilter: radius / 2,
+    // }).then(state => {
+    //   console.log('[setConfig] success: ', state);
+    // });
     dispatch(updateIsLoadingAction(false));
     setIsSetRadiusModalVisible(false);
   };
@@ -217,8 +219,8 @@ export default function Settings() {
           </Text>
           <Slider
             style={{width: '100%', height: 40}}
-            minimumValue={500}
-            maximumValue={5000}
+            minimumValue={1000}
+            maximumValue={3000}
             step={100}
             value={radius}
             onValueChange={value => setRadius(value)}
@@ -313,9 +315,12 @@ export default function Settings() {
           <TouchableOpacity
             style={styles.row}
             onPress={() => navigation.navigate('VisitedZips')}>
-            <Ionicons name="restaurant-outline" size={18} />
+            <Ionicons name="checkmark-circle-outline" size={18} />
             <Text style={styles.rowText}>내가 가본 맛집</Text>
             <View style={{flex: 1}} />
+            <Text style={{fontSize: 15, fontWeight: '500', paddingRight: 2}}>
+              {visitedZips.length}
+            </Text>
             <Ionicons
               name="chevron-forward-outline"
               color="#0c0c0c"
@@ -351,7 +356,7 @@ export default function Settings() {
               const userSetInterval = await AsyncStorage.getItem(
                 ASYNC_STORAGE_ENUM.NOTIFICATION_INTERVAL,
               );
-              setInterval(userSetInterval ? parseInt(userSetInterval, 10) : 3);
+              setInterval(userSetInterval ? parseInt(userSetInterval, 10) : 6);
               setIsSetIntervalModalVisible(true);
             }}>
             <Ionicons name="timer-outline" size={18} />

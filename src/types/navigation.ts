@@ -24,6 +24,9 @@ export type RootStackParamList = {
   AccessGrant: undefined;
   VisitedZips: undefined;
   AccessGrant2: undefined;
+  UserMain: {
+    userEmail: string;
+  };
 
   //BottomTab
   MapMain: undefined;
@@ -34,7 +37,6 @@ export type RootStackParamList = {
   ZipList: {
     // mapID: string;
     map: MatMap;
-    location: Coordinate | null;
   };
   MatZipMain: {
     zipID: string | undefined;

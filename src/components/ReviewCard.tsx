@@ -17,6 +17,7 @@ import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../styles/colors';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import assets from '../../assets';
 interface ReviewCardProps {
   review: Review;
 }
@@ -32,12 +33,36 @@ const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
   };
   return (
     <View style={styles.container}>
-      <Text>
-        {review.date.toLocaleDateString('ko-KR') +
-          ' ' +
-          review.date.toLocaleTimeString('ko-KR')}{' '}
-        @{review.author} | 평점: {review.rating}
-      </Text>
+      <View style={{flexDirection: 'row'}}>
+        <Image
+          source={assets.images.default_profile}
+          style={{height: 40, width: 40, borderRadius: 40, marginRight: 4}}
+        />
+        <View style={{justifyContent: 'space-around'}}>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={{fontWeight: '600', paddingTop: 1}}>
+              {review.author.split('$')[0]}
+            </Text>
+            {review.author.split('$')[1] && (
+              <Text>{' | ' + review.author.split('$')[1]}</Text>
+            )}
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            {Array.from({length: review.rating}, (_, index) => (
+              <Ionicons
+                key={index}
+                name="star"
+                size={16}
+                color={colors.coral1}
+              />
+            ))}
+            {Array.from({length: 5 - review.rating}, (_, index) => (
+              <Ionicons key={index} name="star" size={16} color={colors.grey} />
+            ))}
+            <Text>{' ' + review.date.toLocaleDateString('ko-KR')}</Text>
+          </View>
+        </View>
+      </View>
       <Text style={styles.contentText}>{review.content}</Text>
       {review.images && review.images.length > 0 && (
         <>
@@ -51,7 +76,12 @@ const ReviewCard: React.FC<ReviewCardProps> = ({review}) => {
                 key={image.src + image.id}
                 onPress={() => openImageView(index)}>
                 <Image
-                  style={{width: 100, height: 100, margin: 10}}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    marginRight: 10,
+                    marginVertical: 10,
+                  }}
                   source={{uri: image.src}}
                 />
               </TouchableOpacity>
@@ -102,12 +132,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     backgroundColor: 'white',
-    borderRadius: 0,
     marginBottom: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 0,
-    elevation: 2,
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 0.17,
     padding: 12,
   },
   fullScreenImage: {

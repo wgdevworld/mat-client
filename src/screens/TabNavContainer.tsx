@@ -1,13 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   createBottomTabNavigator,
   BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
 import {
   Alert,
-  AppState,
   Dimensions,
   Linking,
   StyleSheet,
@@ -20,7 +19,7 @@ import MapMain from './MapMain';
 import ListMaps from './ListMaps';
 import SettingsMain from './SettingsMain';
 import MuckitNotes from './MuckitNotes';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {ScreenParamList} from '../types/navigation';
 import {useDispatch} from 'react-redux';
@@ -33,7 +32,7 @@ import {addFollowingMatMapAction} from '../store/modules/userMaps';
 import {REQ_METHOD, request} from '../controls/RequestControl';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {useAppSelector} from '../store/hooks';
-import ShareMenu, {ShareCallback, ShareData} from 'react-native-share-menu';
+import {addFollowingIdAction} from '../store/modules/user';
 
 const screenWidth = Dimensions.get('window').width;
 let isDeepLinkLoading = false;
@@ -47,6 +46,7 @@ const TabNavContainer = () => {
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
   );
+  const receiveFollowId = useAppSelector(state => state.user.receiveFollowId);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
 
   // DeepLink navigation
@@ -150,7 +150,23 @@ const TabNavContainer = () => {
                 const map = await matMapSerializer([fetchMapData]);
                 dispatch(addFollowingMatMapAction(map[0]));
                 dispatch(updateIsJustFollowed(true));
-                console.log(map[0].id + 'added');
+                dispatch(addFollowingIdAction(mapId));
+                const updateUserVariables = {
+                  updateUserInput: {
+                    institution: receiveFollowId.join(','),
+                  },
+                };
+                const updateUserQuery = `
+                    mutation updateUser($updateUserInput: UpdateUserInput!) {
+                        updateUser(userInput: $updateUserInput) {
+                          institution
+                    }
+                }`;
+                request(
+                  updateUserQuery,
+                  REQ_METHOD.MUTATION,
+                  updateUserVariables,
+                );
               } else {
                 console.error('Error fetching map:', fetchMapData);
               }

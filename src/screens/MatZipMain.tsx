@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,7 +8,6 @@ import {
   View,
   TouchableOpacity,
   FlatList,
-  Animated,
   ScrollView,
   Modal,
   Image,
@@ -18,7 +17,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ImageCarousel from '../components/ImageCarousel';
-import ReviewCard from '../components/ReviewCard';
 import ReviewForm from '../components/ReviewForm';
 import {ScreenParamList} from '../types/navigation';
 import {Coordinate, MatZip, Review} from '../types/store';
@@ -37,76 +35,8 @@ import Header from '../components/Header';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Swiper from 'react-native-swiper';
-
-const ExpandableView: React.FC<{expanded?: boolean; reviews?: Review[]}> = ({
-  expanded = false,
-  reviews,
-}) => {
-  const [height] = useState(new Animated.Value(0));
-
-  const [orderedReviews, setOrderedReviews] = useState<Review[] | undefined>(
-    reviews,
-  );
-
-  useEffect(() => {
-    if (reviews) {
-      setOrderedReviews(
-        reviews.sort((a, b) => {
-          return b.date.getTime() - a.date.getTime();
-        }),
-      );
-    }
-  }, [reviews]);
-
-  useEffect(() => {
-    Animated.timing(height, {
-      toValue: !expanded ? (reviews ? reviews.length * 200 : 0) : 0,
-      duration: 150,
-      useNativeDriver: false,
-    }).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, height]);
-
-  const renderItem = ({item}: {item: Review}) => <ReviewCard review={item} />;
-
-  // REFACTOR: dynamic height
-  const ITEM_HEIGHT = 60;
-
-  const getItemLayout = useCallback(
-    (data: any, index: number) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
-  );
-
-  return (
-    <Animated.View style={{height}}>
-      {orderedReviews && orderedReviews.length !== 0 ? (
-        <FlatList
-          data={orderedReviews}
-          bounces={false}
-          keyExtractor={(item, index) => item.date.toISOString() + index}
-          scrollEnabled={true}
-          maxToRenderPerBatch={5}
-          initialNumToRender={5}
-          windowSize={10}
-          removeClippedSubviews={true}
-          renderItem={renderItem}
-          getItemLayout={getItemLayout}
-          // ListHeaderComponent={<ReviewForm />}
-        />
-      ) : (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>이 맛집의 첫 리뷰를 작성해주세요!</Text>
-        </View>
-      )}
-
-      {/* <ReviewForm /> */}
-    </Animated.View>
-  );
-};
+import ReviewCard from '../components/ReviewCard';
+import {replaceOwnMatMapZipListAction} from '../store/modules/userMaps';
 
 export default function MatZipMain() {
   const route = useRoute<RouteProp<ScreenParamList, 'MatZipMain'>>();
@@ -124,10 +54,13 @@ export default function MatZipMain() {
   //   state.userMaps.ownMaps[0].zipList.find(zip => zip.id === zipId),
   // );
   const visitedZips = useAppSelector(state => state.visitedZips.visitedZips);
+  const userOwnList = useAppSelector(
+    state => state.userMaps.ownMaps[0].zipList,
+  );
+  const userOwnMatMapId = useAppSelector(state => state.userMaps.ownMaps[0].id);
   const [zipData, setZipData] = useState<MatZip | undefined>(undefined);
   const [parentMap, setParentMap] = useState<string[] | undefined>(undefined);
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
-
   const matZipFromZipId = async () => {
     try {
       const fetchZipQuery = `{
@@ -137,6 +70,7 @@ export default function MatZipMain() {
           address
           reviewCount
           reviewAvgRating
+          description
           images {
             id
             src
@@ -191,6 +125,7 @@ export default function MatZipMain() {
           fetchedZipData.images.length !== 0
             ? fetchedZipData.images.map((image: any) => image.src)
             : defaultStreetViewImg,
+        description: fetchedZipData.description,
         coordinate: coordinate,
         reviewAvgRating: fetchedZipData.reviewAvgRating,
         reviewCount: fetchedZipData.reviewCount,
@@ -205,6 +140,43 @@ export default function MatZipMain() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const renderReviews = () => {
+    const renderItem = ({item}: {item: Review}) => <ReviewCard review={item} />;
+    return reviews && reviews.length !== 0 ? (
+      <FlatList
+        data={reviews}
+        bounces={false}
+        keyExtractor={(item, index) => item.date.toISOString() + index}
+        scrollEnabled={true}
+        maxToRenderPerBatch={5}
+        initialNumToRender={5}
+        windowSize={11}
+        removeClippedSubviews={true}
+        renderItem={renderItem}
+      />
+    ) : (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'row',
+          paddingTop: 16,
+        }}>
+        <Ionicons name="pencil-outline" size={16} color={colors.coral1} />
+        <Text
+          style={{
+            color: colors.coral1,
+            fontWeight: '500',
+            fontSize: 16,
+            paddingLeft: 6,
+          }}>
+          이 맛집의 첫 리뷰를 작성해주세요!
+        </Text>
+      </View>
+    );
   };
 
   useEffect(() => {
@@ -259,12 +231,6 @@ export default function MatZipMain() {
   }, [zipId]);
 
   const images = zipData?.imageSrc;
-  const handlePressReviewChevron = () => {
-    // navigation.navigate('MatZip', {id: zipId});
-    setToggleReview(prev => !prev);
-    // show review shen toggled
-  };
-  const [toggleReview, setToggleReview] = useState(true);
   const [saveIcon, setSaveIcon] = useState(
     !!visitedZips.find(zip => zip.id === zipId),
   );
@@ -297,6 +263,68 @@ export default function MatZipMain() {
         dispatch(removeVisitedZipAction(zipData?.id));
       }
       setSaveIcon(prev => !prev);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      dispatch(updateIsLoadingAction(false));
+    }
+  };
+
+  const handleAddPress = async () => {
+    try {
+      dispatch(updateIsLoadingAction(true));
+      const variables = {
+        mapId: userOwnMatMapId,
+        zipId: zipId,
+      };
+      const addToMapQuery = `
+    mutation addToMap($mapId: String! $zipId:String!) {
+      addToMap(mapId: $mapId zipId: $zipId) {
+        id
+        name
+        address
+        reviewCount
+        reviewAvgRating
+        category
+        images {
+          src
+        }
+        latitude
+        longitude
+      }
+    }`;
+      const addToMapRes = await request(
+        addToMapQuery,
+        REQ_METHOD.MUTATION,
+        variables,
+      );
+      const addToMapDataArr = addToMapRes?.data.data.addToMap;
+      const serializedZipList: MatZip[] = await Promise.all(
+        addToMapDataArr.map(async (zip: any) => {
+          const apiKey = Config.MAPS_API;
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${zip.latitude},${zip.longitude}&key=${apiKey}`;
+          const zipImgSrcArr = zip.images
+            ? zip.images.map((img: any) => img.src)
+            : [defaultStreetViewImg];
+
+          const coordinate = {
+            latitude: zip.latitude,
+            longitude: zip.longitude,
+          };
+
+          return {
+            id: zip.id,
+            name: zip.name,
+            imageSrc: zipImgSrcArr,
+            coordinate,
+            address: zip.address,
+            reviewCount: zip.reviewCount,
+            reviewAvgRating: zip.reviewAvgRating,
+            category: zip.category,
+          } as MatZip;
+        }),
+      );
+      dispatch(replaceOwnMatMapZipListAction(serializedZipList));
     } catch (e) {
       console.log(e);
     } finally {
@@ -462,65 +490,88 @@ export default function MatZipMain() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}>
-              <View>
-                <Text style={styles.matZipListText}>
-                  {parentMap &&
-                    parentMap.length > 0 &&
-                    (parentMap.length > 2
-                      ? `${parentMap[0]}, ${parentMap[1]} 외 ${
-                          parentMap.length - 2
-                        }개의 맛맵에 포함`
-                      : parentMap.length === 2
-                      ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
-                      : `${parentMap[0]} 맛맵에 포함`)}
-                </Text>
+              <View style={{width: '80%'}}>
+                {zipData.description && (
+                  <View
+                    style={{
+                      ...styles.horizontal,
+                      paddingVertical: 5,
+                    }}>
+                    <Ionicons
+                      name="information-circle-outline"
+                      color="black"
+                      size={18}
+                    />
+                    <Text style={styles.matZipDescriptionText}>
+                      {zipData?.description}
+                    </Text>
+                  </View>
+                )}
+
+                {parentMap && parentMap.length > 0 && (
+                  <View
+                    style={{
+                      ...styles.horizontal,
+                      paddingVertical: 5,
+                    }}>
+                    <Ionicons name="map-outline" color="black" size={18} />
+                    <Text style={styles.matZipListText}>
+                      {parentMap.length > 2
+                        ? `${parentMap[0]}, ${parentMap[1]} 외 ${
+                            parentMap.length - 2
+                          }개의 맛맵에 포함`
+                        : parentMap.length === 2
+                        ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                        : `${parentMap[0]} 맛맵에 포함`}
+                    </Text>
+                  </View>
+                )}
                 <View
                   style={{
                     ...styles.horizontal,
-                    marginTop: parentMap && parentMap.length === 0 ? -27 : 0,
+                    paddingVertical: 5,
+                    paddingBottom: 20,
                   }}>
                   <Ionicons name="location-outline" color="black" size={18} />
                   <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
                 </View>
-                <Text style={styles.matZipDescriptionText}>
-                  {zipData?.description}
-                </Text>
               </View>
 
-              <TouchableOpacity
-                onPress={handleIconPress}
-                style={styles.saveIcon}>
-                <Ionicons
-                  name={
-                    saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
-                  }
-                  size={28}
-                  color={colors.coral1}
-                />
-              </TouchableOpacity>
+              <View>
+                <TouchableOpacity
+                  onPress={handleIconPress}
+                  style={styles.saveIcon}>
+                  <Ionicons
+                    name={
+                      saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                    }
+                    size={28}
+                    color={colors.coral1}
+                  />
+                </TouchableOpacity>
+                {!userOwnList.find(zip => zip.id === zipId) && (
+                  <TouchableOpacity
+                    onPress={handleAddPress}
+                    style={{
+                      ...styles.saveIcon,
+                      paddingTop: 6,
+                      paddingBottom: 6,
+                    }}>
+                    <Ionicons
+                      name={'add-circle-outline'}
+                      size={28}
+                      color={colors.coral1}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
 
             {zipData && (
               <ReviewForm zipId={zipData.id} setReviews={setReviews} />
             )}
-            <TouchableOpacity
-              style={styles.row}
-              onPress={handlePressReviewChevron}>
-              <Text style={styles.rowText}>
-                리뷰 {reviews ? reviews?.length : 0}개
-              </Text>
-              <View style={{flex: 1}} />
-              <Ionicons
-                name={
-                  toggleReview
-                    ? 'chevron-forward-outline'
-                    : 'chevron-down-outline'
-                }
-                color="white"
-                size={22}
-              />
-            </TouchableOpacity>
-            <ExpandableView expanded={toggleReview} reviews={reviews} />
+            {renderReviews()}
+            {/* <ExpandableView expanded={toggleReview} reviews={reviews} /> */}
           </View>
         </View>
       </ScrollView>
@@ -533,7 +584,7 @@ export default function MatZipMain() {
 const styles = StyleSheet.create({
   containter: {},
   matZipContainer: {
-    paddingBottom: 500,
+    paddingBottom: 200,
   },
   fullScreenImage: {
     flex: 1,
@@ -550,25 +601,24 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   matZipListText: {
-    fontSize: 13,
+    fontSize: 15,
+    marginLeft: 5,
     color: 'black',
     textAlign: 'left',
-    marginBottom: 25,
   },
   matZipInfoText: {
     fontSize: 15,
     color: 'black',
     textAlign: 'left',
-    marginLeft: 3,
-    maxWidth: 250,
+    marginLeft: 5,
+    maxWidth: '85%',
   },
   matZipDescriptionText: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'black',
     textAlign: 'left',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 2,
+    maxWidth: '85%',
+    marginLeft: 5,
   },
   matZipRatingText: {
     fontSize: 14,

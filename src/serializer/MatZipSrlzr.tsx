@@ -5,7 +5,6 @@ import {Coordinate, MatZip} from '../types/store';
 export const matZipSerializer = async (matZips: any[]) => {
   return Promise.all(
     matZips.map(async zip => {
-      console.log(zip.images);
       const zipImgSrcArr = zip.images
         ? zip.images.map((img: any) => img.src)
         : [];
@@ -59,6 +58,7 @@ export const matZipSerializer = async (matZips: any[]) => {
         reviewCount: zip.reviewCount,
         reviewAvgRating: zip.reviewAvgRating,
         category: zip.category,
+        place_id: zip.number ? zip.number : null,
       } as MatZip;
     }),
   );

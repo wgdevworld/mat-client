@@ -34,6 +34,7 @@ import Muckiters from './screens/Muckiters';
 import codePush from 'react-native-code-push';
 import VisitedZips from './screens/VisitedZips';
 import AccessGrant2 from './screens/Onboarding/AccessGrant2';
+import UserMain from './screens/UserMain';
 
 const IGNORED_LOGS = [
   'VirtualizedLists should never be nested',
@@ -219,6 +220,11 @@ const App = () => {
               <Stack.Screen
                 name="VisitedZips"
                 component={VisitedZips}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="UserMain"
+                component={UserMain}
                 options={{headerShown: false}}
               />
             </Stack.Navigator>

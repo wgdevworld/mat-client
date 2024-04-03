@@ -14,7 +14,7 @@ import {ScreenParamList} from '../types/navigation';
 import MapCard from '../components/MapCard';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from '../store/hooks';
-import {Coordinate, MatMap} from '../types/store';
+import {MatMap} from '../types/store';
 import {matMapSerializer} from '../serializer/MatMapSrlzr';
 import {replacePublicMapsAction} from '../store/modules/publicMaps';
 import {REQ_METHOD, request} from '../controls/RequestControl';
@@ -22,7 +22,6 @@ import colors from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Geolocation from 'react-native-geolocation-service';
 
 export default function ListMaps() {
   const dispatch = useDispatch();
@@ -32,9 +31,7 @@ export default function ListMaps() {
   );
   const userName = useAppSelector(state => state.user.username);
 
-  const FETCH_COOLDOWN = 2 * 60 * 1000;
-
-  const [location, setLocation] = useState<Coordinate | null>(null);
+  const FETCH_COOLDOWN = 10 * 60 * 1000;
 
   const navigation = useNavigation<StackNavigationProp<ScreenParamList>>();
   const [orderedMaps, setOrderedMaps] = useState<MatMap[]>(publicMaps);
@@ -69,6 +66,7 @@ export default function ListMaps() {
               creator {
                 id
                 username
+                email
               }
               images {
                 src
@@ -115,31 +113,6 @@ export default function ListMaps() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkNeedToFetch]);
 
-  useEffect(() => {
-    try {
-      Geolocation.getCurrentPosition(
-        position => {
-          const {latitude, longitude} = position.coords;
-          setLocation(prevState => ({
-            ...prevState,
-            latitude: latitude,
-            longitude: longitude,
-          }));
-        },
-        error => {
-          console.log(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 3600,
-          maximumAge: 3600,
-        },
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -151,6 +124,13 @@ export default function ListMaps() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onRefreshPublicMaps]),
   );
+
+  useEffect(() => {
+    // This effect only depends on isUserOwnMapPublic.
+    // It will trigger a refresh every time isUserOwnMapPublic changes.
+    onRefreshPublicMaps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUserOwnMapPublic]);
 
   const orderMaps = () => {
     const newOrdered = [...publicMaps];
@@ -169,6 +149,7 @@ export default function ListMaps() {
       <View style={styles.containter}>
         <View>
           <FlatList
+            initialNumToRender={5}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
@@ -185,7 +166,6 @@ export default function ListMaps() {
                 onPressMap={() => {
                   navigation.navigate('ZipList', {
                     map: item,
-                    location: location,
                   });
                 }}
               />

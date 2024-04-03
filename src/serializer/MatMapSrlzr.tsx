@@ -76,6 +76,8 @@ export const matMapSerializer = async (matMaps: any[]) => {
         author: data.creator ? data.creator.username : '탈퇴한 유저',
         authorId: data.creator ? data.creator.id : '탈퇴한 유저',
         numFollower: data.followerList ? data.followerList.length : 0,
+        authorEmail:
+          data.creator && data.creator.email ? data.creator.email : null,
       };
       // console.log(serializedMatMap);
       return serializedMatMap;

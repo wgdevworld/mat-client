@@ -22,7 +22,6 @@ import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import assets from '../../assets';
 import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
 import PlaceInfoMapCard from '../components/PlaceInfoMapCard';
@@ -69,11 +68,10 @@ import BackgroundGeolocation, {
 } from 'react-native-background-geolocation';
 import {locationBackgroundTask} from '../controls/BackgroundTask';
 import Bugsnag from '@bugsnag/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
 import {addVisitedMatZipAction} from '../store/modules/visitedZips';
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
+import FastImage from 'react-native-fast-image';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -104,8 +102,11 @@ function App(): JSX.Element {
   );
   const [isEditPublicMapVisible, setIsEditPublicMapVisible] = useState(false);
   const [newPublicMapName, setNewPublicMapName] = useState(userOwnMaps[0].name);
+  const [newPublicMapDesc, setNewPublicMapDesc] = useState('');
   const [imgLibraryResponse, setImgLibraryResponse] =
     useState<ImagePickerResponse>();
+  const [isConfirmPrivateMapModal, setIsConfirmPrivateMapModal] =
+    useState(false);
 
   // States used for DropDownPicker
   const [dropDownOpen, setDropDownOpen] = useState(false);
@@ -241,46 +242,47 @@ function App(): JSX.Element {
         if (location.coords === undefined) {
           return;
         }
-        // eslint-disable-next-line eqeqeq
-        if (location.activity.type == 'in_vehicle') {
-          return;
-        }
-        console.log(location);
-        const taskId = await BackgroundGeolocation.startBackgroundTask();
-        try {
-          await locationBackgroundTask(location);
-          BackgroundGeolocation.stopBackgroundTask(taskId);
-        } catch (e) {
-          Bugsnag.notify(new Error(e as string));
-          BackgroundGeolocation.stopBackgroundTask(taskId);
+        if (
+          location.activity.type === 'on_bicycle' ||
+          location.activity.type === 'on_foot' ||
+          location.activity.type === 'running' ||
+          location.activity.type === 'walking'
+        ) {
+          const taskId = await BackgroundGeolocation.startBackgroundTask();
+          try {
+            await locationBackgroundTask(location);
+            BackgroundGeolocation.stopBackgroundTask(taskId);
+          } catch (e) {
+            Bugsnag.notify(new Error(e as string));
+            BackgroundGeolocation.stopBackgroundTask(taskId);
+          }
         }
       },
     );
 
-    AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
-      notiRadius => {
-        BackgroundGeolocation.ready({
-          desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_MEDIUM,
-          stationaryRadius: notiRadius
-            ? parseInt(notiRadius, 10) / 5
-            : 2000 / 5,
-          distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
-          // Activity Recognition
-          stopTimeout: 2,
-          // Application config
-          debug: false,
-          // isMoving: false,
-          showsBackgroundLocationIndicator: false,
-          stopOnTerminate: false,
-          startOnBoot: true,
-        }).then(_state => {
-          console.log('BackgroundGeolocation is ready');
-          if (!isRefuseNotifications) {
-            BackgroundGeolocation.start();
-          }
-        });
-      },
-    );
+    // AsyncStorage.getItem(ASYNC_STORAGE_ENUM.NOTIFICATION_RADIUS).then(
+    //   notiRadius => {
+    BackgroundGeolocation.ready({
+      desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
+      useSignificantChangesOnly: true,
+      // stationaryRadius: notiRadius
+      //   ? parseInt(notiRadius, 10) / 5
+      //   : 2000 / 5,
+      // distanceFilter: notiRadius ? parseInt(notiRadius, 10) / 2 : 2000 / 2,
+      // Activity Recognition
+      stopTimeout: 2,
+      debug: false,
+      showsBackgroundLocationIndicator: false,
+      stopOnTerminate: false,
+      startOnBoot: true,
+    }).then(_state => {
+      console.log('BackgroundGeolocation is ready');
+      if (!isRefuseNotifications) {
+        BackgroundGeolocation.start();
+      }
+    });
+    //   },
+    // );
 
     return () => {
       onLocation.remove();
@@ -326,7 +328,46 @@ function App(): JSX.Element {
       return sortedArray;
     });
   }, [currentLocation, curMatMap, visitedZips]);
+
+  async function generateSummary(place_id: string, zipId: string) {
+    console.log('ℹ️ generating reviews');
+    try {
+      const response = await fetch(
+        'https://storied-scarab-391406.du.r.appspot.com/generate-summary',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({place_id, zipId}),
+        },
+      );
+      const data = await response.json();
+      const summary = data.summary;
+      const updateZipQuery = `
+      mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
+          updateZip(id: $id, zipInfo: $zipInfo) {
+            id
+          }
+      }
+     `;
+      const updateZipVariables = {
+        id: zipId,
+        zipInfo: {
+          description: summary,
+        },
+      };
+      request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
+      // if (!response.ok) {
+      //   throw new Error(`Server responded with status ${response.status}`);
+      // }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+    }
+  }
+
   const onPressSearchResult = async (data: any, details: any) => {
+    // console.log(data.place_id);
     dispatch(updateIsLoadingAction(true));
     // pipeline for checking if this zip is already saved
     // here, we check our database if there is a zip with the same name.
@@ -371,10 +412,20 @@ function App(): JSX.Element {
               return;
             }
             console.log('🚀 해당 맛집이 있음');
+            dispatch(updateIsLoadingAction(false));
             const location: Coordinate = {
               latitude: zip.latitude,
               longitude: zip.longitude,
             };
+            mapRef.current?.animateToRegion(
+              {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+              0,
+            );
             const photoArray: string[] = zip.images.map(
               (photo: any) => photo.src,
             );
@@ -389,16 +440,7 @@ function App(): JSX.Element {
               category: zip.category,
             };
             setMarker(selectedMatZip);
-            mapRef.current?.animateToRegion(
-              {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              },
-              0,
-            );
-            dispatch(updateIsLoadingAction(false));
+
             isZipFoundInDB = true;
           }
         });
@@ -409,52 +451,30 @@ function App(): JSX.Element {
     }
     if (isZipFoundInDB) {
       return;
-    }
-    //pipeline for checking if this zip is already saved in the database (by checking it against place_id)
-    // if yes, we return this zip. if not, we create a new zip and return it.
-    try {
-      let fetchedZipData: any = null;
-      const fetchZipQuery = `{
-        fetchZipByGID(gid: "${data.place_id}") {
-          id
-          name
-          address
-          reviewCount
-          reviewAvgRating
-          parentMap {
-            name
-          }
-          category
-          images {
-            id
-            src
-          }
-          latitude
-          longitude
-        }
-      }`;
-      const fetchedZipRes = await request(fetchZipQuery, REQ_METHOD.QUERY);
-      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
-      if (!fetchedZipData) {
+    } else {
+      //pipeline for creating a new zip
+      try {
+        let fetchedZipData: any = null;
         console.log('ℹ️ 맛집 생성중');
         const apiKey = Config.MAPS_API;
-        let photoArray: string[] = [];
+        let createdPhotoArray: string[] = [];
         if (!details.photos || details.photos.length === 0) {
           const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
-          photoArray = [defaultStreetViewImg];
+          createdPhotoArray = [defaultStreetViewImg];
         } else {
           details.photos.forEach((photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${apiKey}`;
-            photoArray.push(photoUrl);
+            createdPhotoArray.push(photoUrl);
           });
         }
+
         const variables = {
           zipInfo: {
             name: details.name,
             number: data.place_id,
-            description: data.description,
+            description: '',
             address: details.formatted_address,
-            imgSrc: photoArray,
+            imgSrc: createdPhotoArray,
             category: data.types[0] ? data.types[0] : '식당',
             latitude: details.geometry.location.lat,
             longitude: details.geometry.location.lng,
@@ -483,46 +503,48 @@ function App(): JSX.Element {
           variables,
         );
         fetchedZipData = addZipRes?.data.data.addZip;
-      }
-
-      if (
-        fetchedZipData.images === undefined ||
-        fetchedZipData.images.length === 0
-      ) {
-        console.log('⛔️ no image');
-        const apiKey = Config.MAPS_API;
-        const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
-        const updateZipQuery = `
+        generateSummary(data.place_id, fetchedZipData.id);
+        if (
+          fetchedZipData.images === undefined ||
+          fetchedZipData.images.length === 0
+        ) {
+          console.log('⛔️ no image');
+          const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${fetchedZipData.latitude},${fetchedZipData.longitude}&key=${apiKey}`;
+          const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
                 id
               }
           }
          `;
-        const updateZipVariables = {
-          id: fetchedZipData.id,
-          zipInfo: {
-            imgSrc: [defaultStreetViewImg],
-          },
-        };
-        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
-      }
-      // fallback if matzip has no coordinates
-      let location: Coordinate;
-      if (
-        fetchedZipData.latitude === null ||
-        fetchedZipData.longitude === null
-      ) {
-        console.log('⛔️ no coordinate');
-        if (typeof details === 'string') {
-          location = await addressToCoordinate(details);
-        } else {
-          location = {
-            latitude: details.geometry.location.lat,
-            longitude: details.geometry.location.lng,
+          const updateZipVariables = {
+            id: fetchedZipData.id,
+            zipInfo: {
+              imgSrc: [defaultStreetViewImg],
+            },
           };
+          await request(
+            updateZipQuery,
+            REQ_METHOD.MUTATION,
+            updateZipVariables,
+          );
         }
-        const updateZipQuery = `
+        // fallback if matzip has no coordinates
+        let location: Coordinate;
+        if (
+          fetchedZipData.latitude === null ||
+          fetchedZipData.longitude === null
+        ) {
+          console.log('⛔️ no coordinate');
+          if (typeof details === 'string') {
+            location = await addressToCoordinate(details);
+          } else {
+            location = {
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+            };
+          }
+          const updateZipQuery = `
           mutation updateZip($id: String!, $zipInfo: UpdateZipInput!) {
               updateZip(id: $id, zipInfo: $zipInfo) {
                 id
@@ -531,48 +553,50 @@ function App(): JSX.Element {
               }
           }
          `;
-        const updateZipVariables = {
-          id: fetchedZipData.id,
-          zipInfo: {
+          const updateZipVariables = {
+            id: fetchedZipData.id,
+            zipInfo: {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          };
+          await request(
+            updateZipQuery,
+            REQ_METHOD.MUTATION,
+            updateZipVariables,
+          );
+        } else {
+          location = {
+            latitude: fetchedZipData.latitude,
+            longitude: fetchedZipData.longitude,
+          };
+        }
+        mapRef.current?.animateToRegion(
+          {
             latitude: location.latitude,
             longitude: location.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           },
+          0,
+        );
+        dispatch(updateIsLoadingAction(false));
+        const selectedMatZip: MatZip = {
+          id: fetchedZipData.id,
+          name: fetchedZipData.name,
+          imageSrc: createdPhotoArray,
+          coordinate: location,
+          reviewAvgRating: fetchedZipData.reviewAvgRating,
+          reviewCount: fetchedZipData.reviewCount,
+          address: fetchedZipData.address,
+          category: fetchedZipData.category,
         };
-        await request(updateZipQuery, REQ_METHOD.MUTATION, updateZipVariables);
-      } else {
-        location = {
-          latitude: fetchedZipData.latitude,
-          longitude: fetchedZipData.longitude,
-        };
+        setMarker(selectedMatZip);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        dispatch(updateIsLoadingAction(false));
       }
-      const photoArray: string[] = fetchedZipData.images.map(
-        (photo: any) => photo.src,
-      );
-      const selectedMatZip: MatZip = {
-        id: fetchedZipData.id,
-        name: fetchedZipData.name,
-        imageSrc: photoArray,
-        coordinate: location,
-        reviewAvgRating: fetchedZipData.reviewAvgRating,
-        reviewCount: fetchedZipData.reviewCount,
-        address: fetchedZipData.address,
-        category: fetchedZipData.category,
-      };
-      setMarker(selectedMatZip);
-      mapRef.current?.animateToRegion(
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        0,
-      );
-      dispatch(updateIsLoadingAction(false));
-    } catch (e) {
-      console.log(e);
-    } finally {
-      dispatch(updateIsLoadingAction(false));
     }
   };
 
@@ -589,7 +613,7 @@ function App(): JSX.Element {
     try {
       dispatch(updateIsLoadingAction(true));
       const variables = {
-        mapId: curMatMap.id,
+        mapId: userOwnMaps[0].id,
         zipId: marker?.id,
       };
       const addToMapQuery = `
@@ -694,12 +718,12 @@ function App(): JSX.Element {
     const deepLinkUrl = `mucket-app://follow_map?id=${curMatMap.id}`;
     await Share.open({
       message:
-        curMatMap.id === curUser.id
+        curMatMap.authorId === curUser.id
           ? `먹킷 어플에서 만든 제 맛맵을 팔로우 해보세요!
           \nMuckit 어플 미설치시 ${
             Platform.OS === 'ios' ? '앱 스토어' : '플레이 스토어'
           }에서 Muckit을 설치해주세요.`
-          : `${curMatMap.author} 유저가 만든 ${
+          : `${curMatMap.author.split('$')[0]} 유저가 만든 ${
               curMatMap.name
             } 맛맵을 팔로우 해보세요!
             \nMuckit 어플 미설치시 ${
@@ -711,40 +735,43 @@ function App(): JSX.Element {
       .catch(e => console.log(e));
   };
 
-  const onPublicStatusChange = async () => {
+  const confirmPrivateMap = async () => {
     dispatch(updateIsLoadingAction(true));
+    const variables = {
+      mapInfo: {
+        publicStatus: false,
+      },
+      id: userOwnMaps[0].id,
+    };
+    const query = `
+    mutation updateMap($mapInfo: UpdateMapInput! $id: String!) {
+      updateMap(mapInfo: $mapInfo id: $id) {
+        id
+      }
+    }`;
     try {
-      const updateMapQuery = `
-      mutation updateMap($mapInfo: UpdateMapInput!, $id: String!) {
-        updateMap(mapInfo: $mapInfo, id: $id) {
-          publicStatus
+      await request(query, REQ_METHOD.MUTATION, variables);
+      dispatch(updatePublicStatusAction(false));
+      curUser.receiveFollowId;
+      for (const map of userFollowingMaps) {
+        if (map.authorId === 'ef4a3851-f4f3-4316-93d3-6c5178d23da6') {
+          continue;
         }
+
+        if (curUser.receiveFollowId.some(id => id === map.id)) {
+          continue;
+        }
+        await removeUserFollower(map.id);
+        dispatch(removeFollowingMatMapAction(map.id));
       }
-    `;
-      const updateMapVariables = {
-        mapInfo: {
-          publicStatus: !curMatMap.publicStatus,
-        },
-        id: curMatMap.id,
-      };
-      const updateMapRes = await request(
-        updateMapQuery,
-        REQ_METHOD.MUTATION,
-        updateMapVariables,
-      );
-      if (updateMapRes === null || updateMapRes === undefined) {
-        return;
-      }
-      dispatch(
-        updatePublicStatusAction(updateMapRes.data.data.updateMap.publicStatus),
-      );
+      findAndSetCurMatMapByID(userOwnMaps[0].id);
+      setDropDownValue(dropDownItems[0].value);
+      dispatch(updateIsLoadingAction(false));
     } catch (e) {
       console.log(e);
     } finally {
       dispatch(updateIsLoadingAction(false));
-      if (curMatMap.publicStatus === false) {
-        setIsEditPublicMapVisible(true);
-      }
+      setIsConfirmPrivateMapModal(false);
     }
   };
 
@@ -763,11 +790,19 @@ function App(): JSX.Element {
       setImgLibraryResponse(undefined);
     }
 
-    //TODO: have a default map image if user doesn't pick
     const variables = {
       mapInfo: {
         name: newPublicMapName,
-        ...(mapPhoto ? mapPhoto : ''),
+        publicStatus: true,
+        description: newPublicMapDesc
+          ? newPublicMapDesc
+          : `${curUser.username}님의 첫 맛맵`,
+        ...(mapPhoto
+          ? mapPhoto
+          : {
+              imageSrc:
+                'https://storage.googleapis.com/kobon-01/defualt_map.png',
+            }),
       },
       id: userOwnMaps[0].id,
     };
@@ -783,6 +818,7 @@ function App(): JSX.Element {
       await request(query, REQ_METHOD.MUTATION, variables);
       dispatch(updateOwnMapImgAction(mapPhoto ? mapPhoto.imageSrc : ''));
       dispatch(updateOwnMapNameAction(newPublicMapName));
+      dispatch(updatePublicStatusAction(true));
     } catch (e) {
       console.log(e);
     } finally {
@@ -893,13 +929,13 @@ function App(): JSX.Element {
               mapRef.current?.animateToRegion(newRegion, 0);
             }}>
             <View style={styles.itemImageContainer}>
-              <Image
-                source={
-                  matZip.imageSrc && matZip.imageSrc.length === 0
-                    ? assets.images.placeholder
-                    : {uri: matZip.imageSrc[0]}
-                }
+              <FastImage
+                source={{
+                  uri: matZip.imageSrc[0],
+                  priority: FastImage.priority.normal,
+                }}
                 style={styles.itemImage}
+                resizeMode={FastImage.resizeMode.cover}
               />
             </View>
             <View style={styles.itemInfoContainer}>
@@ -949,6 +985,60 @@ function App(): JSX.Element {
   return (
     <View style={{flex: 1}}>
       <Modal
+        visible={isConfirmPrivateMapModal}
+        transparent
+        style={{
+          width: '100%',
+          height: '100%',
+          flex: 1,
+          display: isConfirmPrivateMapModal ? 'flex' : 'none',
+        }}>
+        <View style={styles.modalContainer} />
+        <View
+          style={{
+            ...styles.popupContainer,
+            padding: 16,
+            top: Dimensions.get('window').height / 2 - 80,
+          }}>
+          <Text
+            style={{
+              color: colors.white,
+              alignSelf: 'center',
+              paddingVertical: 5,
+              textAlign: 'left',
+              fontSize: 16,
+              fontWeight: '400',
+              // lineHeight: 18,
+              paddingBottom: 10,
+            }}>
+            ⚠ 맛맵을 비공개로 바꾸시면 운영자가 만든 맛맵들과 {curUser.username}
+            님에게 공유된 맛맵을 제외한 나머지 맛맵들이 언팔로우 돼요!
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingVertical: 12,
+            }}>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                setIsConfirmPrivateMapModal(false);
+              }}>
+              <Text
+                style={{color: colors.white, fontSize: 16, fontWeight: 'bold'}}>
+                취소
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{alignSelf: 'center'}}
+              onPress={confirmPrivateMap}>
+              <Text style={{color: colors.white, fontSize: 16}}>계속하기</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
         visible={isEditPublicMapVisible}
         transparent
         style={{
@@ -958,26 +1048,44 @@ function App(): JSX.Element {
           display: isEditPublicMapVisible ? 'flex' : 'none',
         }}>
         <View style={styles.modalContainer} />
-        <View style={styles.popupContainer}>
+        <View style={{...styles.popupContainer, padding: 16}}>
           <Text
             style={{
               color: colors.white,
               alignSelf: 'center',
               paddingVertical: 5,
-              fontSize: 16,
-              fontWeight: 'bold',
+              textAlign: 'left',
+              fontSize: 18,
+              fontWeight: '500',
+              lineHeight: 18,
               paddingBottom: 10,
             }}>
-            다른 유저들의 이목을 이끌만한 맛맵 이름과 사진을 정해주세요!
+            내 맛맵의 이름, 사진과 {'\n'} 설명을 정해주세요!
           </Text>
-          <Text style={{color: colors.white, paddingBottom: 10, fontSize: 16}}>
+          <Text style={{color: colors.white, paddingBottom: 6, fontSize: 16}}>
             맛맵 이름
           </Text>
           <TextInput
             style={styles.input}
-            placeholder={'믿고 한번 눌러봐'}
+            placeholder={'서울 맛집들 다 모았다'}
             placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
             onChangeText={value => setNewPublicMapName(value)}
+          />
+          <Text
+            style={{
+              color: colors.white,
+              paddingBottom: 6,
+              fontSize: 16,
+              paddingTop: 6,
+            }}>
+            맛맵 소개
+          </Text>
+          <TextInput
+            style={{...styles.input, flexWrap: 'wrap'}}
+            multiline={true}
+            placeholder={'유학생이 서울 도착하면 바로 가는 맛집들'}
+            placeholderTextColor={'rgba(243, 243, 243, 0.6)'}
+            onChangeText={value => setNewPublicMapDesc(value)}
           />
           <TouchableOpacity
             style={{flexDirection: 'row', paddingVertical: 10}}
@@ -1032,7 +1140,7 @@ function App(): JSX.Element {
             GooglePlacesDetailsQuery={{
               fields: 'geometry,photos,name,formatted_address',
             }}
-            debounce={0}
+            debounce={300}
             placeholder="맛집을 검색해보세요!"
             textInputProps={{
               placeholderTextColor: 'black',
@@ -1168,8 +1276,7 @@ function App(): JSX.Element {
               ...styles.mapBtn,
               display:
                 marker &&
-                !userOwnMaps[0].zipList.find(zip => zip.id === marker.id) &&
-                curMatMap.authorId === curUser.id
+                !userOwnMaps[0].zipList.find(zip => zip.id === marker.id)
                   ? 'flex'
                   : 'none',
             }}
@@ -1191,6 +1298,8 @@ function App(): JSX.Element {
           <BottomSheet ref={sheetRef} snapPoints={snapPoints} index={1}>
             {orderedMatZips && orderedMatZips.length !== 0 ? (
               <BottomSheetFlatList
+                bounces={false}
+                initialNumToRender={5}
                 data={orderedMatZips}
                 keyExtractor={i => i.id}
                 renderItem={({item}) => renderItem(item)}
@@ -1331,7 +1440,11 @@ function App(): JSX.Element {
                               false: 'grey',
                               true: colors.coral1,
                             }}
-                            onValueChange={onPublicStatusChange}
+                            onValueChange={
+                              curMatMap.publicStatus === false
+                                ? () => setIsEditPublicMapVisible(true)
+                                : () => setIsConfirmPrivateMapModal(true)
+                            }
                             value={curMatMap.publicStatus}
                             style={{transform: [{scaleX: 0.7}, {scaleY: 0.7}]}}
                             ios_backgroundColor={colors.grey}
@@ -1746,14 +1859,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral1,
     width: 250,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: 12,
     justifyContent: 'space-between',
   },
   input: {
     // color: '#989898',
     color: 'white',
     // borderBottomColor: '#eee',
-    fontSize: 16,
+    fontSize: 14.5,
     textAlign: 'left',
     borderColor: colors.coral2,
     padding: 5,

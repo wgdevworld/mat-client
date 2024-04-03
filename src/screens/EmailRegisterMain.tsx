@@ -38,6 +38,7 @@ const EmailRegisterMain = () => {
           email: email,
           pwd: pwd,
           address: 'lololo',
+          instutition: '',
         },
       };
 
@@ -78,10 +79,11 @@ const EmailRegisterMain = () => {
         username: '사과',
         email: email,
         address: address,
-        userMaps: [],
-        followingMaps: [],
+        profile: '',
         deviceToken: 'asdfasdfafd',
         pushAllowStatus: false,
+        receiveFollowId: [],
+        password: '',
       };
       dispatch(createUserAction(user));
       AsyncStorage.setItem(ASYNC_STORAGE_ENUM.USER_EMAIL, email);

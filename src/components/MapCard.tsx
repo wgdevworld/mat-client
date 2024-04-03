@@ -1,13 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import colors from '../styles/colors';
 import {addUserFollower} from '../controls/MatMapControl';
 import {useDispatch} from 'react-redux';
@@ -20,13 +13,23 @@ import {
 import {useAppSelector} from '../store/hooks';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {addPublicMapFollowerCountAction} from '../store/modules/publicMaps';
+import FastImage from 'react-native-fast-image';
 
 interface MapCardProps {
   map: MatMap;
   onPressMap: () => void;
+  paddingHorizontal?: number;
+  backgroundColor?: string;
+  heightWidth?: number;
 }
 
-const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
+const MapCard: React.FC<MapCardProps> = ({
+  map,
+  onPressMap,
+  paddingHorizontal,
+  backgroundColor,
+  heightWidth,
+}) => {
   const dispatch = useDispatch();
   const userFollowingMaps = useAppSelector(
     state => state.userMaps.followingMaps,
@@ -34,31 +37,61 @@ const MapCard: React.FC<MapCardProps> = ({map, onPressMap}) => {
   const user = useAppSelector(state => state.user);
 
   return (
-    <TouchableOpacity onPress={onPressMap} style={{paddingHorizontal: 24}}>
-      <View style={styles.cardContainer}>
-        <Image source={{uri: map.imageSrc[0]}} style={styles.image} />
+    <TouchableOpacity
+      onPress={onPressMap}
+      style={{
+        paddingHorizontal: paddingHorizontal ? paddingHorizontal : 24,
+        backgroundColor: backgroundColor ? backgroundColor : 'white',
+      }}>
+      <View
+        style={{
+          ...styles.cardContainer,
+        }}>
+        <FastImage
+          source={{uri: map.imageSrc[0]}}
+          style={{
+            ...styles.image,
+            width: heightWidth ? heightWidth : 150,
+            height: heightWidth ? heightWidth : 150,
+          }}
+        />
         <View
           style={{
             position: 'absolute',
             top: 5,
             left: 5,
+            borderRadius: 8,
+            padding: 1,
+            backgroundColor: colors.coral1,
           }}>
           <Text
             style={{
               fontSize: 12,
               color: 'white',
               alignSelf: 'center',
-              backgroundColor: colors.coral1,
+              // backgroundColor: colors.coral1,
               padding: 3,
+              fontWeight: '600',
             }}>
             팔로워: {map.numFollower}
           </Text>
         </View>
 
-        <View style={styles.cardContent}>
+        <View
+          style={{
+            ...styles.cardContent,
+            backgroundColor: backgroundColor ? backgroundColor : 'white',
+            height: heightWidth ? heightWidth : 150,
+          }}>
           <View>
-            <Text style={styles.mapName}>{map.name}</Text>
-            <Text style={styles.mapAuthor}>by {map.author}</Text>
+            <Text
+              style={{
+                ...styles.mapName,
+                fontWeight: heightWidth ? '400' : '600',
+              }}>
+              {map.name}
+            </Text>
+            <Text style={styles.mapAuthor}>by {map.author.split('$')[0]}</Text>
           </View>
           <TouchableOpacity
             style={styles.bellButton}
@@ -110,9 +143,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     borderColor: colors.grey,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingBottom: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 14,
     height: 150,

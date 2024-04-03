@@ -260,22 +260,24 @@ export const locationBackgroundTask = async (location: Location) => {
     );
     const parsedInterval = interval
       ? parseInt(interval, 10) * 60 * 60 * 1000
-      : 3 * 60 * 60 * 1000;
+      : 6 * 60 * 60 * 1000;
 
-    let closeMatZips: string[];
-    closeMatZips = [];
+    let closeMatZipsSet = new Set();
+
     allSavedZips.forEach((zip: MatZip) => {
       const lastNotifiedTime = lastNotified[zip.name];
       if (
         calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
         (!lastNotifiedTime || Date.now() - lastNotifiedTime > parsedInterval)
       ) {
-        closeMatZips.push(zip.name);
+        closeMatZipsSet.add(zip.name);
         store.dispatch(
           setLastNotified({zipName: zip.name, timestamp: Date.now()}),
         );
       }
     });
+
+    let closeMatZips = Array.from(closeMatZipsSet);
     const numCloseMatZips = closeMatZips.length;
     if (numCloseMatZips) {
       const notiToken = await AsyncStorage.getItem(
