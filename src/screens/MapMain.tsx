@@ -72,6 +72,8 @@ import {addVisitedMatZipAction} from '../store/modules/visitedZips';
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 import FastImage from 'react-native-fast-image';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -156,7 +158,6 @@ function App(): JSX.Element {
   }, [appState]);
 
   const checkForNewRestaurants = async () => {
-    console.log('ℹ️ checking if custom view added new data');
     let lastUpdatedStr;
     try {
       lastUpdatedStr = await SharedGroupPreferences.getItem(
@@ -276,7 +277,6 @@ function App(): JSX.Element {
       stopOnTerminate: false,
       startOnBoot: true,
     }).then(_state => {
-      console.log('BackgroundGeolocation is ready');
       if (!isRefuseNotifications) {
         BackgroundGeolocation.start();
       }
