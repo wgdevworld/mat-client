@@ -1064,7 +1064,7 @@ function App(): JSX.Element {
             query={{
               key: Config.MAPS_API,
               language: 'ko',
-              components: 'country:kr|country:us|country:pr',
+              components: 'country:kr|country:us|country:pr|country:gb',
               rankby: 'distance',
               types: 'restaurant|cafe|bakery|bar|liquor_store',
             }}
