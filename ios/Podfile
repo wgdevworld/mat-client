@@ -102,4 +102,5 @@ target 'screenshot' do
   pod 'RNShareMenu', :path => '../node_modules/react-native-share-menu'
   pod 'react-native-config', :path => '../node_modules/react-native-config'
   pod 'RNReactNativeSharedGroupPreferences', :path => '../node_modules/react-native-shared-group-preferences'
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
 end

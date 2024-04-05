@@ -17,6 +17,8 @@ import {Text} from 'react-native';
 import assets from '../../assets';
 import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
+import RNFS from 'react-native-fs';
+import {callGoogleVisionAsync} from '../controls/GoogleVision';
 
 const Share = () => {
   const googleSearchBarRef = useRef(null);
@@ -158,7 +160,6 @@ const Share = () => {
           zipInfo: {
             name: details.name,
             number: data.place_id,
-            description: data.description,
             address: details.formatted_address,
             imgSrc: photoArray,
             category: data.types[0] ? data.types[0] : '식당',
@@ -223,14 +224,52 @@ const Share = () => {
     }
   };
 
+  const detectText = async (path: string) => {
+    RNFS.readFile(path, 'base64')
+      .then(res => {
+        callGoogleVisionAsync(res)
+          .then(data => {
+            receiveNameFromOpenAI(data.responses[0].fullTextAnnotation);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  const receiveNameFromOpenAI = async (text: any) => {
+    try {
+      const response = await fetch(
+        // 'https://storied-scarab-391406.du.r.appspot.com/return-restaurant',
+        'http://localhost:3000/return-restaurant',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({text}),
+        },
+      );
+      const data = await response.json();
+      const name = data.name;
+      //@ts-ignore
+      googleSearchBarRef.current?.setAddressText(name);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     //@ts-ignore
     ShareMenuReactView.data()
-      .then(data => {
-        console.log(data);
+      .then(async data => {
         //@ts-ignore
         if (data.data[0].mimeType.startsWith('image')) {
-          //handle image
+          //@ts-ignore
+          detectText(data.data[0].data);
           //@ts-ignore
         } else if (data.data[0].mimeType.startsWith('text')) {
           //@ts-ignore
@@ -240,6 +279,7 @@ const Share = () => {
         }
       })
       .catch(e => console.log(e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddToMap = async () => {

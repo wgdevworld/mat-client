@@ -330,7 +330,6 @@ function App(): JSX.Element {
   }, [currentLocation, curMatMap, visitedZips]);
 
   async function generateSummary(place_id: string, zipId: string) {
-    console.log('ℹ️ generating reviews');
     try {
       const response = await fetch(
         'https://storied-scarab-391406.du.r.appspot.com/generate-summary',
