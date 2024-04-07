@@ -271,6 +271,10 @@ export default function MatZipMain() {
   };
 
   const handleAddPress = async () => {
+    if (userOwnList.find(zip => zip.id === zipId)) {
+      Alert.alert('이미 추가한 맛집입니다!');
+      return;
+    }
     try {
       dispatch(updateIsLoadingAction(true));
       const variables = {
@@ -452,20 +456,6 @@ export default function MatZipMain() {
                 alignContent: 'center',
                 justifyContent: 'center',
               }}>
-              <TouchableOpacity
-                onPress={handleRedirectToNaver}
-                style={{...styles.saveIcon, marginHorizontal: 5}}>
-                <Ionicons
-                  name={'globe-outline'}
-                  size={28}
-                  color={colors.coral1}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleNavigate}
-                style={{...styles.saveIcon, marginHorizontal: 5}}>
-                <Ionicons name={'arrow-redo'} size={28} color={colors.coral1} />
-              </TouchableOpacity>
               <View
                 style={{
                   backgroundColor: '#f2f2f2f2',
@@ -482,6 +472,53 @@ export default function MatZipMain() {
                   </Text>
                 </View>
               </View>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              // paddingBottom: 10,
+            }}>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleRedirectToNaver}
+                style={styles.saveIcon}>
+                <Ionicons name={'globe-outline'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>웹 검색</Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleNavigate}
+                style={styles.saveIcon}>
+                <Ionicons name={'arrow-redo'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>길찾기</Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleIconPress}
+                style={styles.saveIcon}>
+                <Ionicons
+                  name={
+                    saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                  }
+                  size={20}
+                  color={'black'}
+                />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>
+                {saveIcon ? '방문 취소' : '방문 표시'}
+              </Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleAddPress}
+                style={styles.saveIcon}>
+                <Ionicons name={'add-circle'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>내 맛맵에 추가</Text>
             </View>
           </View>
           <View style={styles.matZipContainer}>
@@ -536,37 +573,7 @@ export default function MatZipMain() {
                   <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
                 </View>
               </View>
-
-              <View>
-                <TouchableOpacity
-                  onPress={handleIconPress}
-                  style={styles.saveIcon}>
-                  <Ionicons
-                    name={
-                      saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
-                    }
-                    size={28}
-                    color={colors.coral1}
-                  />
-                </TouchableOpacity>
-                {!userOwnList.find(zip => zip.id === zipId) && (
-                  <TouchableOpacity
-                    onPress={handleAddPress}
-                    style={{
-                      ...styles.saveIcon,
-                      paddingTop: 6,
-                      paddingBottom: 6,
-                    }}>
-                    <Ionicons
-                      name={'add-circle-outline'}
-                      size={28}
-                      color={colors.coral1}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
             </View>
-
             {zipData && (
               <ReviewForm zipId={zipData.id} setReviews={setReviews} />
             )}
@@ -596,7 +603,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginTop: 10,
-    maxWidth: 200,
+    maxWidth: 300,
     paddingBottom: 10,
     textAlign: 'left',
   },
@@ -617,7 +624,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'black',
     textAlign: 'left',
-    maxWidth: '85%',
+    // maxWidth: '85%',
     marginLeft: 5,
   },
   matZipRatingText: {
@@ -715,5 +722,14 @@ const styles = StyleSheet.create({
   },
   saveIcon: {
     alignSelf: 'center',
+  },
+  iconContainer: {
+    width: '25%',
+    paddingBottom: 8,
+  },
+  iconText: {
+    paddingTop: 4,
+    alignSelf: 'center',
+    fontSize: 12,
   },
 });

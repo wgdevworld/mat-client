@@ -1142,7 +1142,7 @@ function App(): JSX.Element {
             debounce={300}
             placeholder="맛집을 검색해보세요!"
             textInputProps={{
-              placeholderTextColor: 'black',
+              placeholderTextColor: colors.grey2,
             }}
             // eslint-disable-next-line react/no-unstable-nested-components
             listEmptyComponent={() => {
@@ -1158,7 +1158,7 @@ function App(): JSX.Element {
             query={{
               key: Config.MAPS_API,
               language: 'ko',
-              components: 'country:kr|country:us|country:pr',
+              components: 'country:kr|country:us|country:gb',
               rankby: 'distance',
               types: 'restaurant|cafe|bakery|bar|liquor_store',
             }}
@@ -1176,6 +1176,46 @@ function App(): JSX.Element {
             enablePoweredByContainer={false}
             styles={styles.searchTextInput}
             ref={googleSearchBarRef}
+            renderRightButton={() => {
+              //@ts-ignore
+              return googleSearchBarRef.current?.isFocused() ? (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={() => {
+                    //@ts-ignore
+                    googleSearchBarRef.current?.clear();
+                    //@ts-ignore
+                    googleSearchBarRef.current?.blur();
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: 12,
+                    backgroundColor: 'white',
+                  }}>
+                  <Ionicons
+                    name="close-circle"
+                    size={20}
+                    color={colors.grey3}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: 12,
+                    backgroundColor: 'white',
+                  }}>
+                  <Ionicons
+                    name="search-outline"
+                    size={20}
+                    color={colors.grey2}
+                  />
+                </TouchableOpacity>
+              );
+            }}
           />
         </View>
         <View style={styles.container}>
@@ -1704,9 +1744,7 @@ const styles = StyleSheet.create({
   searchTextInput: {
     position: 'absolute',
     listView: {
-      borderRadius: 10,
-      borderColor: colors.coral1,
-      borderWidth: 1,
+      borderRadius: 8,
       backgroundColor: 'white',
     },
     textInputContainer: {
@@ -1714,10 +1752,15 @@ const styles = StyleSheet.create({
     },
     textInput: {
       backgroundColor: 'white',
-      borderRadius: 10,
+      borderRadius: 8,
       color: 'black',
-      borderColor: colors.coral1,
-      borderWidth: 1,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 3.84,
     },
   },
   iconContainer: {
