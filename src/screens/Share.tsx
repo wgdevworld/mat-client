@@ -276,8 +276,7 @@ const Share = () => {
   const receiveNameFromOpenAI = async (text: any) => {
     try {
       const response = await fetch(
-        // 'https://storied-scarab-391406.du.r.appspot.com/return-restaurant',
-        'http://localhost:3000/return-restaurant',
+        'https://storied-scarab-391406.du.r.appspot.com/return-restaurant',
         {
           method: 'POST',
           headers: {
