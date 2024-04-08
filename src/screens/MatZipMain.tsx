@@ -527,7 +527,7 @@ export default function MatZipMain() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}>
-              <View style={{width: '80%'}}>
+              <View style={{width: '95%'}}>
                 {zipData.description && (
                   <View
                     style={{

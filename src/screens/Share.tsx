@@ -1,6 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Button, Image, ActivityIndicator} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Easing,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import {ShareMenuReactView} from 'react-native-share-menu';
 // import store from '.././store/store';
 // import {persistStore} from 'redux-persist';
@@ -22,9 +32,11 @@ import {callGoogleVisionAsync} from '../controls/GoogleVision';
 
 const Share = () => {
   const googleSearchBarRef = useRef(null);
+  const extensionHeight = useRef(new Animated.Value(0)).current;
   const [searchedMatZip, setSearchedMatZip] = useState<MatZip | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingLoading, setIsAddingLoading] = useState(false);
+  const [isDetectTextLoading, setIsDetectTextLoading] = useState(true);
 
   const onPressSearchResult = async (data: any, details: any) => {
     setIsLoading(true);
@@ -224,6 +236,27 @@ const Share = () => {
     }
   };
 
+  useEffect(() => {
+    // Define desired height based on loading states
+    const desiredHeight = isDetectTextLoading || isLoading ? '25%' : '50%';
+
+    const calculatedHeight =
+      Dimensions.get('window').height * (parseFloat(desiredHeight) / 100);
+
+    Animated.timing(extensionHeight, {
+      toValue: calculatedHeight,
+      duration: 500,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [
+    isLoading,
+    isAddingLoading,
+    isDetectTextLoading,
+    extensionHeight,
+    searchedMatZip,
+  ]);
+
   const detectText = async (path: string) => {
     RNFS.readFile(path, 'base64')
       .then(res => {
@@ -255,10 +288,15 @@ const Share = () => {
       );
       const data = await response.json();
       const name = data.name;
-      //@ts-ignore
-      googleSearchBarRef.current?.setAddressText(name);
+
+      setTimeout(() => {
+        //@ts-ignore
+        googleSearchBarRef.current?.setAddressText(name);
+      }, 0);
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsDetectTextLoading(false);
     }
   };
 
@@ -272,6 +310,7 @@ const Share = () => {
           detectText(data.data[0].data);
           //@ts-ignore
         } else if (data.data[0].mimeType.startsWith('text')) {
+          setIsDetectTextLoading(false);
           //@ts-ignore
           googleSearchBarRef.current.setAddressText(data.data[0].data);
         } else {
@@ -289,7 +328,6 @@ const Share = () => {
         SHARED_STORAGE_ENUM.USER_MAP_ID,
         'group.com.mat.muckit',
       );
-      console.log(userMapId);
       const variables = {
         mapId: userMapId,
         zipId: searchedMatZip!.id,
@@ -328,6 +366,8 @@ const Share = () => {
         'group.com.mat.muckit',
       );
     } catch (e) {
+      Alert.alert('오류가 발생했습니다. 어플에서 추가해주세요!');
+      ShareMenuReactView.continueInApp();
       console.log(e);
     } finally {
       setIsAddingLoading(false);
@@ -335,11 +375,11 @@ const Share = () => {
   };
 
   return (
-    <View
+    <Animated.View
       style={{
         position: 'absolute',
         bottom: 0,
-        height: '50%',
+        height: extensionHeight,
         width: '100%',
         backgroundColor: colors.coral1,
         borderTopEndRadius: 12,
@@ -354,36 +394,59 @@ const Share = () => {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingTop: 24,
+            paddingTop: 16,
             paddingBottom: 8,
           }}>
-          <Button
-            color={colors.white}
-            title="닫기"
-            onPress={async () => {
-              ShareMenuReactView.dismissExtension();
-            }}
-          />
+          <TouchableOpacity
+            onPress={() => ShareMenuReactView.dismissExtension()}>
+            <Text
+              style={{color: colors.white, fontSize: 16, paddingVertical: 6}}>
+              취소
+            </Text>
+          </TouchableOpacity>
           {searchedMatZip ? (
             isAddingLoading ? (
               <ActivityIndicator
                 size="small"
                 color={colors.white}
-                style={{alignSelf: 'center'}}
+                style={{alignSelf: 'center', paddingVertical: 6}}
               />
             ) : (
-              <Button
-                color={colors.white}
-                title="내 맛맵에 추가하기"
+              <TouchableOpacity
                 onPress={async () => {
                   await handleAddToMap();
                   ShareMenuReactView.dismissExtension();
-                }}
-              />
+                }}>
+                <Text
+                  style={{
+                    color: colors.white,
+                    fontSize: 16,
+                    paddingVertical: 6,
+                  }}>
+                  내 맛맵에 추가
+                </Text>
+              </TouchableOpacity>
             )
           ) : null}
         </View>
-        {isLoading || searchedMatZip ? (
+        {isDetectTextLoading ? (
+          <View>
+            <ActivityIndicator
+              size="large"
+              color={colors.white}
+              style={{
+                alignSelf: 'center',
+                width: 76,
+                height: 76,
+                padding: 10,
+              }}
+            />
+            <Text
+              style={{color: colors.white, alignSelf: 'center', fontSize: 14}}>
+              맛집 이름 감지중...
+            </Text>
+          </View>
+        ) : isLoading || searchedMatZip ? (
           <View style={styles.itemContainer}>
             {searchedMatZip ? (
               <>
@@ -407,7 +470,6 @@ const Share = () => {
                       {searchedMatZip.name}
                     </Text>
                     <View style={styles.itemStarReviewContainer}>
-                      {/* <Ionicons name="star" size={14} color={colors.coral1} /> */}
                       <Text style={styles.itemStarsText}>
                         {'★ ' + searchedMatZip.reviewAvgRating}
                       </Text>
@@ -425,22 +487,33 @@ const Share = () => {
                 </View>
               </>
             ) : (
-              <ActivityIndicator
-                size="large"
-                color={colors.coral1}
-                style={{
-                  alignSelf: 'center',
-                  width: 76,
-                  height: 76,
-                  padding: 10,
-                }}
-              />
+              <View>
+                <ActivityIndicator
+                  size="large"
+                  color={colors.coral1}
+                  style={{
+                    alignSelf: 'center',
+                    width: 64,
+                    height: 64,
+                    padding: 10,
+                  }}
+                />
+                <Text
+                  style={{
+                    color: colors.coral1,
+                    paddingBottom: 10,
+                    alignSelf: 'center',
+                    fontSize: 12,
+                  }}>
+                  맛집 정보 불러오는중...
+                </Text>
+              </View>
             )}
           </View>
         ) : (
           <View />
         )}
-        {isLoading || searchedMatZip ? null : (
+        {isLoading || searchedMatZip || isDetectTextLoading ? null : (
           <GooglePlacesAutocomplete
             minLength={1}
             GooglePlacesDetailsQuery={{
@@ -462,12 +535,35 @@ const Share = () => {
                 );
               }
             }}
+            renderRow={(data, index) => {
+              return (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginVertical: -6,
+                  }}>
+                  <Text style={{width: '95%', alignSelf: 'center'}}>
+                    {data.description}
+                  </Text>
+                  <Text
+                    style={{
+                      alignSelf: 'center',
+                      color: colors.grey3,
+                      fontSize: 24,
+                      paddingBottom: 6,
+                    }}>
+                    {' ›'}
+                  </Text>
+                </View>
+              );
+            }}
             query={{
               key: Config.MAPS_API,
               language: 'ko',
-              // components: 'country:kr|country:us|country:pr',
-              // rankby: 'distance',
-              // types: 'restaurant|cafe|bakery|bar|liquor_store',
+              components: 'country:kr|country:us|country:gb',
+              rankby: 'distance',
             }}
             numberOfLines={2}
             fetchDetails={true}
@@ -484,7 +580,7 @@ const Share = () => {
           />
         )}
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -492,25 +588,32 @@ const styles = StyleSheet.create({
   searchTextInput: {
     position: 'absolute',
     listView: {
-      borderRadius: 10,
+      borderRadius: 6,
       backgroundColor: 'white',
       maxHeight: '70%',
     },
     textInputContainer: {
-      borderRadius: 10,
+      borderRadius: 6,
     },
     textInput: {
       backgroundColor: 'white',
-      borderRadius: 10,
+      borderRadius: 6,
       color: 'black',
       borderColor: colors.coral1,
       borderWidth: 1,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.5,
+      shadowRadius: 3.84,
     },
   },
   itemImageContainer: {
     width: 76,
     height: 76,
-    borderRadius: 10,
+    borderRadius: 6,
     overflow: 'hidden',
     marginRight: 10,
   },
@@ -555,7 +658,13 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     justifyContent: 'center',
-
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
     flexDirection: 'row',
     padding: 10,
     backgroundColor: colors.grey,
