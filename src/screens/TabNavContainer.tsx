@@ -194,6 +194,75 @@ const TabNavContainer = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // const [appState, setAppState] = useState(AppState.currentState);
+
+  // useEffect(() => {
+  //   const subscription = AppState.addEventListener('change', nextAppState => {
+  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {
+  //       console.log('App has come to the foreground!');
+  //       ShareMenu.getInitialShare(handleShare);
+  //       // Place your code here that you want to run every time the app is opened
+  //     }
+  //     setAppState(nextAppState);
+  //   });
+
+  //   return () => {
+  //     subscription.remove();
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [appState]);
+
+  //Handle Sharing
+  // const handleShare: ShareCallback = (share?: ShareData) => {
+  //   if (!share) {
+  //     return;
+  //   }
+  //   // setAppState(null);
+  //   console.log(share);
+  // };
+  // useEffect(() => {
+  //   const listener = ShareMenu.addNewShareListener(handleShare);
+
+  //   return () => {
+  //     listener.remove();
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+  // const [appState, setAppState] = useState(AppState.currentState);
+  // const [sharedData, setSharedData] = useState<ShareData | null>(null);
+
+  // const handleShare: ShareCallback = (share?: ShareData) => {
+  //   if (!share) {
+  //     return;
+  //   }
+  //   console.log('Shared content:', share);
+  //   // Optionally, set shared data to state or perform other actions.
+  //   setSharedData(share);
+  // };
+
+  // useEffect(() => {
+  //   // Check for shared content when the app is opened or comes to the foreground.
+  //   const handleAppStateChange = (nextAppState: string) => {
+  //     if (appState.match(/inactive|background/) && nextAppState === 'active') {
+  //       ShareMenu.getInitialShare(handleShare);
+  //     }
+  //     setAppState(nextAppState);
+  //   };
+
+  //   const appStateListener = AppState.addEventListener(
+  //     'change',
+  //     handleAppStateChange,
+  //   );
+
+  //   // Listener for new shares when the app is already open
+  //   const listener = ShareMenu.addNewShareListener(handleShare);
+
+  //   return () => {
+  //     appStateListener.remove();
+  //     listener.remove();
+  //   };
+  // }, [appState]);
   const MyTabBar = ({state, navigation: TabNavigation}: BottomTabBarProps) => {
     return (
       <View style={styles.container}>

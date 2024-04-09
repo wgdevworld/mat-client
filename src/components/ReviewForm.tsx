@@ -263,7 +263,7 @@ const ReviewForm: React.FC<{
           ref={reviewInputRef}
           style={styles.input}
           placeholder="리뷰를 작성해주세요!"
-          placeholderTextColor="darkgrey"
+          placeholderTextColor={colors.grey3}
           selectionColor="black"
           multiline
           onChangeText={text => setContent(text)}
@@ -281,12 +281,13 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     backgroundColor: colors.grey,
-    borderRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    // shadowColor: '#000',
+    // shadowOffset: {width: 0, height: 2},
+    // shadowOpacity: 0.2,
+    // shadowRadius: 2,
     elevation: 2,
     padding: 15,
     paddingTop: 10,
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     paddingTop: 1,
     borderBottomColor: 'darkgrey',
-    fontSize: 16,
+    fontSize: 14,
     color: 'black',
     marginLeft: -13,
   },

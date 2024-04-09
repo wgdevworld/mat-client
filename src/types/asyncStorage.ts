@@ -9,4 +9,5 @@ export enum ASYNC_STORAGE_ENUM {
   IS_ONBOARDING_DONE = 'IS_ONBOARDING_DONE',
   NOTIFICATION_RADIUS = 'notification_radius',
   NOTIFICATION_INTERVAL = 'notification_interval',
+  LAST_CHECK_FROM_CLIENT = 'last_check_from_client',
 }

@@ -101,7 +101,6 @@ export default function SignupUser() {
                   id
             }
         }`;
-
         await request(
           updateUserQuery,
           REQ_METHOD.MUTATION,
@@ -126,16 +125,27 @@ export default function SignupUser() {
         color={colors.coral1}
         buttonColor={colors.white}
       />
-      <View style={styles.header}>
-        <Text style={styles.headerText}>회원가입</Text>
-      </View>
-      <View style={styles.dividerContainer}>
-        <View style={styles.divider} />
-      </View>
-      <Text style={styles.title}>{'유저네임을 선택해주세요!'}</Text>
+      {!isFromSocial && (
+        <View>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>회원가입</Text>
+          </View>
+          <View style={styles.dividerContainer}>
+            <View style={styles.divider} />
+          </View>
+        </View>
+      )}
+      <Text
+        style={{...styles.title, fontWeight: isFromSocial ? 'bold' : 'normal'}}>
+        {'유저네임을 선택해주세요!'}
+      </Text>
       <View style={styles.container}>
         <TextInput
-          style={[styles.input, styles.placeholderBackground]}
+          style={{
+            ...styles.input,
+            ...styles.placeholderBackground,
+            borderRadius: isFromSocial ? 12 : 5,
+          }}
           onChangeText={value => setUsername(value)}
           value={username}
           placeholder="유저네임 입력"
@@ -180,7 +190,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 35,
     marginTop: 30,
-    marginBottom: 20,
     color: 'white',
   },
   placeholderBackground: {
@@ -189,7 +198,6 @@ const styles = StyleSheet.create({
   input: {
     width: 320,
     height: 60,
-    borderRadius: 5,
     borderColor: '#ccc',
     padding: 15,
     fontSize: 18,

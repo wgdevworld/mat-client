@@ -271,6 +271,10 @@ export default function MatZipMain() {
   };
 
   const handleAddPress = async () => {
+    if (userOwnList.find(zip => zip.id === zipId)) {
+      Alert.alert('이미 추가한 맛집입니다!');
+      return;
+    }
     try {
       dispatch(updateIsLoadingAction(true));
       const variables = {
@@ -451,21 +455,8 @@ export default function MatZipMain() {
                 flexDirection: 'row',
                 alignContent: 'center',
                 justifyContent: 'center',
+                paddingTop: 8,
               }}>
-              <TouchableOpacity
-                onPress={handleRedirectToNaver}
-                style={{...styles.saveIcon, marginHorizontal: 5}}>
-                <Ionicons
-                  name={'globe-outline'}
-                  size={28}
-                  color={colors.coral1}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleNavigate}
-                style={{...styles.saveIcon, marginHorizontal: 5}}>
-                <Ionicons name={'arrow-redo'} size={28} color={colors.coral1} />
-              </TouchableOpacity>
               <View
                 style={{
                   backgroundColor: '#f2f2f2f2',
@@ -484,18 +475,93 @@ export default function MatZipMain() {
               </View>
             </View>
           </View>
+          {parentMap && parentMap.length > 0 && (
+            <View
+              style={{
+                ...styles.horizontal,
+              }}>
+              <Text>@</Text>
+              <Text style={styles.matZipListText}>
+                {parentMap.length > 2
+                  ? `${parentMap[0]}, ${parentMap[1]} 외 ${
+                      parentMap.length - 2
+                    }개의 맛맵에 포함`
+                  : parentMap.length === 2
+                  ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
+                  : `${parentMap[0]} 맛맵에 포함`}
+              </Text>
+            </View>
+          )}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              paddingTop: 16,
+            }}>
+            <View
+              style={{
+                ...styles.iconContainer,
+                borderTopLeftRadius: 6,
+                borderBottomLeftRadius: 6,
+              }}>
+              <TouchableOpacity
+                onPress={handleRedirectToNaver}
+                style={styles.saveIcon}>
+                <Ionicons name={'globe-outline'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>웹 검색</Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleNavigate}
+                style={styles.saveIcon}>
+                <Ionicons name={'arrow-redo'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>길찾기</Text>
+            </View>
+            <View style={styles.iconContainer}>
+              <TouchableOpacity
+                onPress={handleIconPress}
+                style={styles.saveIcon}>
+                <Ionicons
+                  name={
+                    saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
+                  }
+                  size={20}
+                  color={'black'}
+                />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>
+                {saveIcon ? '방문 취소' : '방문 표시'}
+              </Text>
+            </View>
+            <View
+              style={{
+                ...styles.iconContainer,
+                borderTopRightRadius: 6,
+                borderBottomRightRadius: 6,
+              }}>
+              <TouchableOpacity
+                onPress={handleAddPress}
+                style={styles.saveIcon}>
+                <Ionicons name={'add-circle'} size={20} color={'black'} />
+              </TouchableOpacity>
+              <Text style={styles.iconText}>내 맛맵에 추가</Text>
+            </View>
+          </View>
           <View style={styles.matZipContainer}>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                paddingTop: 16,
               }}>
-              <View style={{width: '80%'}}>
+              <View style={{width: '95%'}}>
                 {zipData.description && (
                   <View
                     style={{
                       ...styles.horizontal,
-                      paddingVertical: 5,
+                      paddingBottom: 5,
                     }}>
                     <Ionicons
                       name="information-circle-outline"
@@ -504,25 +570,6 @@ export default function MatZipMain() {
                     />
                     <Text style={styles.matZipDescriptionText}>
                       {zipData?.description}
-                    </Text>
-                  </View>
-                )}
-
-                {parentMap && parentMap.length > 0 && (
-                  <View
-                    style={{
-                      ...styles.horizontal,
-                      paddingVertical: 5,
-                    }}>
-                    <Ionicons name="map-outline" color="black" size={18} />
-                    <Text style={styles.matZipListText}>
-                      {parentMap.length > 2
-                        ? `${parentMap[0]}, ${parentMap[1]} 외 ${
-                            parentMap.length - 2
-                          }개의 맛맵에 포함`
-                        : parentMap.length === 2
-                        ? `${parentMap[0]}, ${parentMap[1]} 맛맵에 포함`
-                        : `${parentMap[0]} 맛맵에 포함`}
                     </Text>
                   </View>
                 )}
@@ -536,37 +583,24 @@ export default function MatZipMain() {
                   <Text style={styles.matZipInfoText}>{zipData?.address}</Text>
                 </View>
               </View>
-
-              <View>
-                <TouchableOpacity
-                  onPress={handleIconPress}
-                  style={styles.saveIcon}>
-                  <Ionicons
-                    name={
-                      saveIcon ? 'checkmark-circle' : 'checkmark-circle-outline'
-                    }
-                    size={28}
-                    color={colors.coral1}
-                  />
-                </TouchableOpacity>
-                {!userOwnList.find(zip => zip.id === zipId) && (
-                  <TouchableOpacity
-                    onPress={handleAddPress}
-                    style={{
-                      ...styles.saveIcon,
-                      paddingTop: 6,
-                      paddingBottom: 6,
-                    }}>
-                    <Ionicons
-                      name={'add-circle-outline'}
-                      size={28}
-                      color={colors.coral1}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
             </View>
-
+            <View
+              style={{
+                width: '100%',
+                padding: 6,
+                borderTopEndRadius: 6,
+                borderTopLeftRadius: 6,
+                backgroundColor: colors.coral1,
+                // marginBottom: 24,
+              }}>
+              <Text
+                style={{
+                  color: colors.white,
+                  fontWeight: 'bold',
+                  paddingLeft: 6,
+                  fontSize: 16,
+                }}>{`후기 (${zipData.reviewCount}개)`}</Text>
+            </View>
             {zipData && (
               <ReviewForm zipId={zipData.id} setReviews={setReviews} />
             )}
@@ -595,29 +629,30 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: 'black',
-    marginTop: 10,
-    maxWidth: 200,
-    paddingBottom: 10,
+    maxWidth: 300,
+    paddingTop: 8,
+    paddingBottom: 2,
     textAlign: 'left',
   },
   matZipListText: {
-    fontSize: 15,
-    marginLeft: 5,
+    fontWeight: '500',
+    fontSize: 13,
+    marginLeft: 2,
     color: 'black',
     textAlign: 'left',
   },
   matZipInfoText: {
-    fontSize: 15,
+    fontSize: 13,
     color: 'black',
     textAlign: 'left',
     marginLeft: 5,
     maxWidth: '85%',
   },
   matZipDescriptionText: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'black',
     textAlign: 'left',
-    maxWidth: '85%',
+    // maxWidth: '85%',
     marginLeft: 5,
   },
   matZipRatingText: {
@@ -715,5 +750,18 @@ const styles = StyleSheet.create({
   },
   saveIcon: {
     alignSelf: 'center',
+  },
+  iconContainer: {
+    width: '25%',
+    paddingVertical: 4,
+    marginHorizontal: 2,
+    borderColor: colors.grey3,
+    borderWidth: 0.2,
+    // borderRadius: 6,
+  },
+  iconText: {
+    paddingTop: 4,
+    alignSelf: 'center',
+    fontSize: 12,
   },
 });
