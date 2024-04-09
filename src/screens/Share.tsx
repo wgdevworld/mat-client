@@ -534,6 +534,7 @@ const Share = () => {
               language: 'ko',
               components: 'country:kr|country:us|country:gb',
               rankby: 'distance',
+              types: 'restaurant|cafe|bakery|bar|liquor_store',
             }}
             numberOfLines={2}
             fetchDetails={true}
