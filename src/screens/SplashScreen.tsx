@@ -119,6 +119,7 @@ const SplashScreen = () => {
                     zipList {
                       id
                       name
+                      number
                       address
                       images {
                         src
@@ -218,6 +219,7 @@ const SplashScreen = () => {
                     zipList {
                       id
                       name
+                      number
                       address
                       images {
                         src
@@ -303,6 +305,7 @@ const SplashScreen = () => {
                     zipList {
                       id
                       name
+                      number
                       address
                       images {
                         src

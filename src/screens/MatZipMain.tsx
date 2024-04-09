@@ -67,6 +67,7 @@ export default function MatZipMain() {
         fetchZip(id: "${zipId}") {
           id
           name
+          number
           address
           reviewCount
           reviewAvgRating
@@ -120,6 +121,7 @@ export default function MatZipMain() {
       const selectedMatZip: MatZip = {
         id: fetchedZipData.id,
         name: fetchedZipData.name,
+        place_id: fetchedZipData.number ? fetchedZipData.number : null,
         imageSrc:
           fetchedZipData.images === undefined ||
           fetchedZipData.images.length !== 0

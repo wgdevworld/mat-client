@@ -55,6 +55,7 @@ export const matMapSerializer = async (matMaps: any[]) => {
           return {
             id: zip.id,
             name: zip.name,
+            place_id: zip.number ? zip.number : null,
             imageSrc: zipImgSrcArr,
             coordinate,
             address: zip.address,

@@ -125,55 +125,26 @@ const Share = () => {
     // if yes, we return this zip. if not, we create a new zip and return it.
     try {
       let fetchedZipData: any = null;
-      const fetchZipQuery = `{
-        fetchZipByGID(gid: "${data.place_id}") {
-          id
-          name
-          address
-          reviewCount
-          reviewAvgRating
-          parentMap {
-            name
-          }
-          category
-          images {
-            id
-            src
-          }
-          latitude
-          longitude
-        }
-      }`;
-      const fetchedZipRes = await axios.post(
-        'https://muckit-server.site/graphql',
-        {
-          query: fetchZipQuery,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      fetchedZipData = fetchedZipRes?.data.data?.fetchZipByGID;
+      console.log('ℹ️ 맛집 생성중');
       if (!fetchedZipData) {
         const apiKey = Config.MAPS_API;
-        let photoArray: string[] = [];
+        let createdPhotoArray: string[] = [];
         if (!details.photos || details.photos.length === 0) {
           const defaultStreetViewImg = `https://maps.googleapis.com/maps/api/streetview?size=1200x1200&location=${details.geometry.location.lat},${details.geometry.location.lng}&key=${apiKey}`;
-          photoArray = [defaultStreetViewImg];
+          createdPhotoArray = [defaultStreetViewImg];
         } else {
           details.photos.forEach((photo: any) => {
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photo.photo_reference}&key=${apiKey}`;
-            photoArray.push(photoUrl);
+            createdPhotoArray.push(photoUrl);
           });
         }
         const variables = {
           zipInfo: {
             name: details.name,
             number: data.place_id,
+            description: '',
             address: details.formatted_address,
-            imgSrc: photoArray,
+            imgSrc: createdPhotoArray,
             category: data.types[0] ? data.types[0] : '식당',
             latitude: details.geometry.location.lat,
             longitude: details.geometry.location.lng,
@@ -227,12 +198,9 @@ const Share = () => {
         address: fetchedZipData.address,
         category: fetchedZipData.category,
       };
-      console.log(selectedMatZip);
       setSearchedMatZip(selectedMatZip);
     } catch (e) {
       console.log(e);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -310,8 +278,10 @@ const Share = () => {
           //@ts-ignore
         } else if (data.data[0].mimeType.startsWith('text')) {
           setIsDetectTextLoading(false);
-          //@ts-ignore
-          googleSearchBarRef.current.setAddressText(data.data[0].data);
+          setTimeout(() => {
+            //@ts-ignore
+            googleSearchBarRef.current.setAddressText(data.data[0].data);
+          }, 0);
         } else {
           //do nothing
         }

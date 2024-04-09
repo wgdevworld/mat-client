@@ -379,6 +379,7 @@ function App(): JSX.Element {
         fetchZipByName(searchKey: "${searchKey}") {
           id
           name
+          number
           address
           reviewCount
           reviewAvgRating
@@ -431,6 +432,7 @@ function App(): JSX.Element {
             const selectedMatZip: MatZip = {
               id: zip.id,
               name: zip.name,
+              place_id: zip.number ? zip.number : null,
               imageSrc: photoArray,
               coordinate: location,
               reviewAvgRating: zip.reviewAvgRating,

@@ -205,7 +205,7 @@ const VisitedZips = () => {
         color={colors.coral1}
         buttonColor={isPressedShare ? 'transparent' : colors.white}
       />
-      <View style={{...styles.container, marginBottom: 50}}>
+      <View style={{...styles.container, marginBottom: 40}}>
         <View
           style={{
             padding: 12,
@@ -268,7 +268,7 @@ const VisitedZips = () => {
                 : '열정적인 입맛 새내기'}
             </Text>
             {isPressedShare ? null : isLoading ? (
-              <ActivityIndicator size="small" color="white" />
+              <ActivityIndicator size="small" color={colors.coral1} />
             ) : savedZips.length >= 5 ? (
               <TouchableOpacity onPress={generateProfile}>
                 <Ionicons
@@ -285,17 +285,18 @@ const VisitedZips = () => {
                     display: isShowExplanation ? 'flex' : 'none',
                     width: 260,
                     position: 'absolute',
-                    top: -30,
-                    right: 30,
+                    top: -80,
+                    right: 25,
                     backgroundColor: colors.grey,
-                    padding: 8,
-                    borderRadius: 6,
+                    padding: 12,
+                    borderRadius: 12,
                   }}>
                   <Text style={{color: colors.coral1, fontSize: 14}}>
                     가장 최근에 가본 맛집을 바탕으로 AI가{' '}
                     {userUsernameFromRedux}
-                    님의 한줄평을 만들어줘요! 최소한 5개 이상의 맛집 정보가
-                    필요하니, 5개 이상의 맛집을 가봄 표시 후 다시 와주세요!
+                    님의 한줄평을 만들어줘요! 정확한 한줄평을 위해서 최소한 5개
+                    이상의 맛집 정보가 필요하니, 5개 이상의 맛집을 방문 표시 후
+                    다시 와보세요!
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -303,15 +304,15 @@ const VisitedZips = () => {
                   <Ionicons
                     name="information-circle-outline"
                     size={20}
-                    style={{alignSelf: 'center'}}
-                    color={colors.white}
+                    style={{alignSelf: 'center', paddingTop: 6}}
+                    color={colors.coral1}
                   />
                 </TouchableOpacity>
               </View>
             )}
           </View>
         </View>
-        <View style={{backgroundColor: colors.coral1}}>
+        <View style={{backgroundColor: colors.coral1, height: '80%'}}>
           <FlatList
             style={{paddingHorizontal: 12, paddingTop: 24}}
             showsVerticalScrollIndicator={false}
