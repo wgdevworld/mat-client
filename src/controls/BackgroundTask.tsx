@@ -263,19 +263,26 @@ export const locationBackgroundTask = async (location: Location) => {
       : 6 * 60 * 60 * 1000;
 
     let closeMatZipsSet = new Set();
-
+    let maxDistance = 0;
     allSavedZips.forEach((zip: MatZip) => {
       const lastNotifiedTime = lastNotified[zip.name];
+      const distance = calculateDistance(zip.coordinate, curLocation);
       if (
-        calculateDistance(zip.coordinate, curLocation) < parsedRadius &&
+        distance < parsedRadius &&
         (!lastNotifiedTime || Date.now() - lastNotifiedTime > parsedInterval)
       ) {
+        maxDistance = Math.max(distance, maxDistance);
         closeMatZipsSet.add(zip.name);
         store.dispatch(
           setLastNotified({zipName: zip.name, timestamp: Date.now()}),
         );
       }
     });
+    if (maxDistance > 100) {
+      maxDistance = Math.round(maxDistance / 100) * 100;
+    } else {
+      maxDistance = Math.round(maxDistance / 10) * 10;
+    }
 
     let closeMatZips = Array.from(closeMatZipsSet);
     const numCloseMatZips = closeMatZips.length;
@@ -285,13 +292,13 @@ export const locationBackgroundTask = async (location: Location) => {
       );
       let notificationMessage;
       if (numCloseMatZips > 2) {
-        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}, ${
+        notificationMessage = `최대 ${maxDistance}m 내에 ${closeMatZips[0]}, ${
           closeMatZips[1]
         } 외 ${numCloseMatZips - 2}개의 맛집이 있어요!`;
       } else if (numCloseMatZips > 1) {
-        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}와 ${closeMatZips[1]}(이)가 있어요!`;
+        notificationMessage = `최대 ${maxDistance}m 내에 ${closeMatZips[0]}와 ${closeMatZips[1]}(이)가 있어요!`;
       } else {
-        notificationMessage = `최대 ${parsedRadius}m 내에 ${closeMatZips[0]}(이)가 있어요!`;
+        notificationMessage = `최대 ${maxDistance}m 내에 ${closeMatZips[0]}(이)가 있어요!`;
       }
       const notificationQuery = `
                         mutation sendNotification($deviceToken: String!, $message: String!) {
