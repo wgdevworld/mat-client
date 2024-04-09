@@ -555,6 +555,7 @@ export default function MatZipMain() {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                paddingTop: 16,
               }}>
               <View style={{width: '95%'}}>
                 {zipData.description && (
@@ -562,7 +563,6 @@ export default function MatZipMain() {
                     style={{
                       ...styles.horizontal,
                       paddingBottom: 5,
-                      paddingTop: 16,
                     }}>
                     <Ionicons
                       name="information-circle-outline"
