@@ -479,7 +479,6 @@ export default function MatZipMain() {
             <View
               style={{
                 ...styles.horizontal,
-                paddingBottom: 16,
               }}>
               <Text>@</Text>
               <Text style={styles.matZipListText}>
@@ -497,7 +496,7 @@ export default function MatZipMain() {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-around',
-              // paddingBottom: 10,
+              paddingTop: 16,
             }}>
             <View
               style={{
