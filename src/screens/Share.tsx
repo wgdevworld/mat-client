@@ -29,6 +29,7 @@ import SharedGroupPreferences from 'react-native-shared-group-preferences';
 import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 import RNFS from 'react-native-fs';
 import {callGoogleVisionAsync} from '../controls/GoogleVision';
+import {Keyboard} from 'react-native';
 
 const Share = () => {
   const googleSearchBarRef = useRef(null);
@@ -37,6 +38,21 @@ const Share = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingLoading, setIsAddingLoading] = useState(false);
   const [isDetectTextLoading, setIsDetectTextLoading] = useState(true);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardShowListener = Keyboard.addListener('keyboardDidShow', () =>
+      setIsKeyboardVisible(true),
+    );
+    const keyboardHideListener = Keyboard.addListener('keyboardDidHide', () =>
+      setIsKeyboardVisible(false),
+    );
+
+    return () => {
+      keyboardShowListener.remove();
+      keyboardHideListener.remove();
+    };
+  }, []);
 
   const onPressSearchResult = async (data: any, details: any) => {
     setIsLoading(true);
@@ -206,7 +222,13 @@ const Share = () => {
 
   useEffect(() => {
     // Define desired height based on loading states
-    const desiredHeight = isDetectTextLoading || isLoading ? '25%' : '50%';
+    //@ts-ignore
+    const desiredHeight =
+      isDetectTextLoading || isLoading
+        ? '25%'
+        : isKeyboardVisible
+        ? '90%'
+        : '50%';
 
     const calculatedHeight =
       Dimensions.get('window').height * (parseFloat(desiredHeight) / 100);
@@ -223,6 +245,7 @@ const Share = () => {
     isDetectTextLoading,
     extensionHeight,
     searchedMatZip,
+    isKeyboardVisible,
   ]);
 
   const detectText = async (path: string) => {
