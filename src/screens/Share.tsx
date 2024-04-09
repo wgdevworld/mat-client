@@ -241,8 +241,9 @@ const Share = () => {
       });
   };
 
-  const receiveNameFromOpenAI = async (text: any) => {
+  const receiveNameFromOpenAI = async (json: any) => {
     try {
+      const text = json.text;
       const response = await fetch(
         'https://storied-scarab-391406.du.r.appspot.com/return-restaurant',
         {
