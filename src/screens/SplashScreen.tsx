@@ -37,6 +37,8 @@ import {cleanupCooldowns} from '../store/modules/notificationCooldown';
 import store from '../store/store';
 import RNRestart from 'react-native-restart';
 import {useAppSelector} from '../store/hooks';
+import SharedGroupPreferences from 'react-native-shared-group-preferences';
+import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 // import store from '../store/store';
 
 const SplashScreen = () => {
@@ -142,6 +144,11 @@ const SplashScreen = () => {
                 let isUserMapPublic = false;
                 if (userOwnMapData) {
                   const userOwnMap = await matMapSerializer([userOwnMapData]);
+                  SharedGroupPreferences.setItem(
+                    SHARED_STORAGE_ENUM.USER_MAP_ID,
+                    userOwnMap[0].id,
+                    'group.com.mat.muckit',
+                  );
                   dispatch(replaceOwnMatMapAction(userOwnMap));
                   if (userOwnMap[0].publicStatus) {
                     isUserMapPublic = true;

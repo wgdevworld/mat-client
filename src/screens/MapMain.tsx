@@ -4,6 +4,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import 'react-native-gesture-handler';
 import {
   Alert,
+  AppState,
   Dimensions,
   Image,
   Keyboard,
@@ -68,7 +69,11 @@ import BackgroundGeolocation, {
 import {locationBackgroundTask} from '../controls/BackgroundTask';
 import Bugsnag from '@bugsnag/react-native';
 import {addVisitedMatZipAction} from '../store/modules/visitedZips';
+import SharedGroupPreferences from 'react-native-shared-group-preferences';
+import {SHARED_STORAGE_ENUM} from '../types/sharedStorage';
 import FastImage from 'react-native-fast-image';
+import {ASYNC_STORAGE_ENUM} from '../types/asyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -137,6 +142,97 @@ function App(): JSX.Element {
     null,
   );
 
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        checkForNewRestaurants();
+      }
+      setAppState(nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
+
+  const checkForNewRestaurants = async () => {
+    let lastUpdatedStr;
+    try {
+      lastUpdatedStr = await SharedGroupPreferences.getItem(
+        SHARED_STORAGE_ENUM.LAST_UPDATED,
+        'group.com.mat.muckit',
+      );
+    } catch (e) {
+      return;
+    }
+    const lastUpdated = new Date(lastUpdatedStr);
+    const lastCheckTimeStampStr = await AsyncStorage.getItem(
+      ASYNC_STORAGE_ENUM.LAST_CHECK_FROM_CLIENT,
+    );
+    const lastChecked = lastCheckTimeStampStr
+      ? new Date(lastCheckTimeStampStr)
+      : null;
+    if (!lastChecked || lastUpdated > lastChecked) {
+      console.log('ℹ️ updating from custom view');
+      try {
+        const fetchUserMapQuery = `{
+          fetchUserMap {
+            zipList {
+              id
+              name
+              address
+              images {
+                src
+              }
+              reviewCount
+              reviewAvgRating
+              parentMap {
+                id
+              }
+              category
+              latitude
+              longitude
+            }
+          }
+        }`;
+        const userOwnMapRes = await request(
+          fetchUserMapQuery,
+          REQ_METHOD.QUERY,
+        );
+        const userOwnMapData = userOwnMapRes?.data.data.fetchUserMap.zipList;
+        const serializedZipList: MatZip[] = await Promise.all(
+          userOwnMapData.map(async (zip: any) => {
+            const zipImgSrcArr = zip.images.map((img: any) => img.src);
+            const coordinate = {
+              latitude: zip.latitude,
+              longitude: zip.longitude,
+            };
+            return {
+              id: zip.id,
+              name: zip.name,
+              imageSrc: zipImgSrcArr,
+              coordinate,
+              address: zip.address,
+              reviewCount: zip.reviewCount,
+              reviewAvgRating: zip.reviewAvgRating,
+              category: zip.category,
+            } as MatZip;
+          }),
+        );
+        dispatch(replaceOwnMatMapZipListAction(serializedZipList));
+      } catch (e) {
+        console.log(e);
+      } finally {
+        await AsyncStorage.setItem(
+          ASYNC_STORAGE_ENUM.LAST_CHECK_FROM_CLIENT,
+          new Date().toISOString(),
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     const onLocation: Subscription = BackgroundGeolocation.onLocation(
       async location => {
@@ -181,7 +277,6 @@ function App(): JSX.Element {
       stopOnTerminate: false,
       startOnBoot: true,
     }).then(_state => {
-      console.log('BackgroundGeolocation is ready');
       if (!isRefuseNotifications) {
         BackgroundGeolocation.start();
       }
@@ -235,7 +330,6 @@ function App(): JSX.Element {
   }, [currentLocation, curMatMap, visitedZips]);
 
   async function generateSummary(place_id: string, zipId: string) {
-    console.log('ℹ️ generating reviews');
     try {
       const response = await fetch(
         'https://storied-scarab-391406.du.r.appspot.com/generate-summary',
@@ -1048,7 +1142,7 @@ function App(): JSX.Element {
             debounce={300}
             placeholder="맛집을 검색해보세요!"
             textInputProps={{
-              placeholderTextColor: 'black',
+              placeholderTextColor: colors.grey2,
             }}
             // eslint-disable-next-line react/no-unstable-nested-components
             listEmptyComponent={() => {
@@ -1064,7 +1158,7 @@ function App(): JSX.Element {
             query={{
               key: Config.MAPS_API,
               language: 'ko',
-              components: 'country:kr|country:us|country:pr',
+              components: 'country:kr|country:us|country:gb',
               rankby: 'distance',
               types: 'restaurant|cafe|bakery|bar|liquor_store',
             }}
@@ -1082,6 +1176,46 @@ function App(): JSX.Element {
             enablePoweredByContainer={false}
             styles={styles.searchTextInput}
             ref={googleSearchBarRef}
+            renderRightButton={() => {
+              //@ts-ignore
+              return googleSearchBarRef.current?.isFocused() ? (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={() => {
+                    //@ts-ignore
+                    googleSearchBarRef.current?.clear();
+                    //@ts-ignore
+                    googleSearchBarRef.current?.blur();
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: 12,
+                    backgroundColor: 'white',
+                  }}>
+                  <Ionicons
+                    name="close-circle"
+                    size={20}
+                    color={colors.grey3}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: 12,
+                    backgroundColor: 'white',
+                  }}>
+                  <Ionicons
+                    name="search-outline"
+                    size={20}
+                    color={colors.grey2}
+                  />
+                </TouchableOpacity>
+              );
+            }}
           />
         </View>
         <View style={styles.container}>
@@ -1610,9 +1744,7 @@ const styles = StyleSheet.create({
   searchTextInput: {
     position: 'absolute',
     listView: {
-      borderRadius: 10,
-      borderColor: colors.coral1,
-      borderWidth: 1,
+      borderRadius: 8,
       backgroundColor: 'white',
     },
     textInputContainer: {
@@ -1620,10 +1752,15 @@ const styles = StyleSheet.create({
     },
     textInput: {
       backgroundColor: 'white',
-      borderRadius: 10,
+      borderRadius: 8,
       color: 'black',
-      borderColor: colors.coral1,
-      borderWidth: 1,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 3.84,
     },
   },
   iconContainer: {

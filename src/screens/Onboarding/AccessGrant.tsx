@@ -35,7 +35,7 @@ export default function AccessGrant() {
     <Ionicons name="walk-outline" size={ICON_SIZE} color="black" />
   );
   return (
-    <View style={{...styles.container, paddingTop: insets.top}}>
+    <View style={{...styles.container, paddingTop: insets.top * 1.5}}>
       <Text style={styles.heading}>
         앱 사용을 위해 위치{'\n'}권한을 설정해주세요
       </Text>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    //justifyContent: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 40,
   },
   heading: {

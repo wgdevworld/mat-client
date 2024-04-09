@@ -31,7 +31,7 @@ export default function AccessGrant2() {
   );
 
   return (
-    <View style={{...styles.container, paddingTop: insets.top}}>
+    <View style={{...styles.container, paddingTop: insets.top * 1.5}}>
       <Text style={styles.heading}>
         앱 사용을 위해 알림{'\n'}권한을 설정해주세요
       </Text>

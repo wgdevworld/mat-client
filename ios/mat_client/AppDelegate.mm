@@ -12,6 +12,7 @@
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
+#import <RNShareMenu/ShareMenuManager.h>
 
 
 @implementation AppDelegate
@@ -38,6 +39,10 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 - (BOOL)application:(UIApplication *)application
   openURL:(NSURL *)url
   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    NSString *urlString = url.absoluteString;
+    if ([urlString hasPrefix:@"com.mat.muckit//"]) {
+      return [ShareMenuManager application:application openURL:url options:options];
+    }
     if ([RNKakaoLogins isKakaoTalkLoginUrl:url]) {
       return [RNKakaoLogins handleOpenUrl: url];
     }
