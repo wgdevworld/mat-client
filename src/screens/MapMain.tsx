@@ -20,7 +20,10 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import colors from '../styles/colors';
 import {requestPermissionAndGetLocation} from '../config/RequestRetrieveLocation';
@@ -1039,6 +1042,7 @@ function App(): JSX.Element {
           </View>
         </View>
       </Modal>
+
       <Modal
         visible={isEditPublicMapVisible}
         transparent
@@ -1048,7 +1052,11 @@ function App(): JSX.Element {
           flex: 1,
           display: isEditPublicMapVisible ? 'flex' : 'none',
         }}>
-        <View style={styles.modalContainer} />
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={Keyboard.dismiss}
+          style={styles.modalContainer}
+        />
         <View style={{...styles.popupContainer, padding: 16}}>
           <Text
             style={{
@@ -1126,13 +1134,18 @@ function App(): JSX.Element {
               style={{alignSelf: 'center'}}
               onPress={requestPublicMapChange}>
               <Text
-                style={{color: colors.white, fontSize: 16, fontWeight: 'bold'}}>
+                style={{
+                  color: colors.white,
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}>
                 확인
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
       <GestureHandlerRootView style={{flex: 1}}>
         <View
           style={{...styles.searchTextInputContainer, paddingTop: insets.top}}>
