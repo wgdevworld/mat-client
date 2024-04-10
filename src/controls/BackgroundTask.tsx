@@ -279,9 +279,9 @@ export const locationBackgroundTask = async (location: Location) => {
       }
     });
     if (maxDistance > 100) {
-      maxDistance = Math.round(maxDistance / 100) * 100;
+      maxDistance = Math.ceil(maxDistance / 100) * 100;
     } else {
-      maxDistance = Math.round(maxDistance / 10) * 10;
+      maxDistance = Math.ceil(maxDistance / 10) * 10;
     }
 
     let closeMatZips = Array.from(closeMatZipsSet);
@@ -298,7 +298,7 @@ export const locationBackgroundTask = async (location: Location) => {
       } else if (numCloseMatZips > 1) {
         notificationMessage = `최대 ${maxDistance}m 내에 ${closeMatZips[0]}와 ${closeMatZips[1]}(이)가 있어요!`;
       } else {
-        notificationMessage = `최대 ${maxDistance}m 내에 ${closeMatZips[0]}(이)가 있어요!`;
+        notificationMessage = `${maxDistance}m 내에 ${closeMatZips[0]}(이)가 있어요!`;
       }
       const notificationQuery = `
                         mutation sendNotification($deviceToken: String!, $message: String!) {

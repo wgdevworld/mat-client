@@ -12,11 +12,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {ShareMenuReactView} from 'react-native-share-menu';
-// import store from '.././store/store';
-// import {persistStore} from 'redux-persist';
-// import {Provider, useDispatch} from 'react-redux';
-// import {PersistGate} from 'redux-persist/integration/react';
-// import {useAppDispatch} from '../store/hooks';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import colors from '../styles/colors';
 import Config from 'react-native-config';
