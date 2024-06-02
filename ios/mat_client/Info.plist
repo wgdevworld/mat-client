@@ -96,6 +96,10 @@
 	<string>근처 맛집 알림을 드리려면 움직임 정보가 필요해요</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>맛집 사진 업로드를 위해 권한이 필요해요</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>These permissions are required for debugging fetching background locations. It WILL NOT be used in any other way.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>These permissions are required for debugging fetching background locations. It WILL NOT be used in any other way.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
